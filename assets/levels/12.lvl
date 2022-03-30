@@ -1,0 +1,17 @@
+LevelData(
+    map: (
+        (Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,),
+        (Wall,Floor,Floor,Floor,Wall,Wall,Wall,Floor,Floor,Wall,),
+        (Wall,Floor,PushBox(false),Floor,Floor,Floor,PushBox(false),PushBox(false),Floor,Wall,),
+        (Wall,Floor,Floor,Floor,Wall,Floor,Floor,Floor,Floor,Wall,),
+        (Wall,Wall,Floor,Wall,Wall,PushBox(false),Floor,Wall,Wall,Wall,),
+        (Wall,Wall,Floor,Floor,Floor,PushBox(false),PushBox(false),Floor,Wall,Wall,),
+        (Wall,Wall,Floor,PushBox(false),Wall,PushBox(true),Zone,Zone,Wall,Wall,),
+        (Wall,Wall,Floor,Floor,Wall,Zone,PushBox(true),Zone,Wall,Wall,),
+        (Wall,Wall,Wall,Wall,Wall,Zone,Zone,Zone,Wall,Wall,),
+        (Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,),
+    ),
+    zones: 7,
+    pushing_input: None,
+    player_position: (x: 4.0, y: 2.0),
+)
