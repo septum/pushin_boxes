@@ -1,0 +1,11 @@
+[package]
+name = "pushin_boxes"
+version = "0.1.0"
+authors = ["Orlando Valverde <orlando.jesig.va@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+bevy = "0.6.1"
+
+[features]
+default = ['bevy/dynamic']
