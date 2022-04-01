@@ -11,8 +11,19 @@ opt-level = 3
 [profile.dev]
 opt-level = 1
 
-[dependencies]
-bevy = "0.6.1"
-
 [features]
 default = ['bevy/dynamic']
+
+[dependencies]
+bevy_asset_ron = "0.3.1"
+serde = "1.0.136"
+
+[dependencies.bevy]
+version = "0.6.1"
+default-features = false
+features = ["bevy_gilrs", "bevy_winit", "render", "png", "hdr", "x11", "filesystem_watcher"]
+
+[dependencies.bevy_kira_audio]
+version = "0.8.0"
+features = ["wav"]
+

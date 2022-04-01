@@ -1,23 +1,21 @@
 use bevy::{input::system::exit_on_esc_system, prelude::*};
+use bevy_kira_audio::AudioPlugin;
+
+use pushin_boxes::{
+    assets::GAME_COLORS, config::ConfigPlugin, scenes::ScenesPlugin, state::GameState,
+};
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Pushin Boxes".to_string(),
-            width: 640.0,
-            height: 640.0,
-            ..Default::default()
-        })
-        .insert_resource(ClearColor(Color::rgb_u8(28, 28, 28)))
+        .insert_resource(ClearColor(GAME_COLORS.dark))
+        .add_plugin(ConfigPlugin)
         .add_plugins(DefaultPlugins)
+        .add_plugin(AudioPlugin)
+        .add_plugin(ScenesPlugin)
+        .add_state(GameState::Loading)
         .add_startup_system(setup)
         .add_system(exit_on_esc_system)
         .run();
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GameState {
-    Title,
 }
 
 fn setup(mut commands: Commands) {
