@@ -1,13 +1,11 @@
 use bevy::{input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::AudioPlugin;
 
-use pushin_boxes::{
-    assets::GAME_COLORS, config::ConfigPlugin, scenes::ScenesPlugin, state::GameState,
-};
+use pushin_boxes::{assets::Colors, config::ConfigPlugin, scenes::ScenesPlugin, state::GameState};
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(GAME_COLORS.dark))
+        .insert_resource(ClearColor(Colors::DARK))
         .add_plugin(ConfigPlugin)
         .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)

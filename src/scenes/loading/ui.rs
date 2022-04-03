@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::assets::GAME_COLORS;
+use crate::assets::Colors;
 
 use super::CleanupMarker;
 
@@ -12,7 +12,7 @@ pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
             align_items: AlignItems::Center,
             ..Default::default()
         },
-        color: GAME_COLORS.transparent.into(),
+        color: Colors::TRANSPARENT.into(),
         ..Default::default()
     };
 
@@ -22,7 +22,7 @@ pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
             TextStyle {
                 font,
                 font_size: 70.0,
-                color: GAME_COLORS.primary,
+                color: Colors::PRIMARY,
             },
             TextAlignment {
                 vertical: VerticalAlign::Center,

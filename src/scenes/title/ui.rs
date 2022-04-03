@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{assets::GAME_COLORS, scenes::loading::LoadedAssetsHandles};
+use crate::{assets::Colors, scenes::loading::LoadedAssetsHandles};
 
 use super::CleanupMarker;
 
@@ -19,7 +19,7 @@ fn spawn_title(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAssetsHandl
             size: Size::new(Val::Px(341.0), Val::Px(244.0)),
             ..Default::default()
         },
-        color: GAME_COLORS.transparent.into(),
+        color: Colors::TRANSPARENT.into(),
         ..Default::default()
     };
 
@@ -37,7 +37,7 @@ fn spawn_title(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAssetsHandl
             "Pushin'\nBoxes",
             TextStyle {
                 font_size: 120.0,
-                color: GAME_COLORS.primary,
+                color: Colors::PRIMARY,
                 font: assets_handles.assets.fonts.fredoka.clone(),
             },
             TextAlignment {
@@ -50,7 +50,7 @@ fn spawn_title(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAssetsHandl
 
     let mut relief = surface.clone();
 
-    relief.text.sections[0].style.color = GAME_COLORS.dark;
+    relief.text.sections[0].style.color = Colors::DARK;
     relief.style.position = Rect {
         bottom: Val::Px(0.0),
         right: Val::Px(0.0),
@@ -71,7 +71,7 @@ fn spawn_play_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAsset
             size: Size::new(Val::Px(280.0), Val::Px(56.0)),
             ..Default::default()
         },
-        color: GAME_COLORS.primary.into(),
+        color: Colors::PRIMARY.into(),
         ..Default::default()
     };
 
@@ -80,7 +80,7 @@ fn spawn_play_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAsset
             "Play",
             TextStyle {
                 font_size: 35.0,
-                color: GAME_COLORS.dark,
+                color: Colors::DARK,
                 font: assets_handles.assets.fonts.fredoka.clone(),
             },
             TextAlignment {
@@ -104,7 +104,7 @@ fn spawn_options_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAs
             size: Size::new(Val::Px(280.0), Val::Px(56.0)),
             ..Default::default()
         },
-        color: GAME_COLORS.primary.into(),
+        color: Colors::PRIMARY.into(),
         ..Default::default()
     };
 
@@ -113,7 +113,7 @@ fn spawn_options_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAs
             "Options",
             TextStyle {
                 font_size: 35.0,
-                color: GAME_COLORS.dark,
+                color: Colors::DARK,
                 font: assets_handles.assets.fonts.fredoka.clone(),
             },
             TextAlignment {
@@ -137,7 +137,7 @@ fn spawn_quit_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAsset
             size: Size::new(Val::Px(280.0), Val::Px(56.0)),
             ..Default::default()
         },
-        color: GAME_COLORS.primary.into(),
+        color: Colors::PRIMARY.into(),
         ..Default::default()
     };
 
@@ -146,7 +146,7 @@ fn spawn_quit_button(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAsset
             "Quit",
             TextStyle {
                 font_size: 35.0,
-                color: GAME_COLORS.dark,
+                color: Colors::DARK,
                 font: assets_handles.assets.fonts.fredoka.clone(),
             },
             TextAlignment {
@@ -168,7 +168,7 @@ fn spawn_notice(parent: &mut ChildBuilder, assets_handles: &Res<LoadedAssetsHand
             "Created by septum | https://septum.io",
             TextStyle {
                 font_size: 21.0,
-                color: GAME_COLORS.light,
+                color: Colors::LIGHT,
                 font: assets_handles.assets.fonts.fredoka.clone(),
             },
             TextAlignment {
@@ -189,7 +189,7 @@ pub fn spawn(commands: &mut Commands, assets_handles: &Res<LoadedAssetsHandles>)
             flex_direction: FlexDirection::ColumnReverse,
             ..Default::default()
         },
-        color: GAME_COLORS.transparent.into(),
+        color: Colors::TRANSPARENT.into(),
         ..Default::default()
     };
 
@@ -201,7 +201,7 @@ pub fn spawn(commands: &mut Commands, assets_handles: &Res<LoadedAssetsHandles>)
             align_items: AlignItems::Center,
             ..Default::default()
         },
-        color: GAME_COLORS.transparent.into(),
+        color: Colors::TRANSPARENT.into(),
         ..Default::default()
     };
 

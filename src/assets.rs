@@ -169,36 +169,31 @@ impl GameAssets {
     }
 }
 
-pub struct Colors {
-    pub primary: Color,
-    pub light: Color,
-    pub dark: Color,
-    pub transparent: Color,
-}
+pub struct Colors;
 
-pub const GAME_COLORS: Colors = Colors {
-    primary: Color::Rgba {
+impl Colors {
+    pub const PRIMARY: Color = Color::Rgba {
         red: 245.0 / u8::MAX as f32,
         green: 210.0 / u8::MAX as f32,
         blue: 70.0 / u8::MAX as f32,
         alpha: 1.0,
-    },
-    light: Color::Rgba {
+    };
+    pub const LIGHT: Color = Color::Rgba {
         red: 227.0 / u8::MAX as f32,
         green: 227.0 / u8::MAX as f32,
         blue: 227.0 / u8::MAX as f32,
         alpha: 1.0,
-    },
-    dark: Color::Rgba {
+    };
+    pub const DARK: Color = Color::Rgba {
         red: 28.0 / u8::MAX as f32,
         green: 28.0 / u8::MAX as f32,
         blue: 28.0 / u8::MAX as f32,
         alpha: 1.0,
-    },
-    transparent: Color::Rgba {
+    };
+    pub const TRANSPARENT: Color = Color::Rgba {
         red: 0.0,
         green: 0.0,
         blue: 0.0,
         alpha: 0.0,
-    },
-};
+    };
+}
