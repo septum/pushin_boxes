@@ -5,7 +5,7 @@ use crate::assets::GAME_COLORS;
 use super::CleanupMarker;
 
 pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
-    let container_bundle = NodeBundle {
+    let container = NodeBundle {
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             justify_content: JustifyContent::Center,
@@ -16,7 +16,7 @@ pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
         ..Default::default()
     };
 
-    let loading_text_bundle = TextBundle {
+    let loading_text = TextBundle {
         text: Text::with_section(
             "Loading...",
             TextStyle {
@@ -33,9 +33,9 @@ pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
     };
 
     commands
-        .spawn_bundle(container_bundle)
+        .spawn_bundle(container)
         .with_children(|parent| {
-            parent.spawn_bundle(loading_text_bundle);
+            parent.spawn_bundle(loading_text);
         })
         .insert(CleanupMarker);
 }

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 pub struct ConfigPlugin;
 
-const GAME_TITLE: &str = "Bevy Jam";
+const GAME_TITLE: &str = "Pushin' Boxes";
 const GAME_WIDTH: f32 = 640.0;
 const GAME_HEIGHT: f32 = 640.0;
 

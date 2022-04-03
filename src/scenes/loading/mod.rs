@@ -4,7 +4,7 @@ use bevy::asset::LoadState;
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
 
-use crate::{assets::Assets, level::LevelData, state::GameState};
+use crate::{assets::GameAssets, level::LevelData, state::GameState};
 
 #[derive(Component)]
 struct CleanupMarker;
@@ -12,7 +12,7 @@ struct CleanupMarker;
 pub struct LoadingPlugin;
 
 pub struct LoadedAssetsHandles {
-    pub assets: Assets,
+    pub assets: GameAssets,
 }
 
 impl Plugin for LoadingPlugin {
@@ -27,7 +27,7 @@ impl Plugin for LoadingPlugin {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let assets = Assets::load(asset_server);
+    let assets = GameAssets::load(asset_server);
 
     ui::spawn(&mut commands, assets.fonts.fredoka.clone());
 

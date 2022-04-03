@@ -56,15 +56,15 @@ pub struct Sounds {
     pub music_win: Handle<AudioSource>,
 }
 
-pub struct Assets {
+pub struct GameAssets {
     pub fonts: Fonts,
     pub images: Images,
     pub levels: Levels,
     pub sounds: Sounds,
 }
 
-impl Assets {
-    pub fn load(asset_server: Res<AssetServer>) -> Assets {
+impl GameAssets {
+    pub fn load(asset_server: Res<AssetServer>) -> GameAssets {
         let fonts = Fonts {
             fredoka: asset_server.load("fonts/fredoka/FredokaOne-Regular.ttf"),
         };
@@ -116,7 +116,7 @@ impl Assets {
             sixteen: asset_server.load("levels/16.lvl"),
         };
 
-        Assets {
+        GameAssets {
             fonts,
             images,
             sounds,
@@ -171,6 +171,7 @@ impl Assets {
 
 pub struct Colors {
     pub primary: Color,
+    pub light: Color,
     pub dark: Color,
     pub transparent: Color,
 }
@@ -180,6 +181,12 @@ pub const GAME_COLORS: Colors = Colors {
         red: 245.0 / u8::MAX as f32,
         green: 210.0 / u8::MAX as f32,
         blue: 70.0 / u8::MAX as f32,
+        alpha: 1.0,
+    },
+    light: Color::Rgba {
+        red: 227.0 / u8::MAX as f32,
+        green: 227.0 / u8::MAX as f32,
+        blue: 227.0 / u8::MAX as f32,
         alpha: 1.0,
     },
     dark: Color::Rgba {
