@@ -3,9 +3,8 @@ mod ui;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
-use crate::state::GameState;
-
 use super::loading::LoadedAssetsHandles;
+use crate::state::GameState;
 
 #[derive(Component)]
 struct CleanupMarker;
@@ -20,7 +19,7 @@ impl Plugin for TitlePlugin {
 }
 
 fn setup(mut commands: Commands, assets_handles: Res<LoadedAssetsHandles>, audio: Res<Audio>) {
-    ui::spawn(&mut commands, &assets_handles);
+    ui::spawn(&mut commands, &assets_handles.assets);
     audio.play_looped(assets_handles.assets.sounds.music_title.clone());
 }
 

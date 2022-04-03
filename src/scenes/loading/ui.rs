@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
-use crate::assets::Colors;
-
 use super::CleanupMarker;
+use crate::assets::{Colors, GameAssets};
 
-pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
+pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     let container = NodeBundle {
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
@@ -20,7 +19,7 @@ pub fn spawn(commands: &mut Commands, font: Handle<Font>) {
         text: Text::with_section(
             "Loading...",
             TextStyle {
-                font,
+                font: assets.fonts.fredoka.clone(),
                 font_size: 70.0,
                 color: Colors::PRIMARY,
             },

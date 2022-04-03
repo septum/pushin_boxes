@@ -1,5 +1,6 @@
 use std::vec;
 
+use bevy::asset::LoadState;
 use bevy::prelude::*;
 use bevy_kira_audio::AudioSource;
 
@@ -64,7 +65,7 @@ pub struct GameAssets {
 }
 
 impl GameAssets {
-    pub fn load(asset_server: Res<AssetServer>) -> GameAssets {
+    pub fn load(asset_server: &Res<AssetServer>) -> GameAssets {
         let fonts = Fonts {
             fredoka: asset_server.load("fonts/fredoka/FredokaOne-Regular.ttf"),
         };
@@ -124,7 +125,16 @@ impl GameAssets {
         }
     }
 
-    pub fn as_array_untyped(&self) -> Vec<HandleUntyped> {
+    pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
+        for asset in self.as_array_untyped() {
+            if asset_server.get_load_state(asset) != LoadState::Loaded {
+                return false;
+            }
+        }
+        true
+    }
+
+    fn as_array_untyped(&self) -> Vec<HandleUntyped> {
         vec![
             self.fonts.fredoka.clone_untyped(),
             self.images.entity_box.clone_untyped(),

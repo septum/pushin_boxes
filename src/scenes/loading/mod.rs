@@ -1,6 +1,5 @@
 mod ui;
 
-use bevy::asset::LoadState;
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
 
@@ -19,32 +18,25 @@ impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RonAssetPlugin::<LevelData>::new(&["lvl"]))
             .add_system_set(SystemSet::on_enter(GameState::Loading).with_system(setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::Loading).with_system(check_loading_state),
-            )
+            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(check_loading))
             .add_system_set(SystemSet::on_exit(GameState::Loading).with_system(cleanup));
     }
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let assets = GameAssets::load(asset_server);
-
-    ui::spawn(&mut commands, assets.fonts.fredoka.clone());
-
+    let assets = GameAssets::load(&asset_server);
+    ui::spawn(&mut commands, &assets);
     commands.insert_resource(LoadedAssetsHandles { assets });
 }
 
-fn check_loading_state(
+fn check_loading(
     mut state: ResMut<State<GameState>>,
     loaded_assets_handles: Res<LoadedAssetsHandles>,
     asset_server: Res<AssetServer>,
 ) {
-    for asset in loaded_assets_handles.assets.as_array_untyped() {
-        if asset_server.get_load_state(asset) != LoadState::Loaded {
-            return;
-        }
+    if loaded_assets_handles.assets.all_loaded(&asset_server) {
+        state.set(GameState::Title).unwrap();
     }
-    state.set(GameState::Title).unwrap();
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<CleanupMarker>>) {
