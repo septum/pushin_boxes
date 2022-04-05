@@ -62,7 +62,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
         )
     });
 
-    spawn_background(commands, &assets);
+    spawn_background(commands, assets);
 
     overlay.spawn(commands, CleanupMarker, |parent| {
         top.spawn(parent, |parent| {

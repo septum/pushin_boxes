@@ -71,7 +71,7 @@ impl EmbossedText {
                 position_type: PositionType::Absolute,
                 ..Default::default()
             },
-            text: bevy::text::Text::with_section(text.clone(), background_style, ALIGNMENT),
+            text: bevy::text::Text::with_section(text, background_style, ALIGNMENT),
             ..Default::default()
         };
 

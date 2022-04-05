@@ -6,6 +6,12 @@ pub struct Overlay {
     pub bundle: NodeBundle,
 }
 
+impl Default for Overlay {
+    fn default() -> Overlay {
+        Overlay::new()
+    }
+}
+
 impl Overlay {
     pub fn new() -> Overlay {
         Overlay {
