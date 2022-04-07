@@ -7,6 +7,9 @@ const ALIGNMENT: TextAlignment = TextAlignment {
     horizontal: HorizontalAlign::Center,
 };
 
+const HOUSING_WIDTH_SCALING_FACTOR: f32 = 2.8;
+const HOUSING_HEIGHT_SCALING_FACTOR: f32 = 2.0;
+
 pub struct SimpleText {
     pub bundle: TextBundle,
 }
@@ -37,13 +40,13 @@ pub struct EmbossedText {
 }
 
 impl EmbossedText {
-    pub fn new(text: String, style: TextStyle) -> EmbossedText {
+    pub fn new(text: String, relief_factor: f32, style: TextStyle) -> EmbossedText {
         let mut background_style = style.clone();
         background_style.color = Colors::DARK;
 
         let housing = Housing::new(
-            Val::Px((style.font_size * 2.8) + 8.0),
-            Val::Px((style.font_size * 2.0) + 4.0),
+            Val::Px((style.font_size * HOUSING_WIDTH_SCALING_FACTOR) + relief_factor),
+            Val::Px((style.font_size * HOUSING_HEIGHT_SCALING_FACTOR) + relief_factor),
         );
 
         let foreground = TextBundle {
@@ -86,5 +89,44 @@ impl EmbossedText {
             parent.spawn_bundle(self.background);
             parent.spawn_bundle(self.foreground);
         });
+    }
+}
+
+pub struct DynamicText {
+    pub bundle: TextBundle,
+}
+
+impl DynamicText {
+    pub fn new(static_text: String, dynamic_text: String, style: TextStyle) -> DynamicText {
+        DynamicText {
+            bundle: TextBundle {
+                text: Text {
+                    sections: vec![
+                        TextSection {
+                            value: static_text,
+                            style: style.clone(),
+                        },
+                        TextSection {
+                            value: dynamic_text,
+                            style,
+                        },
+                    ],
+                    alignment: ALIGNMENT,
+                },
+                ..Default::default()
+            },
+        }
+    }
+
+    pub fn update(text: &mut Text, value: String) {
+        text.sections[1].value = value;
+    }
+
+    pub fn set_node_style(&mut self, style: Style) {
+        self.bundle.style = style;
+    }
+
+    pub fn spawn(self, parent: &mut ChildBuilder, marker: impl Component) {
+        parent.spawn_bundle(self.bundle).insert(marker);
     }
 }

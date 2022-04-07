@@ -49,14 +49,13 @@ fn interactions(
         match interaction {
             Interaction::Clicked => match button.kind {
                 ButtonKind::Play => {
-                    // TODO: Change this to `Selection` when available
-                    state.set(GameState::Level).unwrap();
+                    state.set(GameState::Selection).unwrap();
                 }
                 ButtonKind::Options => { /* TODO: Set state to show options scene */ }
                 ButtonKind::Quit => { /* TODO: Set state to quit game */ }
             },
             Interaction::Hovered => { /* TODO: Modify button style */ }
-            _ => (),
+            Interaction::None => {}
         }
     }
 }

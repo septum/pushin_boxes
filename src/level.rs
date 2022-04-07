@@ -1,5 +1,16 @@
-use bevy::reflect::TypeUuid;
+use bevy::{prelude::*, reflect::TypeUuid};
 use serde::Deserialize;
+
+pub struct Counters {
+    pub moves: usize,
+    pub undos: usize,
+}
+
+pub struct Level {
+    pub number: usize,
+    pub record: usize,
+    pub data_handle: Handle<LevelData>,
+}
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone)]
@@ -23,17 +34,17 @@ pub enum Input {
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone)]
-struct PlayerPosition {
-    x: f32,
-    y: f32,
+pub struct PlayerPosition {
+    pub x: f32,
+    pub y: f32,
 }
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone, TypeUuid)]
 #[uuid = "d1e78377-22a5-49f7-a675-60d348abc837"]
 pub struct LevelData {
-    map: LevelMap,
-    zones: usize,
-    pushing_input: Option<Input>,
-    player_position: PlayerPosition,
+    pub map: LevelMap,
+    pub zones: usize,
+    pub pushing_input: Option<Input>,
+    pub player_position: PlayerPosition,
 }

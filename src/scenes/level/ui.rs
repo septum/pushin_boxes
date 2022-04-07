@@ -2,20 +2,23 @@ use bevy::prelude::*;
 
 use crate::{
     assets::{Colors, GameAssets},
+    level::Level,
     ui,
 };
 
-use super::CleanupMarker;
+use super::{CleanupMarker, CounterKind, CounterMarker};
 
 fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
-    commands.spawn_bundle(SpriteBundle {
-        texture: assets.images.background.clone(),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..Default::default()
-    });
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: assets.images.background.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            ..Default::default()
+        })
+        .insert(CleanupMarker);
 }
 
-pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
+pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
     let mut overlay = ui::Overlay::new();
 
     let mut top = ui::Housing::new(Val::Percent(97.0), Val::Percent(10.0));
@@ -24,24 +27,29 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     let mut bottom_left = ui::Housing::new(Val::Percent(50.0), Val::Percent(100.0));
     let mut bottom_right = ui::Housing::new(Val::Percent(50.0), Val::Percent(100.0));
 
-    let level = ui::SimpleText::new(
-        "Level 1".to_string(),
+    let level_number = ui::SimpleText::new(
+        format!("Level {}", level.number),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
             font_size: 42.0,
             color: Colors::LIGHT,
         },
     );
-    let moves = ui::SimpleText::new(
-        "Moves: 0".to_string(),
+    let moves = ui::DynamicText::new(
+        "Moves: ".to_string(),
+        String::new(),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
             font_size: 28.0,
             color: Colors::LIGHT,
         },
     );
-    let mut new_level_or_record = ui::SimpleText::new(
-        "New Level!".to_string(),
+    let mut record_or_new_level = ui::SimpleText::new(
+        if level.record > 0 {
+            format!("Record: {}", level.number)
+        } else {
+            "New Level!".to_string()
+        },
         TextStyle {
             font: assets.fonts.fredoka.clone(),
             font_size: 19.0,
@@ -64,8 +72,9 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
             color: Colors::PRIMARY,
         },
     );
-    let undos_left = ui::SimpleText::new(
-        "Undos: 4".to_string(),
+    let undos_left = ui::DynamicText::new(
+        "Undos: ".to_string(),
+        String::new(),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
             font_size: 28.0,
@@ -92,7 +101,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     bottom_left.set_align_items(AlignItems::FlexStart);
     bottom_right.set_align_items(AlignItems::FlexEnd);
 
-    new_level_or_record.bundle.style.position = Rect {
+    record_or_new_level.bundle.style.position = Rect {
         top: Val::Px(-4.0),
         ..Default::default()
     };
@@ -106,10 +115,10 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
 
     overlay.spawn(commands, CleanupMarker, |parent| {
         top.spawn(parent, |parent| {
-            level.spawn(parent);
+            level_number.spawn(parent);
             top_right.spawn(parent, |parent| {
-                moves.spawn(parent);
-                new_level_or_record.spawn(parent);
+                moves.spawn(parent, CounterMarker::new(CounterKind::Moves));
+                record_or_new_level.spawn(parent);
             });
         });
         bottom.spawn(parent, |parent| {
@@ -118,7 +127,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
                 selection.spawn(parent);
             });
             bottom_right.spawn(parent, |parent| {
-                undos_left.spawn(parent);
+                undos_left.spawn(parent, CounterMarker::new(CounterKind::Undos));
                 undo.spawn(parent);
             });
         });

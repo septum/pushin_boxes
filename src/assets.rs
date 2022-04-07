@@ -29,22 +29,7 @@ pub struct Images {
 }
 
 pub struct Levels {
-    pub one: Handle<LevelData>,
-    pub two: Handle<LevelData>,
-    pub three: Handle<LevelData>,
-    pub four: Handle<LevelData>,
-    pub five: Handle<LevelData>,
-    pub six: Handle<LevelData>,
-    pub seven: Handle<LevelData>,
-    pub eight: Handle<LevelData>,
-    pub nine: Handle<LevelData>,
-    pub ten: Handle<LevelData>,
-    pub elven: Handle<LevelData>,
-    pub twelve: Handle<LevelData>,
-    pub thirteen: Handle<LevelData>,
-    pub fourteen: Handle<LevelData>,
-    pub fifteen: Handle<LevelData>,
-    pub sixteen: Handle<LevelData>,
+    pub collection: Vec<Handle<LevelData>>,
 }
 
 pub struct Sounds {
@@ -99,22 +84,24 @@ impl GameAssets {
         };
 
         let levels = Levels {
-            one: asset_server.load("levels/1.lvl"),
-            two: asset_server.load("levels/2.lvl"),
-            three: asset_server.load("levels/3.lvl"),
-            four: asset_server.load("levels/4.lvl"),
-            five: asset_server.load("levels/5.lvl"),
-            six: asset_server.load("levels/6.lvl"),
-            seven: asset_server.load("levels/7.lvl"),
-            eight: asset_server.load("levels/8.lvl"),
-            nine: asset_server.load("levels/9.lvl"),
-            ten: asset_server.load("levels/10.lvl"),
-            elven: asset_server.load("levels/11.lvl"),
-            twelve: asset_server.load("levels/12.lvl"),
-            thirteen: asset_server.load("levels/13.lvl"),
-            fourteen: asset_server.load("levels/14.lvl"),
-            fifteen: asset_server.load("levels/15.lvl"),
-            sixteen: asset_server.load("levels/16.lvl"),
+            collection: vec![
+                asset_server.load("levels/1.lvl"),
+                asset_server.load("levels/2.lvl"),
+                asset_server.load("levels/3.lvl"),
+                asset_server.load("levels/4.lvl"),
+                asset_server.load("levels/5.lvl"),
+                asset_server.load("levels/6.lvl"),
+                asset_server.load("levels/7.lvl"),
+                asset_server.load("levels/8.lvl"),
+                asset_server.load("levels/9.lvl"),
+                asset_server.load("levels/10.lvl"),
+                asset_server.load("levels/11.lvl"),
+                asset_server.load("levels/12.lvl"),
+                asset_server.load("levels/13.lvl"),
+                asset_server.load("levels/14.lvl"),
+                asset_server.load("levels/15.lvl"),
+                asset_server.load("levels/16.lvl"),
+            ],
         };
 
         GameAssets {
@@ -126,7 +113,7 @@ impl GameAssets {
     }
 
     pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
-        for asset in self.as_array_untyped() {
+        for asset in self.as_vector_untyped() {
             if asset_server.get_load_state(asset) != LoadState::Loaded {
                 return false;
             }
@@ -134,8 +121,8 @@ impl GameAssets {
         true
     }
 
-    fn as_array_untyped(&self) -> Vec<HandleUntyped> {
-        vec![
+    fn as_vector_untyped(&self) -> Vec<HandleUntyped> {
+        let mut vector = vec![
             self.fonts.fredoka.clone_untyped(),
             self.images.entity_box.clone_untyped(),
             self.images.entity_floor.clone_untyped(),
@@ -152,22 +139,6 @@ impl GameAssets {
             self.images.background.clone_untyped(),
             self.images.button.clone_untyped(),
             self.images.controls.clone_untyped(),
-            self.levels.one.clone_untyped(),
-            self.levels.two.clone_untyped(),
-            self.levels.three.clone_untyped(),
-            self.levels.four.clone_untyped(),
-            self.levels.five.clone_untyped(),
-            self.levels.six.clone_untyped(),
-            self.levels.seven.clone_untyped(),
-            self.levels.eight.clone_untyped(),
-            self.levels.nine.clone_untyped(),
-            self.levels.ten.clone_untyped(),
-            self.levels.elven.clone_untyped(),
-            self.levels.twelve.clone_untyped(),
-            self.levels.thirteen.clone_untyped(),
-            self.levels.fourteen.clone_untyped(),
-            self.levels.fifteen.clone_untyped(),
-            self.levels.sixteen.clone_untyped(),
             self.sounds.fx_move_player.clone_untyped(),
             self.sounds.fx_push_box.clone_untyped(),
             self.sounds.fx_set_zone.clone_untyped(),
@@ -175,7 +146,16 @@ impl GameAssets {
             self.sounds.music_selection.clone_untyped(),
             self.sounds.music_title.clone_untyped(),
             self.sounds.music_win.clone_untyped(),
-        ]
+        ];
+        vector.append(
+            &mut self
+                .levels
+                .collection
+                .iter()
+                .map(|level| level.clone_untyped())
+                .collect(),
+        );
+        vector
     }
 }
 

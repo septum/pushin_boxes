@@ -2,5 +2,6 @@
 pub enum GameState {
     Loading,
     Title,
+    Selection,
     Level,
 }

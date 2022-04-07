@@ -8,11 +8,13 @@ use crate::{
 use super::{ButtonKind, ButtonMarker, CleanupMarker};
 
 fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
-    commands.spawn_bundle(SpriteBundle {
-        texture: assets.images.background.clone(),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..Default::default()
-    });
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: assets.images.background.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            ..Default::default()
+        })
+        .insert(CleanupMarker);
 }
 
 fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
@@ -41,11 +43,11 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     let top = ui::Housing::new(Val::Percent(100.0), Val::Percent(50.0));
     let bottom = ui::Housing::new(Val::Percent(100.0), Val::Percent(50.0));
     let mut actions = ui::Housing::new(Val::Percent(100.0), Val::Percent(90.0));
-    actions.set_justify_content(JustifyContent::SpaceEvenly);
     let footer = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
 
     let title = ui::EmbossedText::new(
         "Pushin'\nBoxes".to_string(),
+        4.0,
         TextStyle {
             font_size: 120.0,
             color: Colors::PRIMARY,
@@ -65,6 +67,8 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     let play = create_button("Play", assets.fonts.fredoka.clone());
     let options = create_button("Options", assets.fonts.fredoka.clone());
     let quit = create_button("Quit", assets.fonts.fredoka.clone());
+
+    actions.set_justify_content(JustifyContent::SpaceEvenly);
 
     spawn_background(commands, assets);
 
