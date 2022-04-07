@@ -1,15 +1,14 @@
 use bevy::prelude::*;
 
-use crate::ui::components;
+use super::SimpleText;
 
-#[derive(Clone)]
 pub struct Button {
     pub bundle: ButtonBundle,
-    pub child: components::Text,
+    pub child: SimpleText,
 }
 
 impl Button {
-    pub fn new(child: components::Text, style: Style, color: UiColor) -> Button {
+    pub fn new(child: SimpleText, style: Style, color: UiColor) -> Button {
         Button {
             bundle: ButtonBundle {
                 style,
@@ -20,9 +19,12 @@ impl Button {
         }
     }
 
-    pub fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn_bundle(self.bundle).with_children(|parent| {
-            self.child.spawn(parent);
-        });
+    pub fn spawn(self, parent: &mut ChildBuilder, marker: impl Component) {
+        parent
+            .spawn_bundle(self.bundle)
+            .with_children(|parent| {
+                self.child.spawn(parent);
+            })
+            .insert(marker);
     }
 }

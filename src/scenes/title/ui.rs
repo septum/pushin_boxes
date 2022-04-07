@@ -5,7 +5,7 @@ use crate::{
     ui,
 };
 
-use super::CleanupMarker;
+use super::{ButtonKind, ButtonMarker, CleanupMarker};
 
 fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
     commands.spawn_bundle(SpriteBundle {
@@ -13,6 +13,26 @@ fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
         transform: Transform::from_xyz(0.0, 0.0, 0.0),
         ..Default::default()
     });
+}
+
+fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
+    ui::Button::new(
+        ui::SimpleText::new(
+            text.to_string(),
+            TextStyle {
+                font_size: 35.0,
+                color: Colors::DARK,
+                font,
+            },
+        ),
+        Style {
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            size: Size::new(Val::Px(280.0), Val::Px(56.0)),
+            ..Default::default()
+        },
+        Colors::PRIMARY.into(),
+    )
 }
 
 pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
@@ -33,7 +53,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
         },
     );
 
-    let notice = ui::Text::new(
+    let notice = ui::SimpleText::new(
         "Created by septum | https://septum.io".to_string(),
         TextStyle {
             font_size: 21.0,
@@ -42,25 +62,9 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
         },
     );
 
-    let buttons = ["Play", "Options", "Quit"].iter().map(|text| {
-        ui::Button::new(
-            ui::Text::new(
-                text.to_string(),
-                TextStyle {
-                    font_size: 35.0,
-                    color: Colors::DARK,
-                    font: assets.fonts.fredoka.clone(),
-                },
-            ),
-            Style {
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                size: Size::new(Val::Px(280.0), Val::Px(56.0)),
-                ..Default::default()
-            },
-            Colors::PRIMARY.into(),
-        )
-    });
+    let play = create_button("Play", assets.fonts.fredoka.clone());
+    let options = create_button("Options", assets.fonts.fredoka.clone());
+    let quit = create_button("Quit", assets.fonts.fredoka.clone());
 
     spawn_background(commands, assets);
 
@@ -70,9 +74,9 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
         });
         bottom.spawn(parent, |parent| {
             actions.spawn(parent, |parent| {
-                for button in buttons {
-                    button.spawn(parent);
-                }
+                play.spawn(parent, ButtonMarker::new(ButtonKind::Play));
+                options.spawn(parent, ButtonMarker::new(ButtonKind::Options));
+                quit.spawn(parent, ButtonMarker::new(ButtonKind::Quit));
             });
             footer.spawn(parent, |parent| {
                 notice.spawn(parent);

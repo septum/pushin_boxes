@@ -188,6 +188,12 @@ impl Colors {
         blue: 70.0 / u8::MAX as f32,
         alpha: 1.0,
     };
+    pub const SECONDARY: Color = Color::Rgba {
+        red: 108.0 / u8::MAX as f32,
+        green: 255.0 / u8::MAX as f32,
+        blue: 91.0 / u8::MAX as f32,
+        alpha: 1.0,
+    };
     pub const LIGHT: Color = Color::Rgba {
         red: 227.0 / u8::MAX as f32,
         green: 227.0 / u8::MAX as f32,

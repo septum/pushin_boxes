@@ -7,16 +7,15 @@ const ALIGNMENT: TextAlignment = TextAlignment {
     horizontal: HorizontalAlign::Center,
 };
 
-#[derive(Clone)]
-pub struct Text {
+pub struct SimpleText {
     pub bundle: TextBundle,
 }
 
-impl Text {
-    pub fn new(text: String, style: TextStyle) -> Text {
-        Text {
+impl SimpleText {
+    pub fn new(text: String, style: TextStyle) -> SimpleText {
+        SimpleText {
             bundle: TextBundle {
-                text: bevy::text::Text::with_section(text, style, ALIGNMENT),
+                text: Text::with_section(text, style, ALIGNMENT),
                 ..Default::default()
             },
         }
@@ -57,7 +56,7 @@ impl EmbossedText {
                 position_type: PositionType::Absolute,
                 ..Default::default()
             },
-            text: bevy::text::Text::with_section(text.clone(), style, ALIGNMENT),
+            text: Text::with_section(text.clone(), style, ALIGNMENT),
             ..Default::default()
         };
 
@@ -71,7 +70,7 @@ impl EmbossedText {
                 position_type: PositionType::Absolute,
                 ..Default::default()
             },
-            text: bevy::text::Text::with_section(text, background_style, ALIGNMENT),
+            text: Text::with_section(text, background_style, ALIGNMENT),
             ..Default::default()
         };
 

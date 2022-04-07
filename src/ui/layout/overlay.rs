@@ -29,6 +29,22 @@ impl Overlay {
         }
     }
 
+    pub fn set_flex_direction(&mut self, flex_direction: FlexDirection) {
+        self.bundle.style.flex_direction = flex_direction;
+    }
+
+    pub fn set_justify_content(&mut self, justify_content: JustifyContent) {
+        self.bundle.style.justify_content = justify_content;
+    }
+
+    pub fn set_align_items(&mut self, align_items: AlignItems) {
+        self.bundle.style.align_items = align_items;
+    }
+
+    pub fn set_padding(&mut self, padding: Rect<Val>) {
+        self.bundle.style.padding = padding;
+    }
+
     pub fn spawn(
         self,
         commands: &mut Commands,

@@ -10,7 +10,7 @@ use super::CleanupMarker;
 pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
     let overlay = ui::Overlay::new();
 
-    let loading_text = ui::Text::new(
+    let loading_text = ui::SimpleText::new(
         "Loading...".to_string(),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
