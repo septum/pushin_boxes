@@ -3,7 +3,7 @@ mod ui;
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
 
-use crate::{assets::GameAssets, level::LevelData, state::GameState};
+use crate::{assets::GameAssets, level::LevelState, state::GameState};
 
 #[derive(Component)]
 struct CleanupMarker;
@@ -16,7 +16,7 @@ pub struct LoadedAssetsHandles {
 
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(RonAssetPlugin::<LevelData>::new(&["lvl"]))
+        app.add_plugin(RonAssetPlugin::<LevelState>::new(&["lvl"]))
             .add_system_set(SystemSet::on_enter(GameState::Loading).with_system(setup))
             .add_system_set(SystemSet::on_update(GameState::Loading).with_system(check_loading))
             .add_system_set(SystemSet::on_exit(GameState::Loading).with_system(cleanup));

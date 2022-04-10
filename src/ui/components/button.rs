@@ -2,6 +2,24 @@ use bevy::prelude::*;
 
 use super::SimpleText;
 
+pub enum ButtonKind {
+    Play,
+    Options,
+    Quit,
+    Level(usize),
+}
+
+#[derive(Component)]
+pub struct ButtonMarker {
+    pub kind: ButtonKind,
+}
+
+impl ButtonMarker {
+    pub fn new(kind: ButtonKind) -> ButtonMarker {
+        ButtonMarker { kind }
+    }
+}
+
 pub struct Button {
     pub bundle: ButtonBundle,
     pub child: SimpleText,

@@ -4,27 +4,13 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
 use super::loading::LoadedAssetsHandles;
-use crate::state::GameState;
+use crate::{
+    state::GameState,
+    ui::{ButtonKind, ButtonMarker},
+};
 
 #[derive(Component)]
 struct CleanupMarker;
-
-enum ButtonKind {
-    Play,
-    Options,
-    Quit,
-}
-
-#[derive(Component)]
-struct ButtonMarker {
-    kind: ButtonKind,
-}
-
-impl ButtonMarker {
-    fn new(kind: ButtonKind) -> ButtonMarker {
-        ButtonMarker { kind }
-    }
-}
 
 pub struct TitlePlugin;
 
@@ -53,6 +39,7 @@ fn interactions(
                 }
                 ButtonKind::Options => { /* TODO: Set state to show options scene */ }
                 ButtonKind::Quit => { /* TODO: Set state to quit game */ }
+                _ => (),
             },
             Interaction::Hovered => { /* TODO: Modify button style */ }
             Interaction::None => {}

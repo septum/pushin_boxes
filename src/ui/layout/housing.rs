@@ -39,6 +39,10 @@ impl Housing {
         self.bundle.style.padding = padding;
     }
 
+    pub fn set_flex_wrap(&mut self, flex_wrap: FlexWrap) {
+        self.bundle.style.flex_wrap = flex_wrap;
+    }
+
     pub fn spawn(self, parent: &mut ChildBuilder, children: impl FnOnce(&mut ChildBuilder)) {
         parent.spawn_bundle(self.bundle).with_children(children);
     }

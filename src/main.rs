@@ -1,4 +1,4 @@
-use bevy::{input::system::exit_on_esc_system, prelude::*};
+use bevy::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 
 use pushin_boxes::{assets::Colors, config::ConfigPlugin, scenes::ScenesPlugin, state::GameState};
@@ -12,7 +12,6 @@ fn main() {
         .add_plugin(ScenesPlugin)
         .add_state(GameState::Loading)
         .add_startup_system(setup)
-        .add_system(exit_on_esc_system)
         .run();
 }
 

@@ -7,16 +7,6 @@ use crate::{
 
 use super::{ButtonKind, ButtonMarker, CleanupMarker};
 
-fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
-    commands
-        .spawn_bundle(SpriteBundle {
-            texture: assets.images.background.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            ..Default::default()
-        })
-        .insert(CleanupMarker);
-}
-
 fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
     ui::Button::new(
         ui::SimpleText::new(
@@ -70,7 +60,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
 
     actions.set_justify_content(JustifyContent::SpaceEvenly);
 
-    spawn_background(commands, assets);
+    assets.images.spawn_background(commands, CleanupMarker);
 
     overlay.spawn(commands, CleanupMarker, |parent| {
         top.spawn(parent, |parent| {

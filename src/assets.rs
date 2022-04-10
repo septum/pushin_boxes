@@ -4,7 +4,7 @@ use bevy::asset::LoadState;
 use bevy::prelude::*;
 use bevy_kira_audio::AudioSource;
 
-use crate::level::LevelData;
+use crate::level::{LevelState, MapEntity};
 
 pub struct Fonts {
     pub fredoka: Handle<Font>,
@@ -28,8 +28,30 @@ pub struct Images {
     pub controls: Handle<Image>,
 }
 
+impl Images {
+    pub fn spawn_background(&self, commands: &mut Commands, marker: impl Component) {
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture: self.background.clone(),
+                transform: Transform::from_xyz(0.0, 0.0, 0.0),
+                ..Default::default()
+            })
+            .insert(marker);
+    }
+
+    pub fn from_map_entity(&self, entity: &MapEntity) -> Handle<Image> {
+        match entity {
+            MapEntity::W => self.entity_wall.clone(),
+            MapEntity::F => self.entity_floor.clone(),
+            MapEntity::Z => self.entity_zone.clone(),
+            MapEntity::B => self.entity_box.clone(),
+            MapEntity::P => self.entity_box.clone(),
+        }
+    }
+}
+
 pub struct Levels {
-    pub collection: Vec<Handle<LevelData>>,
+    pub collection: Vec<Handle<LevelState>>,
 }
 
 pub struct Sounds {

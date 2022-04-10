@@ -5,8 +5,9 @@ use bevy_kira_audio::Audio;
 
 use super::loading::LoadedAssetsHandles;
 use crate::{
-    level::{Counters, Level},
+    level::{Level, LevelState},
     state::GameState,
+    ui::{ButtonKind, ButtonMarker},
 };
 
 #[derive(Component)]
@@ -23,24 +24,41 @@ impl Plugin for SelectionPlugin {
 }
 
 fn setup(mut commands: Commands, assets_handles: Res<LoadedAssetsHandles>, audio: Res<Audio>) {
-    ui::spawn(&mut commands, &assets_handles.assets);
+    // TODO: Get unlocked levels from save file
+    let unlocked_levels = vec![0];
+    ui::spawn(&mut commands, &assets_handles.assets, &unlocked_levels);
     audio.play_looped(assets_handles.assets.sounds.music_selection.clone());
 }
 
-// this will currently auto select the level 1
-// TODO: Implement the expected functionality
 fn select_level(
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
+    loaded_levels: Res<Assets<LevelState>>,
     assets_handles: Res<LoadedAssetsHandles>,
+    query: Query<(&ButtonMarker, &Interaction), (Changed<Interaction>, With<Button>)>,
 ) {
-    commands.insert_resource(Level {
-        number: 1,
-        record: 0,
-        data_handle: assets_handles.assets.levels.collection[0].clone(),
-    });
-    commands.insert_resource(Counters { moves: 0, undos: 4 });
-    state.set(GameState::Level).unwrap();
+    if let Ok((button, interaction)) = query.get_single() {
+        match interaction {
+            Interaction::Clicked => {
+                if let ButtonKind::Level(index) = button.kind {
+                    // TODO: Get unlocked levels from save file
+                    let unlocked_levels = vec![0];
+                    let level = Level::load(
+                        index,
+                        unlocked_levels[index],
+                        &loaded_levels,
+                        &assets_handles.assets.levels,
+                    );
+
+                    commands.insert_resource(level);
+
+                    state.set(GameState::Level).unwrap();
+                }
+            }
+            Interaction::Hovered => { /* TODO: Modify button style */ }
+            Interaction::None => {}
+        }
+    }
 }
 
 fn cleanup(

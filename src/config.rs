@@ -3,8 +3,14 @@ use bevy::prelude::*;
 pub struct ConfigPlugin;
 
 const GAME_TITLE: &str = "Pushin' Boxes";
-const GAME_WIDTH: f32 = 640.0;
-const GAME_HEIGHT: f32 = 640.0;
+
+pub const GAME_WIDTH: f32 = 640.0;
+pub const GAME_HEIGHT: f32 = 640.0;
+
+pub const MAP_ROWS: usize = 10;
+pub const MAP_COLS: usize = 10;
+pub const SPRITE_SIZE: usize = 64;
+pub const SPRITE_OFFSET: usize = 32;
 
 impl Plugin for ConfigPlugin {
     fn build(&self, app: &mut App) {

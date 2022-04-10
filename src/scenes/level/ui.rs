@@ -8,16 +8,6 @@ use crate::{
 
 use super::{CleanupMarker, CounterKind, CounterMarker};
 
-fn spawn_background(commands: &mut Commands, assets: &GameAssets) {
-    commands
-        .spawn_bundle(SpriteBundle {
-            texture: assets.images.background.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            ..Default::default()
-        })
-        .insert(CleanupMarker);
-}
-
 pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
     let mut overlay = ui::Overlay::new();
 
@@ -28,7 +18,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
     let mut bottom_right = ui::Housing::new(Val::Percent(50.0), Val::Percent(100.0));
 
     let level_number = ui::SimpleText::new(
-        format!("Level {}", level.number),
+        format!("Level {}", level.index + 1),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
             font_size: 42.0,
@@ -46,7 +36,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
     );
     let mut record_or_new_level = ui::SimpleText::new(
         if level.record > 0 {
-            format!("Record: {}", level.number)
+            format!("Record: {}", level.record)
         } else {
             "New Level!".to_string()
         },
@@ -111,7 +101,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
         ..Default::default()
     };
 
-    spawn_background(commands, assets);
+    assets.images.spawn_background(commands, CleanupMarker);
 
     overlay.spawn(commands, CleanupMarker, |parent| {
         top.spawn(parent, |parent| {
