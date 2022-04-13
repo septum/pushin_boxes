@@ -3,8 +3,8 @@ mod ui;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
-use super::loading::LoadedAssetsHandles;
 use crate::{
+    assets::LoadedHandles,
     state::GameState,
     ui::{ButtonKind, ButtonMarker},
 };
@@ -22,9 +22,9 @@ impl Plugin for TitlePlugin {
     }
 }
 
-fn setup(mut commands: Commands, assets_handles: Res<LoadedAssetsHandles>, audio: Res<Audio>) {
-    ui::spawn(&mut commands, &assets_handles.assets);
-    audio.play_looped(assets_handles.assets.sounds.music_title.clone());
+fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>, audio: Res<Audio>) {
+    ui::spawn(&mut commands, &loaded_handles.assets);
+    audio.play_looped(loaded_handles.assets.sounds.music_title.clone());
 }
 
 fn interactions(

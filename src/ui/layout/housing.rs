@@ -43,6 +43,10 @@ impl Housing {
         self.bundle.style.flex_wrap = flex_wrap;
     }
 
+    pub fn set_align_content(&mut self, align_content: AlignContent) {
+        self.bundle.style.align_content = align_content;
+    }
+
     pub fn spawn(self, parent: &mut ChildBuilder, children: impl FnOnce(&mut ChildBuilder)) {
         parent.spawn_bundle(self.bundle).with_children(children);
     }

@@ -2,6 +2,7 @@ mod level;
 mod loading;
 mod selection;
 mod title;
+mod win;
 
 use bevy::prelude::*;
 
@@ -12,6 +13,7 @@ impl Plugin for ScenesPlugin {
         app.add_plugin(loading::LoadingPlugin)
             .add_plugin(title::TitlePlugin)
             .add_plugin(selection::SelectionPlugin)
-            .add_plugin(level::LevelPlugin);
+            .add_plugin(level::LevelPlugin)
+            .add_plugin(win::WinPlugin);
     }
 }

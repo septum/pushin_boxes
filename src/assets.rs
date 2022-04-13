@@ -1,13 +1,159 @@
-use std::vec;
+use std::env;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 
-use bevy::asset::LoadState;
+use ron;
+
 use bevy::prelude::*;
+use bevy::{asset::LoadState, reflect::TypeUuid};
+use bevy_asset_ron::RonAssetPlugin;
 use bevy_kira_audio::AudioSource;
+use serde::{Deserialize, Serialize};
 
-use crate::level::{LevelState, MapEntity};
+use crate::config::MAX_TOTAL_LEVELS;
+use crate::{
+    level::{LevelState, MapEntity},
+    state::GameState,
+};
+
+pub struct LoadedHandles {
+    pub assets: AssetsHandles,
+    pub save_file: SaveFileHandle,
+}
+
+pub struct AssetsPlugin;
+
+impl Plugin for AssetsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(RonAssetPlugin::<SaveFileData>::new(&["dat"]))
+            .add_plugin(RonAssetPlugin::<LevelState>::new(&["lvl"]))
+            .add_system_set(SystemSet::on_enter(GameState::Startup).with_system(startup))
+            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(check_loading));
+    }
+}
+
+fn startup(
+    mut commands: Commands,
+    mut state: ResMut<State<GameState>>,
+    asset_server: Res<AssetServer>,
+) {
+    let assets = AssetsHandles::load(&asset_server);
+    let save_file = SaveFileHandle::load(&asset_server);
+
+    commands.insert_resource(LoadedHandles { assets, save_file });
+
+    state.set(GameState::Loading).unwrap();
+}
+
+fn check_loading(
+    mut commands: Commands,
+    mut state: ResMut<State<GameState>>,
+    loaded_handles: Res<LoadedHandles>,
+    asset_server: Res<AssetServer>,
+    loaded_save_file_data: Res<Assets<SaveFileData>>,
+) {
+    if loaded_handles.assets.all_loaded(&asset_server)
+        && loaded_handles.save_file.check_load_state(
+            &mut commands,
+            &asset_server,
+            &loaded_save_file_data,
+        )
+    {
+        state.set(GameState::Title).unwrap();
+    }
+}
 
 pub struct Fonts {
     pub fredoka: Handle<Font>,
+}
+
+#[derive(TypeUuid, Deserialize, Serialize, Clone)]
+#[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
+pub struct SaveFileData(pub Vec<usize>);
+
+pub struct SaveFile {
+    pub level_records: Vec<usize>,
+}
+
+impl SaveFile {
+    pub fn new(level_records: Vec<usize>) -> SaveFile {
+        SaveFile { level_records }
+    }
+
+    fn set_record(&mut self, level: usize, moves: usize) {
+        self.level_records[level] = moves;
+    }
+
+    pub fn get_record(&self, level: usize) -> usize {
+        self.level_records[level]
+    }
+
+    pub fn set_if_new_record(&mut self, level: usize, moves: usize) {
+        let record = self.get_record(level);
+
+        if record == 0 || record > moves {
+            self.set_record(level, moves);
+        }
+    }
+
+    pub fn unlock_next_level(&mut self, level: usize) {
+        let next_level = level + 1;
+
+        if next_level < MAX_TOTAL_LEVELS && next_level >= self.level_records.len() {
+            self.level_records.push(0);
+        }
+    }
+
+    pub fn final_record(&self) -> usize {
+        self.level_records.iter().sum()
+    }
+
+    pub fn save(&self) {
+        let data = SaveFileData(self.level_records.clone());
+        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+            PathBuf::from(manifest_dir).join("assets").join("game.dat")
+        } else {
+            PathBuf::from("./assets").join("game.dat")
+        };
+
+        if let Ok(serialized_string) = ron::ser::to_string(&data) {
+            let mut file = File::create(path).unwrap();
+            file.write_all(serialized_string.as_bytes()).unwrap();
+        }
+    }
+}
+
+pub struct SaveFileHandle {
+    pub save_file: Handle<SaveFileData>,
+}
+
+impl SaveFileHandle {
+    pub fn load(asset_server: &Res<AssetServer>) -> SaveFileHandle {
+        SaveFileHandle {
+            save_file: asset_server.load("game.dat"),
+        }
+    }
+
+    pub fn check_load_state(
+        &self,
+        commands: &mut Commands,
+        asset_server: &Res<AssetServer>,
+        loaded_save_file_data: &Res<Assets<SaveFileData>>,
+    ) -> bool {
+        match asset_server.get_load_state(self.save_file.clone()) {
+            LoadState::Loaded => {
+                let data = loaded_save_file_data.get(self.save_file.clone()).unwrap();
+                commands.insert_resource(SaveFile::new(data.0.to_owned()));
+                true
+            }
+            LoadState::Failed => {
+                commands.insert_resource(SaveFile::new(vec![0]));
+                true
+            }
+            _ => false,
+        }
+    }
 }
 
 pub struct Images {
@@ -64,15 +210,15 @@ pub struct Sounds {
     pub music_win: Handle<AudioSource>,
 }
 
-pub struct GameAssets {
+pub struct AssetsHandles {
     pub fonts: Fonts,
     pub images: Images,
     pub levels: Levels,
     pub sounds: Sounds,
 }
 
-impl GameAssets {
-    pub fn load(asset_server: &Res<AssetServer>) -> GameAssets {
+impl AssetsHandles {
+    pub fn load(asset_server: &Res<AssetServer>) -> AssetsHandles {
         let fonts = Fonts {
             fredoka: asset_server.load("fonts/fredoka/FredokaOne-Regular.ttf"),
         };
@@ -126,7 +272,7 @@ impl GameAssets {
             ],
         };
 
-        GameAssets {
+        AssetsHandles {
             fonts,
             images,
             sounds,

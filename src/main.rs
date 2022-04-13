@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 
-use pushin_boxes::{assets::Colors, config::ConfigPlugin, scenes::ScenesPlugin, state::GameState};
+use pushin_boxes::{
+    assets::AssetsPlugin, assets::Colors, config::ConfigPlugin, scenes::ScenesPlugin,
+    state::GameState,
+};
 
 fn main() {
     App::new()
@@ -9,8 +12,9 @@ fn main() {
         .add_plugin(ConfigPlugin)
         .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)
+        .add_plugin(AssetsPlugin)
         .add_plugin(ScenesPlugin)
-        .add_state(GameState::Loading)
+        .add_state(GameState::Startup)
         .add_startup_system(setup)
         .run();
 }

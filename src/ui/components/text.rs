@@ -1,14 +1,11 @@
 use bevy::prelude::*;
 
-use crate::{assets::Colors, ui::layout::Housing};
+use crate::assets::Colors;
 
 const ALIGNMENT: TextAlignment = TextAlignment {
     vertical: VerticalAlign::Center,
     horizontal: HorizontalAlign::Center,
 };
-
-const HOUSING_WIDTH_SCALING_FACTOR: f32 = 2.8;
-const HOUSING_HEIGHT_SCALING_FACTOR: f32 = 2.0;
 
 pub struct SimpleText {
     pub bundle: TextBundle,
@@ -34,61 +31,51 @@ impl SimpleText {
 }
 
 pub struct EmbossedText {
-    pub housing: Housing,
     pub foreground: TextBundle,
     pub background: TextBundle,
 }
 
 impl EmbossedText {
-    pub fn new(text: String, relief_factor: f32, style: TextStyle) -> EmbossedText {
-        let mut background_style = style.clone();
-        background_style.color = Colors::DARK;
-
-        let housing = Housing::new(
-            Val::Px((style.font_size * HOUSING_WIDTH_SCALING_FACTOR) + relief_factor),
-            Val::Px((style.font_size * HOUSING_HEIGHT_SCALING_FACTOR) + relief_factor),
-        );
-
+    pub fn new(text: String, relief: f32, style: TextStyle) -> EmbossedText {
         let foreground = TextBundle {
             style: Style {
-                position: Rect {
-                    top: Val::Px(0.0),
-                    left: Val::Px(0.0),
-                    ..Default::default()
-                },
                 position_type: PositionType::Absolute,
                 ..Default::default()
             },
-            text: Text::with_section(text.clone(), style, ALIGNMENT),
+            text: Text::with_section(text.clone(), style.clone(), ALIGNMENT),
             ..Default::default()
         };
 
         let background = TextBundle {
             style: Style {
                 position: Rect {
-                    bottom: Val::Px(0.0),
-                    right: Val::Px(0.0),
+                    top: Val::Px(relief),
+                    left: Val::Px(relief),
                     ..Default::default()
                 },
-                position_type: PositionType::Absolute,
+                position_type: PositionType::Relative,
                 ..Default::default()
             },
-            text: Text::with_section(text, background_style, ALIGNMENT),
+            text: Text::with_section(
+                text,
+                TextStyle {
+                    color: Colors::DARK,
+                    ..style
+                },
+                ALIGNMENT,
+            ),
             ..Default::default()
         };
 
         EmbossedText {
-            housing,
             foreground,
             background,
         }
     }
 
     pub fn spawn(self, parent: &mut ChildBuilder) {
-        self.housing.spawn(parent, |parent| {
-            parent.spawn_bundle(self.background);
-            parent.spawn_bundle(self.foreground);
-        });
+        parent.spawn_bundle(self.background);
+        parent.spawn_bundle(self.foreground);
     }
 }
 

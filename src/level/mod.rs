@@ -118,6 +118,10 @@ impl Level {
         }
     }
 
+    pub fn no_zones_left(&self) -> bool {
+        self.state.remaining_zones == 0
+    }
+
     pub fn reload(&mut self, loaded_levels: &Res<Assets<LevelState>>, level_handles: &Levels) {
         let undos = 4 - (self.index / 4);
         let loaded_state = loaded_levels

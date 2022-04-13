@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{Colors, GameAssets},
+    assets::{AssetsHandles, Colors},
     level::Level,
     ui,
 };
 
 use super::{CleanupMarker, CounterKind, CounterMarker};
 
-pub fn spawn(commands: &mut Commands, assets: &GameAssets, level: &Level) {
+pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level) {
     let mut overlay = ui::Overlay::new();
 
     let mut top = ui::Housing::new(Val::Percent(97.0), Val::Percent(10.0));

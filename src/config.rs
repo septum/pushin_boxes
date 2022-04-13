@@ -12,6 +12,8 @@ pub const MAP_COLS: usize = 10;
 pub const SPRITE_SIZE: usize = 64;
 pub const SPRITE_OFFSET: usize = 32;
 
+pub const MAX_TOTAL_LEVELS: usize = 16;
+
 impl Plugin for ConfigPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(WindowDescriptor {

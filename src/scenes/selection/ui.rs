@@ -1,20 +1,21 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{Colors, GameAssets},
+    assets::{AssetsHandles, Colors},
     ui::{self, ButtonKind, ButtonMarker},
 };
 
 use super::CleanupMarker;
 
-pub fn spawn(commands: &mut Commands, assets: &GameAssets, levels: &[usize]) {
+pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level_records: &[usize]) {
     let overlay = ui::Overlay::new();
 
     let mut top = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
     let mut bottom = ui::Housing::new(Val::Percent(100.0), Val::Percent(90.0));
 
-    let title = ui::SimpleText::new(
+    let title = ui::EmbossedText::new(
         "Select a Level".to_string(),
+        2.0,
         TextStyle {
             font_size: 42.0,
             color: Colors::PRIMARY,
@@ -31,6 +32,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets, levels: &[usize]) {
     bottom.set_flex_direction(FlexDirection::Row);
     bottom.set_justify_content(JustifyContent::FlexStart);
     bottom.set_align_items(AlignItems::FlexStart);
+    bottom.set_align_content(AlignContent::FlexStart);
 
     assets.images.spawn_background(commands, CleanupMarker);
 
@@ -39,7 +41,7 @@ pub fn spawn(commands: &mut Commands, assets: &GameAssets, levels: &[usize]) {
             title.spawn(parent);
         });
         bottom.spawn(parent, |parent| {
-            for (index, record) in levels.iter().enumerate() {
+            for (index, record) in level_records.iter().enumerate() {
                 let housing = ui::Housing::new(Val::Percent(25.0), Val::Percent(25.0));
                 let button = ui::Button::new(
                     ui::SimpleText::new(

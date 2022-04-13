@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{Colors, GameAssets},
+    assets::{AssetsHandles, Colors},
     ui,
 };
 
 use super::CleanupMarker;
 
-pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
+pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
     let overlay = ui::Overlay::new();
 
     let loading_text = ui::SimpleText::new(

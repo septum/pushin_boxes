@@ -1,42 +1,23 @@
 mod ui;
 
 use bevy::prelude::*;
-use bevy_asset_ron::RonAssetPlugin;
 
-use crate::{assets::GameAssets, level::LevelState, state::GameState};
+use crate::{assets::LoadedHandles, state::GameState};
 
 #[derive(Component)]
 struct CleanupMarker;
 
 pub struct LoadingPlugin;
 
-pub struct LoadedAssetsHandles {
-    pub assets: GameAssets,
-}
-
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(RonAssetPlugin::<LevelState>::new(&["lvl"]))
-            .add_system_set(SystemSet::on_enter(GameState::Loading).with_system(setup))
-            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(check_loading))
+        app.add_system_set(SystemSet::on_enter(GameState::Loading).with_system(setup))
             .add_system_set(SystemSet::on_exit(GameState::Loading).with_system(cleanup));
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let assets = GameAssets::load(&asset_server);
-    ui::spawn(&mut commands, &assets);
-    commands.insert_resource(LoadedAssetsHandles { assets });
-}
-
-fn check_loading(
-    mut state: ResMut<State<GameState>>,
-    loaded_assets_handles: Res<LoadedAssetsHandles>,
-    asset_server: Res<AssetServer>,
-) {
-    if loaded_assets_handles.assets.all_loaded(&asset_server) {
-        state.set(GameState::Title).unwrap();
-    }
+fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>) {
+    ui::spawn(&mut commands, &loaded_handles.assets);
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<CleanupMarker>>) {

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{Colors, GameAssets},
+    assets::{AssetsHandles, Colors},
     ui,
 };
 
@@ -27,7 +27,7 @@ fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
     )
 }
 
-pub fn spawn(commands: &mut Commands, assets: &GameAssets) {
+pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
     let overlay = ui::Overlay::new();
 
     let top = ui::Housing::new(Val::Percent(100.0), Val::Percent(50.0));

@@ -3,8 +3,8 @@ mod ui;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
-use super::loading::LoadedAssetsHandles;
 use crate::{
+    assets::{LoadedHandles, SaveFile},
     level::{Level, LevelState},
     state::GameState,
     ui::{ButtonKind, ButtonMarker},
@@ -23,31 +23,37 @@ impl Plugin for SelectionPlugin {
     }
 }
 
-fn setup(mut commands: Commands, assets_handles: Res<LoadedAssetsHandles>, audio: Res<Audio>) {
-    // TODO: Get unlocked levels from save file
-    let unlocked_levels = vec![0];
-    ui::spawn(&mut commands, &assets_handles.assets, &unlocked_levels);
-    audio.play_looped(assets_handles.assets.sounds.music_selection.clone());
+fn setup(
+    mut commands: Commands,
+    loaded_handles: Res<LoadedHandles>,
+    audio: Res<Audio>,
+    save_file: Res<SaveFile>,
+) {
+    ui::spawn(
+        &mut commands,
+        &loaded_handles.assets,
+        &save_file.level_records,
+    );
+    audio.play_looped(loaded_handles.assets.sounds.music_selection.clone());
 }
 
 fn select_level(
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
     loaded_levels: Res<Assets<LevelState>>,
-    assets_handles: Res<LoadedAssetsHandles>,
+    loaded_handles: Res<LoadedHandles>,
+    save_file: Res<SaveFile>,
     query: Query<(&ButtonMarker, &Interaction), (Changed<Interaction>, With<Button>)>,
 ) {
     if let Ok((button, interaction)) = query.get_single() {
         match interaction {
             Interaction::Clicked => {
                 if let ButtonKind::Level(index) = button.kind {
-                    // TODO: Get unlocked levels from save file
-                    let unlocked_levels = vec![0];
                     let level = Level::load(
                         index,
-                        unlocked_levels[index],
+                        save_file.get_record(index),
                         &loaded_levels,
-                        &assets_handles.assets.levels,
+                        &loaded_handles.assets.levels,
                     );
 
                     commands.insert_resource(level);
