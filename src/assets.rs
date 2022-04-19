@@ -17,6 +17,8 @@ use crate::{
     state::GameState,
 };
 
+const FIRST_LEVEL_INDEX: usize = 0;
+
 pub struct LoadedHandles {
     pub assets: AssetsHandles,
     pub save_file: SaveFileHandle,
@@ -79,6 +81,14 @@ pub struct SaveFile {
 impl SaveFile {
     pub fn new(level_records: Vec<usize>) -> SaveFile {
         SaveFile { level_records }
+    }
+
+    pub fn no_records(&self) -> bool {
+        if self.get_record(FIRST_LEVEL_INDEX) == 0 {
+            true
+        } else {
+            false
+        }
     }
 
     fn set_record(&mut self, level: usize, moves: usize) {

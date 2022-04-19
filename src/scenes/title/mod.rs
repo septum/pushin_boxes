@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
 use crate::{
-    assets::LoadedHandles,
+    assets::{LoadedHandles, SaveFile},
     state::GameState,
     ui::{ButtonKind, ButtonMarker},
 };
@@ -29,13 +29,18 @@ fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>, audio: Res<
 
 fn interactions(
     mut state: ResMut<State<GameState>>,
+    save_file: Res<SaveFile>,
     query: Query<(&ButtonMarker, &Interaction), (Changed<Interaction>, With<Button>)>,
 ) {
     if let Ok((button, interaction)) = query.get_single() {
         match interaction {
             Interaction::Clicked => match button.kind {
                 ButtonKind::Play => {
-                    state.set(GameState::Selection).unwrap();
+                    if save_file.no_records() {
+                        state.set(GameState::Instructions).unwrap();
+                    } else {
+                        state.set(GameState::Selection).unwrap();
+                    }
                 }
                 ButtonKind::Options => { /* TODO: Set state to show options scene */ }
                 ButtonKind::Quit => { /* TODO: Set state to quit game */ }
@@ -49,11 +54,14 @@ fn interactions(
 
 fn cleanup(
     mut commands: Commands,
-    entities: Query<Entity, With<CleanupMarker>>,
     audio: Res<Audio>,
+    save_file: Res<SaveFile>,
+    entities: Query<Entity, With<CleanupMarker>>,
 ) {
     // TODO: Move this somewhere else
-    audio.stop();
+    if !save_file.no_records() {
+        audio.stop();
+    }
 
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();
