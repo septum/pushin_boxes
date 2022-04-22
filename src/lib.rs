@@ -6,12 +6,10 @@ pub mod state;
 
 pub mod input;
 
-pub mod assets;
+pub mod resources;
 
 pub mod ui;
 
 pub mod scenes;
 
 pub mod level;
-
-pub mod player;

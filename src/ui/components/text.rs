@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::assets::Colors;
+use crate::resources::Colors;
 
 const ALIGNMENT: TextAlignment = TextAlignment {
     vertical: VerticalAlign::Center,

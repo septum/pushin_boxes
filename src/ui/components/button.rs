@@ -1,12 +1,20 @@
 use bevy::prelude::*;
+use uuid::Uuid;
 
 use super::SimpleText;
 
+pub enum LevelKind {
+    Stock(usize),
+    Custom(Uuid),
+}
+
 pub enum ButtonKind {
     Play,
+    Editor,
     Options,
     Quit,
-    Level(usize),
+    Levels,
+    Level(LevelKind),
 }
 
 #[derive(Component)]

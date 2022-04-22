@@ -4,11 +4,10 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
 use crate::{
-    assets::LoadedHandles,
     input::{ActionKind, DirectionKind, InputBuffer, InputKind},
-    level::{Level, LevelState, MapPosition},
-    player::{Player, PlayerMarker},
-    state::GameState,
+    level::{Level, LevelState, LevelTag, MapPosition, PlayerMarker},
+    resources::ResourcesHandles,
+    state::{GameState, SelectionKind},
     ui::DynamicText,
 };
 
@@ -52,17 +51,16 @@ impl Plugin for LevelPlugin {
 
 fn setup(
     mut commands: Commands,
-    loaded_handles: Res<LoadedHandles>,
+    resources: Res<ResourcesHandles>,
     level: Res<Level>,
     audio: Res<Audio>,
 ) {
-    let player = Player::new(level.state.player_position);
+    level.spawn_map(&mut commands, &resources.assets.images);
+    level.spawn_player(&mut commands, &resources.assets.images, CleanupMarker);
 
-    level.spawn_map(&mut commands, &loaded_handles.assets.images);
-    player.spawn(&mut commands, &loaded_handles.assets.images, CleanupMarker);
-    ui::spawn(&mut commands, &loaded_handles.assets, &level);
+    ui::spawn(&mut commands, &resources.assets, &level);
 
-    audio.play_looped(loaded_handles.assets.sounds.music_level.clone());
+    audio.play_looped(resources.assets.sounds.music.level.clone());
 }
 
 // TODO: Implement keybindings
@@ -106,7 +104,7 @@ fn handle_input(
     mut input: ResMut<InputBuffer>,
     mut state: ResMut<State<GameState>>,
     loaded_levels: Res<Assets<LevelState>>,
-    loaded_handles: Res<LoadedHandles>,
+    resources: Res<ResourcesHandles>,
 ) {
     if let Some(input) = input.buffer.pop() {
         match input {
@@ -114,10 +112,16 @@ fn handle_input(
             InputKind::Action(action) => {
                 match action {
                     ActionKind::Undo => level.restore_snapshot(),
-                    ActionKind::Reload => {
-                        level.reload(&loaded_levels, &loaded_handles.assets.levels)
-                    }
-                    ActionKind::Selection => state.set(GameState::Selection).unwrap(),
+                    ActionKind::Reload => level.reload(&loaded_levels, &resources.assets.levels),
+                    ActionKind::Selection => match &level.tag {
+                        LevelTag::Stock(_) => state
+                            .set(GameState::Selection(SelectionKind::Stock))
+                            .unwrap(),
+                        LevelTag::Custom(_) => state
+                            .set(GameState::Selection(SelectionKind::Custom))
+                            .unwrap(),
+                        LevelTag::Test(_) => state.set(GameState::Editor).unwrap(),
+                    },
                     ActionKind::Exit => state.set(GameState::Title).unwrap(),
                 };
             }
@@ -127,10 +131,7 @@ fn handle_input(
 
 fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, With<PlayerMarker>>) {
     let mut transform = query.single_mut();
-    level
-        .state
-        .player_position
-        .apply_to_transform(&mut transform);
+    level.update_player_position(&mut transform);
 }
 
 fn update_counters(
@@ -148,11 +149,11 @@ fn update_counters(
 
 fn update_map(
     level: Res<Level>,
-    loaded_handles: Res<LoadedHandles>,
+    resources: Res<ResourcesHandles>,
     mut query: Query<(&mut Handle<Image>, &MapPosition), With<MapPosition>>,
 ) {
     for (mut handle, position) in query.iter_mut() {
-        level.update_entity_texture(position, &mut handle, &loaded_handles.assets.images);
+        level.update_entity_texture(position, &mut handle, &resources.assets.images);
     }
 }
 

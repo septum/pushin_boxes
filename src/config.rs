@@ -9,6 +9,7 @@ pub const GAME_HEIGHT: f32 = 640.0;
 
 pub const MAP_ROWS: usize = 10;
 pub const MAP_COLS: usize = 10;
+
 pub const SPRITE_SIZE: usize = 64;
 pub const SPRITE_OFFSET: usize = 32;
 

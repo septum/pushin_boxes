@@ -4,8 +4,8 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
 use crate::{
-    assets::{LoadedHandles, SaveFile},
-    state::GameState,
+    resources::{ResourcesHandles, SaveFile},
+    state::{GameState, SelectionKind},
     ui::{ButtonKind, ButtonMarker},
 };
 
@@ -22,9 +22,9 @@ impl Plugin for TitlePlugin {
     }
 }
 
-fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>, audio: Res<Audio>) {
-    ui::spawn(&mut commands, &loaded_handles.assets);
-    audio.play_looped(loaded_handles.assets.sounds.music_title.clone());
+fn setup(mut commands: Commands, resources: Res<ResourcesHandles>, audio: Res<Audio>) {
+    ui::spawn(&mut commands, &resources.assets);
+    audio.play_looped(resources.assets.sounds.music.title.clone());
 }
 
 fn interactions(
@@ -39,11 +39,16 @@ fn interactions(
                     if save_file.no_records() {
                         state.set(GameState::Instructions).unwrap();
                     } else {
-                        state.set(GameState::Selection).unwrap();
+                        state
+                            .set(GameState::Selection(SelectionKind::Stock))
+                            .unwrap();
                     }
                 }
                 ButtonKind::Options => { /* TODO: Set state to show options scene */ }
                 ButtonKind::Quit => { /* TODO: Set state to quit game */ }
+                ButtonKind::Editor => {
+                    state.set(GameState::Editor).unwrap();
+                }
                 _ => (),
             },
             Interaction::Hovered => { /* TODO: Modify button style */ }
@@ -55,13 +60,10 @@ fn interactions(
 fn cleanup(
     mut commands: Commands,
     audio: Res<Audio>,
-    save_file: Res<SaveFile>,
     entities: Query<Entity, With<CleanupMarker>>,
 ) {
     // TODO: Move this somewhere else
-    if !save_file.no_records() {
-        audio.stop();
-    }
+    audio.stop();
 
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();

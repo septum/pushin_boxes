@@ -3,7 +3,10 @@ mod ui;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
-use crate::{assets::LoadedHandles, state::GameState};
+use crate::{
+    resources::ResourcesHandles,
+    state::{GameState, SelectionKind},
+};
 
 #[derive(Component)]
 struct CleanupMarker;
@@ -18,13 +21,16 @@ impl Plugin for InstructionsPlugin {
     }
 }
 
-fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>) {
-    ui::spawn(&mut commands, &loaded_handles.assets);
+fn setup(mut commands: Commands, resources: Res<ResourcesHandles>, audio: Res<Audio>) {
+    ui::spawn(&mut commands, &resources.assets);
+    audio.play_looped(resources.assets.sounds.music.selection.clone());
 }
 
 fn interactions(mut state: ResMut<State<GameState>>, keyboard: Res<Input<KeyCode>>) {
     if keyboard.just_pressed(KeyCode::Space) {
-        state.set(GameState::Selection).unwrap();
+        state
+            .set(GameState::Selection(SelectionKind::Stock))
+            .unwrap();
     }
 }
 

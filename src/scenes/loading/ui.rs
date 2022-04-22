@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{AssetsHandles, Colors},
+    resources::{AssetsHandles, Colors},
     ui,
 };
 

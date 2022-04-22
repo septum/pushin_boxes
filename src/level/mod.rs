@@ -1,94 +1,27 @@
-use bevy::{prelude::*, reflect::TypeUuid};
-use serde::Deserialize;
+mod map;
+mod player;
+mod snapshots;
+mod state;
+mod tag;
+
+use bevy::prelude::*;
 
 use crate::{
-    assets::{Images, Levels},
-    config::{GAME_HEIGHT, GAME_WIDTH, MAP_COLS, MAP_ROWS, SPRITE_OFFSET, SPRITE_SIZE},
+    config::{MAP_COLS, MAP_ROWS},
     input::DirectionKind,
+    resources::{Images, Levels, SaveFile},
 };
+
+pub use map::{LevelMap, MapEntity, MapPosition};
+pub use player::PlayerMarker;
+pub use snapshots::LevelSnapshots;
+pub use state::LevelState;
+pub use tag::LevelTag;
 
 pub const MAX_LEVEL_STATES: usize = 4;
 
-#[derive(Debug, Deserialize, Clone, Copy)]
-pub enum MapEntity {
-    /// Wall
-    W,
-    /// Floor
-    F,
-    /// Zone
-    Z,
-    /// Box
-    B,
-    /// Box in Zone
-    P,
-}
-
-type LevelMap = [[MapEntity; MAP_COLS]; MAP_ROWS];
-
-#[derive(Component, Deserialize, Clone, Copy)]
-pub struct MapPosition {
-    pub x: usize,
-    pub y: usize,
-}
-
-impl MapPosition {
-    pub fn new(x: usize, y: usize) -> MapPosition {
-        MapPosition { x, y }
-    }
-
-    fn increment_x(&mut self) {
-        if self.x < MAP_COLS - 1 {
-            self.x = self.x.saturating_add(1);
-        }
-    }
-
-    fn increment_y(&mut self) {
-        if self.y < MAP_ROWS - 1 {
-            self.y = self.y.saturating_add(1);
-        }
-    }
-
-    fn decrement_x(&mut self) {
-        self.x = self.x.saturating_sub(1);
-    }
-
-    fn decrement_y(&mut self) {
-        self.y = self.y.saturating_sub(1);
-    }
-
-    pub fn advance(&mut self, direction: &DirectionKind) {
-        match direction {
-            DirectionKind::Up => self.decrement_y(),
-            DirectionKind::Left => self.decrement_x(),
-            DirectionKind::Down => self.increment_y(),
-            DirectionKind::Right => self.increment_x(),
-        };
-    }
-
-    pub fn apply_to_transform(&self, transform: &mut Transform) {
-        // calculate coords with the correct sprite dimension
-        // and moving the origin/pivot from the center to the top-left
-        let x = ((self.x * SPRITE_SIZE) + SPRITE_OFFSET) as f32;
-        let y = (((MAP_ROWS - self.y) * SPRITE_SIZE) - SPRITE_OFFSET) as f32;
-
-        // take into account the camera default position (0, 0)
-        transform.translation.x = x - (GAME_WIDTH / 2.0);
-        transform.translation.y = y - (GAME_HEIGHT / 2.0);
-    }
-}
-
-#[derive(TypeUuid, Deserialize, Clone, Copy)]
-#[uuid = "d1e78377-22a5-49f7-a675-60d348abc837"]
-pub struct LevelState {
-    pub map: LevelMap,
-    pub remaining_zones: usize,
-    pub player_position: MapPosition,
-}
-
-type LevelSnapshots = [Option<LevelState>; MAX_LEVEL_STATES];
-
 pub struct Level {
-    pub index: usize,
+    pub tag: LevelTag,
     pub snapshots: LevelSnapshots,
     pub state: LevelState,
     pub record: usize,
@@ -96,24 +29,55 @@ pub struct Level {
     pub moves: usize,
 }
 
+impl Default for Level {
+    fn default() -> Level {
+        Level::new()
+    }
+}
+
 impl Level {
-    pub fn load(
-        index: usize,
-        record: usize,
-        loaded_levels: &Res<Assets<LevelState>>,
-        level_handles: &Levels,
-    ) -> Level {
-        let undos = 4 - (index / 4);
-        let loaded_state = loaded_levels
-            .get(level_handles.collection[index].clone())
-            .unwrap();
+    pub fn new() -> Level {
+        let state = LevelState {
+            map: [[MapEntity::F; MAP_COLS]; MAP_ROWS],
+            remaining_zones: 0,
+            player_position: MapPosition::new(0, 0),
+        };
 
         Level {
-            index,
+            tag: LevelTag::Test(state.clone()),
             snapshots: [None; MAX_LEVEL_STATES],
-            state: *loaded_state,
+            state,
+            record: 0,
+            undos: 0,
+            moves: 0,
+        }
+    }
+
+    pub fn load(
+        tag: LevelTag,
+        save_file: &Res<SaveFile>,
+        level_states: &Res<Assets<LevelState>>,
+        levels: &Levels,
+    ) -> Level {
+        let record = save_file.get_record(&tag);
+        let state = match tag {
+            LevelTag::Stock(index) => {
+                let handle = levels.stock[index].clone();
+                *level_states.get(handle).unwrap()
+            }
+            LevelTag::Custom(uuid) => {
+                let handle = levels.custom.get(&uuid).unwrap().clone();
+                *level_states.get(handle).unwrap()
+            }
+            LevelTag::Test(state) => state,
+        };
+
+        Level {
+            tag,
+            snapshots: [None; MAX_LEVEL_STATES],
+            state,
             record,
-            undos,
+            undos: 4,
             moves: 0,
         }
     }
@@ -122,15 +86,22 @@ impl Level {
         self.state.remaining_zones == 0
     }
 
-    pub fn reload(&mut self, loaded_levels: &Res<Assets<LevelState>>, level_handles: &Levels) {
-        let undos = 4 - (self.index / 4);
-        let loaded_state = loaded_levels
-            .get(level_handles.collection[self.index].clone())
-            .unwrap();
+    pub fn reload(&mut self, level_states: &Res<Assets<LevelState>>, levels: &Levels) {
+        let state = match &self.tag {
+            LevelTag::Stock(index) => {
+                let handle = levels.stock[*index].clone();
+                level_states.get(handle).unwrap().clone()
+            }
+            LevelTag::Custom(uuid) => {
+                let handle = levels.custom.get(&uuid).unwrap().clone();
+                level_states.get(handle).unwrap().clone()
+            }
+            LevelTag::Test(state) => state.clone(),
+        };
 
         self.snapshots = [None; MAX_LEVEL_STATES];
-        self.state = *loaded_state;
-        self.undos = undos;
+        self.state = state;
+        self.undos = 4;
         self.moves = 0;
     }
 
@@ -153,6 +124,22 @@ impl Level {
         }
     }
 
+    pub fn spawn_player(&self, commands: &mut Commands, images: &Images, marker: impl Component) {
+        let mut transform = Transform::from_xyz(0.0, 0.0, 2.0);
+        self.state
+            .player_position
+            .apply_to_transform(&mut transform);
+
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture: images.player.idle.clone(),
+                transform,
+                ..Default::default()
+            })
+            .insert(PlayerMarker)
+            .insert(marker);
+    }
+
     pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
         &self.state.map[position.y][position.x]
     }
@@ -166,6 +153,14 @@ impl Level {
         self.moves += 1; // is this too hidden?
     }
 
+    pub fn update_player_position(&self, transform: &mut Transform) {
+        self.state.player_position.apply_to_transform(transform);
+    }
+
+    pub fn player_in(&mut self, position: &MapPosition) -> bool {
+        self.state.player_position.x == position.x && self.state.player_position.y == position.y
+    }
+
     pub fn restore_snapshot(&mut self) {
         if self.undos > 0 {
             if let Some(level_state) = self.snapshots[0] {
@@ -176,6 +171,14 @@ impl Level {
                 self.moves -= 1;
             }
         }
+    }
+
+    pub fn increment_remaining_zones(&mut self) {
+        self.state.remaining_zones += 1;
+    }
+
+    pub fn decrement_remaining_zones(&mut self) {
+        self.state.remaining_zones -= 1;
     }
 
     fn save_snapshot(&mut self) {
@@ -234,12 +237,7 @@ impl Level {
         handle: &mut Handle<Image>,
         images: &Images,
     ) {
-        match &self.state.map[position.y][position.x] {
-            MapEntity::W => *handle = images.entity_wall.clone(),
-            MapEntity::F => *handle = images.entity_floor.clone(),
-            MapEntity::Z => *handle = images.entity_zone.clone(),
-            MapEntity::B => *handle = images.entity_box.clone(),
-            MapEntity::P => *handle = images.entity_box.clone(),
-        };
+        let entity = self.state.map[position.y][position.x];
+        *handle = images.from_map_entity(&entity);
     }
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::assets::Colors;
+use crate::resources::Colors;
 
 pub struct Overlay {
     pub bundle: NodeBundle,

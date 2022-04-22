@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{AssetsHandles, Colors},
-    level::Level,
+    level::{Level, LevelTag},
+    resources::{AssetsHandles, Colors},
     ui,
 };
 
@@ -17,11 +17,21 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level) {
     let mut bottom_left = ui::Housing::new(Val::Percent(50.0), Val::Percent(100.0));
     let mut bottom_right = ui::Housing::new(Val::Percent(50.0), Val::Percent(100.0));
 
+    let level_id = match level.tag {
+        LevelTag::Stock(index) => (index + 1).to_string(),
+        LevelTag::Custom(uuid) => uuid.to_string(),
+        LevelTag::Test(_) => "Test".to_string(),
+    };
+
     let level_number = ui::SimpleText::new(
-        format!("Level {}", level.index + 1),
+        format!("Level {}", level_id),
         TextStyle {
             font: assets.fonts.fredoka.clone(),
-            font_size: 42.0,
+            font_size: if matches!(level.tag, LevelTag::Custom(_)) {
+                24.0
+            } else {
+                42.0
+            },
             color: Colors::LIGHT,
         },
     );

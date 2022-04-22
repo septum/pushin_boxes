@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{AssetsHandles, Colors},
+    resources::{AssetsHandles, Colors},
     ui,
 };
 
@@ -105,7 +105,7 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
                     size: Size::new(Val::Px(64.0), Val::Px(64.0)),
                     ..Default::default()
                 },
-                image: assets.images.player_idle.clone().into(),
+                image: assets.images.player.idle.clone().into(),
                 ..Default::default()
             });
             to_move.spawn(parent);
@@ -121,7 +121,7 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
                     size: Size::new(Val::Px(64.0), Val::Px(64.0)),
                     ..Default::default()
                 },
-                image: assets.images.entity_box.clone().into(),
+                image: assets.images.entities.pbox.clone().into(),
                 ..Default::default()
             });
             parent.spawn_bundle(NodeBundle {
@@ -134,7 +134,7 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
                     size: Size::new(Val::Px(64.0), Val::Px(64.0)),
                     ..Default::default()
                 },
-                image: assets.images.entity_zone.clone().into(),
+                image: assets.images.entities.zone.clone().into(),
                 ..Default::default()
             });
             to_win.spawn(parent);

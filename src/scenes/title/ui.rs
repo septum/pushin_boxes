@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{AssetsHandles, Colors},
+    resources::{AssetsHandles, Colors},
     ui,
 };
 
@@ -20,7 +20,7 @@ fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
         Style {
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            size: Size::new(Val::Px(280.0), Val::Px(56.0)),
+            size: Size::new(Val::Px(280.0), Val::Px(50.0)),
             ..Default::default()
         },
         Colors::PRIMARY.into(),
@@ -55,6 +55,7 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
     );
 
     let play = create_button("Play", assets.fonts.fredoka.clone());
+    let editor = create_button("Editor", assets.fonts.fredoka.clone());
     let options = create_button("Options", assets.fonts.fredoka.clone());
     let quit = create_button("Quit", assets.fonts.fredoka.clone());
 
@@ -69,6 +70,7 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
         bottom.spawn(parent, |parent| {
             actions.spawn(parent, |parent| {
                 play.spawn(parent, ButtonMarker::new(ButtonKind::Play));
+                editor.spawn(parent, ButtonMarker::new(ButtonKind::Editor));
                 options.spawn(parent, ButtonMarker::new(ButtonKind::Options));
                 quit.spawn(parent, ButtonMarker::new(ButtonKind::Quit));
             });

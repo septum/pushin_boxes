@@ -4,10 +4,10 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
 use crate::{
-    assets::{LoadedHandles, SaveFile},
-    level::{Level, LevelState},
-    state::GameState,
-    ui::{ButtonKind, ButtonMarker},
+    level::{Level, LevelState, LevelTag},
+    resources::{ResourcesHandles, SaveFile},
+    state::{GameState, SelectionKind},
+    ui::{ButtonKind, ButtonMarker, LevelKind},
 };
 
 #[derive(Component)]
@@ -17,50 +17,88 @@ pub struct SelectionPlugin;
 
 impl Plugin for SelectionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Selection).with_system(setup))
-            .add_system_set(SystemSet::on_update(GameState::Selection).with_system(select_level))
-            .add_system_set(SystemSet::on_exit(GameState::Selection).with_system(cleanup));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Selection(SelectionKind::Stock)).with_system(setup),
+        )
+        .add_system_set(
+            SystemSet::on_enter(GameState::Selection(SelectionKind::Custom)).with_system(setup),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Selection(SelectionKind::Stock))
+                .with_system(select_level),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Selection(SelectionKind::Custom))
+                .with_system(select_level),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Selection(SelectionKind::Stock)).with_system(cleanup),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Selection(SelectionKind::Custom)).with_system(cleanup),
+        );
     }
 }
 
 fn setup(
     mut commands: Commands,
-    loaded_handles: Res<LoadedHandles>,
+    state: Res<State<GameState>>,
+    resources: Res<ResourcesHandles>,
     audio: Res<Audio>,
     save_file: Res<SaveFile>,
 ) {
-    ui::spawn(
-        &mut commands,
-        &loaded_handles.assets,
-        &save_file.level_records,
-    );
-    audio.play_looped(loaded_handles.assets.sounds.music_selection.clone());
+    if let GameState::Selection(selection_kind) = state.current() {
+        ui::spawn(&mut commands, &resources.assets, &save_file, selection_kind);
+    }
+
+    audio.play_looped(resources.assets.sounds.music.selection.clone());
 }
 
 fn select_level(
     mut commands: Commands,
     mut state: ResMut<State<GameState>>,
     loaded_levels: Res<Assets<LevelState>>,
-    loaded_handles: Res<LoadedHandles>,
+    resources: Res<ResourcesHandles>,
     save_file: Res<SaveFile>,
     query: Query<(&ButtonMarker, &Interaction), (Changed<Interaction>, With<Button>)>,
 ) {
     if let Ok((button, interaction)) = query.get_single() {
         match interaction {
-            Interaction::Clicked => {
-                if let ButtonKind::Level(index) = button.kind {
-                    let level = Level::load(
-                        index,
-                        save_file.get_record(index),
-                        &loaded_levels,
-                        &loaded_handles.assets.levels,
-                    );
+            Interaction::Clicked => match &button.kind {
+                ButtonKind::Level(level_kind) => {
+                    let level = match level_kind {
+                        LevelKind::Stock(index) => Level::load(
+                            LevelTag::Stock(index.clone()),
+                            &save_file,
+                            &loaded_levels,
+                            &resources.assets.levels,
+                        ),
+                        LevelKind::Custom(uuid) => Level::load(
+                            LevelTag::Custom(uuid.clone()),
+                            &save_file,
+                            &loaded_levels,
+                            &resources.assets.levels,
+                        ),
+                    };
 
                     commands.insert_resource(level);
 
                     state.set(GameState::Level).unwrap();
                 }
-            }
+                ButtonKind::Levels => {
+                    if let GameState::Selection(selection_kind) = state.current() {
+                        match selection_kind {
+                            SelectionKind::Stock => state
+                                .set(GameState::Selection(SelectionKind::Custom))
+                                .unwrap(),
+                            SelectionKind::Custom => state
+                                .set(GameState::Selection(SelectionKind::Stock))
+                                .unwrap(),
+                        }
+                    }
+                }
+                _ => {}
+            },
             Interaction::Hovered => { /* TODO: Modify button style */ }
             Interaction::None => {}
         }

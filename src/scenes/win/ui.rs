@@ -1,19 +1,22 @@
 use bevy::prelude::*;
 
 use crate::{
-    assets::{AssetsHandles, Colors, SaveFile},
     config::MAX_TOTAL_LEVELS,
-    level::Level,
+    level::{Level, LevelTag},
+    resources::{AssetsHandles, Colors, SaveFile},
     ui,
 };
 
 use super::CleanupMarker;
 
 pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level, save_file: &SaveFile) {
-    let last_level = level.index + 1 == MAX_TOTAL_LEVELS;
+    let last_stock_level = match level.tag {
+        LevelTag::Stock(index) => index + 1 == MAX_TOTAL_LEVELS,
+        _ => false,
+    };
     let overlay = ui::Overlay::new();
 
-    let title_housing_height = if last_level {
+    let title_housing_height = if last_stock_level {
         Val::Px(196.0)
     } else {
         Val::Px(98.0)
@@ -22,8 +25,8 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level, sav
     let any_key_housing = ui::Housing::new(Val::Percent(100.0), Val::Px(32.0));
 
     let new_record = level.record == 0 || level.moves < level.record;
-    let record_or_empty_text = if last_level {
-        format!("FINAL RECORD: {}", save_file.final_record())
+    let record_or_empty_text = if last_stock_level {
+        format!("FINAL RECORD: {}", save_file.final_stock_levels_record())
     } else if new_record {
         format!("NEW RECORD: {}", level.moves)
     } else {
@@ -38,10 +41,14 @@ pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level, sav
         },
     );
 
-    let title_text = if last_level {
+    let title_text = if last_stock_level {
         "Thank you\nfor playing!".to_string()
     } else {
-        "You Win!".to_string()
+        if let LevelTag::Test(_) = level.tag {
+            "Level Saved!".to_string()
+        } else {
+            "You Win!".to_string()
+        }
     };
     let title = ui::EmbossedText::new(
         title_text,

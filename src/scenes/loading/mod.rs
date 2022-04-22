@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::prelude::*;
 
-use crate::{assets::LoadedHandles, state::GameState};
+use crate::{resources::ResourcesHandles, state::GameState};
 
 #[derive(Component)]
 struct CleanupMarker;
@@ -16,8 +16,8 @@ impl Plugin for LoadingPlugin {
     }
 }
 
-fn setup(mut commands: Commands, loaded_handles: Res<LoadedHandles>) {
-    ui::spawn(&mut commands, &loaded_handles.assets);
+fn setup(mut commands: Commands, resources: Res<ResourcesHandles>) {
+    ui::spawn(&mut commands, &resources.assets);
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<CleanupMarker>>) {
