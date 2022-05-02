@@ -1,122 +1,96 @@
 mod ui;
 
-use std::{env, fs::File, io::Write, path::PathBuf};
-
-use bevy::prelude::*;
+use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
-use uuid::Uuid;
 
-use crate::{
-    config::MAX_TOTAL_LEVELS,
-    level::{Level, LevelState, LevelTag},
-    resources::{ResourcesHandles, SaveFile},
-    state::{GameState, SelectionKind},
-};
+use crate::{game, resources::prelude::*, state::GameState};
 
-#[derive(Component)]
-struct CleanupMarker;
+use ui::{spawn_ui, UiMarker};
 
 pub struct WinPlugin;
 
 impl Plugin for WinPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Win).with_system(setup))
-            .add_system_set(SystemSet::on_update(GameState::Win).with_system(interactions))
-            .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Win)
+                .with_system(setup)
+                .with_system(start_audio),
+        )
+        .add_system_set(SystemSet::on_update(GameState::Win).with_system(interactions))
+        .add_system_set(
+            SystemSet::on_exit(GameState::Win)
+                .with_system(cleanup)
+                .with_system(stop_audio),
+        );
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    save_file: Res<SaveFile>,
-    resources: Res<ResourcesHandles>,
-    level: Res<Level>,
-    audio: Res<Audio>,
-) {
-    ui::spawn(&mut commands, &resources.assets, &level, &save_file);
-    audio.play_looped(resources.assets.sounds.music.win.clone());
+fn setup(mut commands: Commands, save_file: Res<SaveFile>, fonts: Res<Fonts>, level: Res<Level>) {
+    spawn_ui(&mut commands, &fonts, &level, &save_file);
+}
+
+fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
+    let audio_source = sounds.music.win.clone();
+    let channel_id = &sounds.channels.music;
+    audio.play_looped_in_channel(audio_source, channel_id);
 }
 
 fn interactions(
     mut commands: Commands,
-    mut state: ResMut<State<GameState>>,
+    mut game_state: ResMut<State<GameState>>,
     mut save_file: ResMut<SaveFile>,
-    mut resources: ResMut<ResourcesHandles>,
+    mut level_handles: ResMut<LevelHandles>,
     asset_server: Res<AssetServer>,
     keyboard: Res<Input<KeyCode>>,
+    level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
-    loaded_levels: Res<Assets<LevelState>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         match &level.tag {
-            LevelTag::Stock(index) => {
-                save_file.set_if_new_record(&level.tag, &level.moves);
-                save_file.unlock_next_stock_level(&level.tag);
-                save_file.save();
+            LevelTag::Stock(current_index) => {
+                game::save_file::stock::unlock(&mut save_file, &level);
+                game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+                game::save_file::save(&save_file);
 
-                // TODO: Move this somewhere else
-                if index + 1 < MAX_TOTAL_LEVELS {
-                    let level = Level::load(
-                        LevelTag::Stock(index + 1),
-                        &save_file.into(),
-                        &loaded_levels,
-                        &resources.assets.levels,
+                if !game::level::stock::is_last(&level.tag) {
+                    game::level::stock::insert(
+                        &mut commands,
+                        *current_index + 1,
+                        &save_file,
+                        &level_handles,
+                        &level_states_assets,
                     );
-                    commands.insert_resource(level);
-
-                    state.set(GameState::Level).unwrap();
+                    game_state.set(GameState::Level).unwrap();
                 } else {
-                    state
-                        .set(GameState::Selection(SelectionKind::Stock))
-                        .unwrap();
+                    game_state.set(GameState::stock_selection()).unwrap();
                 }
             }
             LevelTag::Custom(_) => {
-                save_file.set_if_new_record(&level.tag, &level.moves);
-                save_file.save();
-                state
-                    .set(GameState::Selection(SelectionKind::Custom))
-                    .unwrap();
+                game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+                game::save_file::save(&save_file);
+                game_state.set(GameState::custom_selection()).unwrap();
             }
             LevelTag::Test(level_state) => {
-                let uuid = Uuid::new_v4();
-                let tag = LevelTag::Custom(uuid);
-                let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-                    PathBuf::from(manifest_dir)
-                        .join("assets/levels/custom")
-                        .join(format!("{}.lvl", uuid))
-                } else {
-                    PathBuf::from("assets/levels/custom").join(format!("{}.lvl", uuid))
-                };
-
-                if let Ok(serialized_string) = ron::ser::to_string(&level_state) {
-                    let mut file = File::create(path).unwrap();
-                    file.write_all(serialized_string.as_bytes()).unwrap();
-                }
-
-                resources.assets.levels.custom.insert(
-                    uuid,
-                    asset_server.load(&format!("levels/custom/{}.lvl", uuid)),
+                game::level::custom::write(
+                    &level,
+                    &mut level_handles,
+                    level_state,
+                    &asset_server,
+                    &mut save_file,
                 );
-
-                save_file.set_record(&tag, level.moves.clone());
-                save_file.save();
-
-                state.set(GameState::Title).unwrap();
+                game_state.set(GameState::Title).unwrap();
             }
         }
     }
 }
 
-fn cleanup(
-    mut commands: Commands,
-    entities: Query<Entity, With<CleanupMarker>>,
-    audio: Res<Audio>,
-) {
-    // TODO: Move this somewhere else
-    audio.stop();
-
+fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+fn stop_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
+    let channel_id = &sounds.channels.music;
+    audio.stop_channel(channel_id);
 }

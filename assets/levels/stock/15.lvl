@@ -11,6 +11,6 @@
         (W,Z,B,F,Z,W,W,W,W,W,),
         (W,W,W,W,W,W,W,W,W,W,),
     ),
-    remaining_zones: 10,
     player_position: (x: 3, y: 3),
+    remaining_zones: 10,
 )

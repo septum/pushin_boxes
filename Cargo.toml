@@ -16,11 +16,11 @@ default = ['bevy/dynamic']
 
 [dependencies]
 bevy_asset_ron = "0.4.0"
-serde = "1.0.136"
+serde = "1.0.137"
 ron = "0.7.0"
 
 [dependencies.hashbrown]
-version = "0.12.0"
+version = "0.12.1"
 features = ["serde"]
 
 [dependencies.bevy]

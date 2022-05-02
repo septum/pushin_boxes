@@ -1,90 +1,62 @@
-mod data;
 mod handle;
 
-use std::env;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
-
+use bevy::reflect::TypeUuid;
 use hashbrown::HashMap;
-use ron;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::config::MAX_TOTAL_LEVELS;
-use crate::level::LevelTag;
-
-pub use data::SaveFileData;
 pub use handle::SaveFileHandle;
 
+#[derive(TypeUuid, Serialize, Deserialize, Clone)]
+#[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
     pub stock: Vec<usize>,
     pub custom: HashMap<Uuid, usize>,
 }
 
-impl SaveFile {
-    pub fn new(data: &SaveFileData) -> SaveFile {
+impl Default for SaveFile {
+    fn default() -> SaveFile {
         SaveFile {
-            stock: data.stock.clone(),
-            custom: data.custom.clone(),
+            stock: vec![0],
+            custom: HashMap::new(),
         }
     }
+}
 
-    pub fn no_records(&self) -> bool {
-        self.stock.is_empty() && self.custom.is_empty()
+impl SaveFile {
+    pub fn new(stock: Vec<usize>, custom: HashMap<Uuid, usize>) -> SaveFile {
+        SaveFile { stock, custom }
     }
 
-    pub fn set_record(&mut self, tag: &LevelTag, moves: usize) {
-        match tag {
-            LevelTag::Stock(index) => self.stock[*index] = moves,
-            LevelTag::Custom(uuid) => {
-                if let Some(record) = self.custom.get_mut(uuid) {
-                    *record = moves;
-                } else {
-                    self.custom.insert(*uuid, moves);
-                }
-            }
-            LevelTag::Test(_) => (),
-        }
+    pub fn stock_levels_len(&self) -> usize {
+        self.stock.len()
     }
 
-    pub fn get_record(&self, tag: &LevelTag) -> usize {
-        match tag {
-            LevelTag::Stock(index) => self.stock[*index],
-            LevelTag::Custom(uuid) => self.custom[uuid],
-            LevelTag::Test(_) => 0,
-        }
+    pub fn custom_levels_len(&self) -> usize {
+        self.custom.len()
     }
 
-    pub fn set_if_new_record(&mut self, tag: &LevelTag, moves: &usize) {
-        let record = self.get_record(tag);
-        if record == 0 || record > *moves {
-            self.set_record(tag, *moves);
-        }
+    pub fn insert_stock_level_record(&mut self, moves: usize) {
+        self.stock.push(moves);
     }
 
-    pub fn unlock_next_stock_level(&mut self, tag: &LevelTag) {
-        if let LevelTag::Stock(index) = tag {
-            let next_index = index + 1;
-            if next_index < MAX_TOTAL_LEVELS && next_index >= self.stock.len() {
-                self.stock.push(0);
-            }
-        }
+    pub fn insert_custom_level_record(&mut self, uuid: Uuid, moves: usize) {
+        self.custom.insert(uuid, moves);
     }
 
-    pub fn final_stock_levels_record(&self) -> usize {
-        self.stock.iter().sum()
+    pub fn set_stock_level_record(&mut self, index: &usize, moves: usize) {
+        self.stock[*index] = moves;
     }
 
-    pub fn save(&self) {
-        let data = SaveFileData::new(self.stock.clone(), self.custom.clone());
-        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-            PathBuf::from(manifest_dir).join("assets").join("game.dat")
-        } else {
-            PathBuf::from("./assets").join("game.dat")
-        };
-        if let Ok(serialized_string) = ron::ser::to_string(&data) {
-            let mut file = File::create(path).unwrap();
-            file.write_all(serialized_string.as_bytes()).unwrap();
-        }
+    pub fn set_custom_level_record(&mut self, uuid: &Uuid, moves: usize) {
+        *self.custom.get_mut(uuid).unwrap() = moves;
+    }
+
+    pub fn get_stock_level_record(&self, index: &usize) -> usize {
+        self.stock[*index]
+    }
+
+    pub fn get_custom_level_record(&self, uuid: &Uuid) -> usize {
+        self.custom[uuid]
     }
 }

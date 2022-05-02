@@ -1,11 +1,20 @@
 use bevy::prelude::*;
 
-use crate::{resources::AssetsHandles, ui};
+use crate::ui::Overlay;
 
-use super::CleanupMarker;
+#[derive(Component)]
+pub struct UiMarker;
 
-pub fn spawn(commands: &mut Commands, _assets: &AssetsHandles) {
-    let overlay = ui::Overlay::new();
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
+}
 
-    overlay.spawn(commands, CleanupMarker, |_parent| {});
+pub fn spawn_ui(commands: &mut Commands) {
+    let overlay = Overlay::new();
+
+    overlay.spawn(commands, |_parent| {}, UiMarker);
+
+    spawn_ui_camera(commands);
 }

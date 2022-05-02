@@ -1,82 +1,57 @@
 use bevy::prelude::*;
 
 use crate::{
-    resources::{AssetsHandles, Colors},
-    ui,
+    resources::prelude::*,
+    ui::{ActionButton, ButtonMarker, EmbossedText, Housing, Overlay, SimpleText},
 };
 
-use super::{ButtonKind, ButtonMarker, CleanupMarker};
+#[derive(Component)]
+pub struct UiMarker;
 
-fn create_button(text: &str, font: Handle<Font>) -> ui::Button {
-    ui::Button::new(
-        ui::SimpleText::new(
-            text.to_string(),
-            TextStyle {
-                font_size: 35.0,
-                color: Colors::DARK,
-                font,
-            },
-        ),
-        Style {
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            size: Size::new(Val::Px(280.0), Val::Px(50.0)),
-            ..Default::default()
-        },
-        Colors::PRIMARY.into(),
-    )
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
 }
 
-pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
-    let overlay = ui::Overlay::new();
+pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
+    let font = &fonts.fredoka;
 
-    let top = ui::Housing::new(Val::Percent(100.0), Val::Percent(50.0));
-    let bottom = ui::Housing::new(Val::Percent(100.0), Val::Percent(50.0));
-    let mut actions = ui::Housing::new(Val::Percent(100.0), Val::Percent(90.0));
-    let footer = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
+    let overlay = Overlay::new();
+    let mut actions = Housing::percent(100.0, 90.0);
+    let top = Housing::percent(100.0, 50.0);
+    let bottom = Housing::percent(100.0, 50.0);
+    let footer = Housing::percent(100.0, 10.0);
 
-    let title = ui::EmbossedText::new(
-        "Pushin'\nBoxes".to_string(),
-        4.0,
-        TextStyle {
-            font_size: 120.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
+    let title = EmbossedText::big("Pushin'\nBoxes", font);
+    let notice = SimpleText::small("Created by septum | https://septum.io", font);
+    let play = ActionButton::full("Play", font);
+    let editor = ActionButton::full("Editor", font);
+    let options = ActionButton::full("Options", font);
+    let quit = ActionButton::full("Quit", font);
+
+    actions.justify_content(JustifyContent::SpaceEvenly);
+
+    overlay.spawn(
+        commands,
+        |parent| {
+            top.spawn(parent, |parent| {
+                title.spawn(parent);
+            });
+            bottom.spawn(parent, |parent| {
+                actions.spawn(parent, |parent| {
+                    play.spawn(parent, ButtonMarker::play());
+                    editor.spawn(parent, ButtonMarker::editor());
+                    options.spawn(parent, ButtonMarker::options());
+                    quit.spawn(parent, ButtonMarker::quit());
+                });
+                footer.spawn(parent, |parent| {
+                    notice.spawn(parent);
+                });
+            });
         },
+        UiMarker,
     );
 
-    let notice = ui::SimpleText::new(
-        "Created by septum | https://septum.io".to_string(),
-        TextStyle {
-            font_size: 21.0,
-            color: Colors::LIGHT,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
-
-    let play = create_button("Play", assets.fonts.fredoka.clone());
-    let editor = create_button("Editor", assets.fonts.fredoka.clone());
-    let options = create_button("Options", assets.fonts.fredoka.clone());
-    let quit = create_button("Quit", assets.fonts.fredoka.clone());
-
-    actions.set_justify_content(JustifyContent::SpaceEvenly);
-
-    assets.images.spawn_background(commands, CleanupMarker);
-
-    overlay.spawn(commands, CleanupMarker, |parent| {
-        top.spawn(parent, |parent| {
-            title.spawn(parent);
-        });
-        bottom.spawn(parent, |parent| {
-            actions.spawn(parent, |parent| {
-                play.spawn(parent, ButtonMarker::new(ButtonKind::Play));
-                editor.spawn(parent, ButtonMarker::new(ButtonKind::Editor));
-                options.spawn(parent, ButtonMarker::new(ButtonKind::Options));
-                quit.spawn(parent, ButtonMarker::new(ButtonKind::Quit));
-            });
-            footer.spawn(parent, |parent| {
-                notice.spawn(parent);
-            });
-        });
-    });
+    spawn_ui_camera(commands);
 }

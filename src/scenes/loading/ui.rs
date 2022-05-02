@@ -1,25 +1,30 @@
 use bevy::prelude::*;
 
 use crate::{
-    resources::{AssetsHandles, Colors},
-    ui,
+    resources::prelude::*,
+    ui::{Overlay, SimpleText},
 };
 
-use super::CleanupMarker;
+#[derive(Component)]
+pub struct UiMarker;
 
-pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
-    let overlay = ui::Overlay::new();
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
+}
 
-    let loading_text = ui::SimpleText::new(
-        "Loading...".to_string(),
-        TextStyle {
-            font: assets.fonts.fredoka.clone(),
-            font_size: 70.0,
-            color: Colors::PRIMARY,
+pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
+    let overlay = Overlay::new();
+    let loading_text = SimpleText::big("Loading...", &fonts.fredoka);
+
+    overlay.spawn(
+        commands,
+        |parent| {
+            loading_text.spawn(parent);
         },
+        UiMarker,
     );
 
-    overlay.spawn(commands, CleanupMarker, |parent| {
-        loading_text.spawn(parent);
-    });
+    spawn_ui_camera(commands);
 }

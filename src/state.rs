@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum SelectionKind {
+pub enum Selection {
     Stock,
     Custom,
 }
@@ -11,7 +11,17 @@ pub enum GameState {
     Title,
     Editor,
     Instructions,
-    Selection(SelectionKind),
+    Selection(Selection),
     Level,
     Win,
+}
+
+impl GameState {
+    pub fn custom_selection() -> GameState {
+        GameState::Selection(Selection::Custom)
+    }
+
+    pub fn stock_selection() -> GameState {
+        GameState::Selection(Selection::Stock)
+    }
 }

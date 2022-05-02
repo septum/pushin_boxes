@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::resources::Colors;
+use crate::resources::prelude::*;
 
 pub struct Overlay {
     pub bundle: NodeBundle,
@@ -8,12 +8,6 @@ pub struct Overlay {
 
 impl Default for Overlay {
     fn default() -> Overlay {
-        Overlay::new()
-    }
-}
-
-impl Overlay {
-    pub fn new() -> Overlay {
         Overlay {
             bundle: NodeBundle {
                 style: Style {
@@ -28,28 +22,38 @@ impl Overlay {
             },
         }
     }
+}
 
-    pub fn set_flex_direction(&mut self, flex_direction: FlexDirection) {
+impl Overlay {
+    pub fn new() -> Overlay {
+        Overlay::default()
+    }
+
+    pub fn flex_direction(&mut self, flex_direction: FlexDirection) -> &mut Overlay {
         self.bundle.style.flex_direction = flex_direction;
+        self
     }
 
-    pub fn set_justify_content(&mut self, justify_content: JustifyContent) {
+    pub fn justify_content(&mut self, justify_content: JustifyContent) -> &mut Overlay {
         self.bundle.style.justify_content = justify_content;
+        self
     }
 
-    pub fn set_align_items(&mut self, align_items: AlignItems) {
+    pub fn align_items(&mut self, align_items: AlignItems) -> &mut Overlay {
         self.bundle.style.align_items = align_items;
+        self
     }
 
-    pub fn set_padding(&mut self, padding: Rect<Val>) {
+    pub fn padding(&mut self, padding: Rect<Val>) -> &mut Overlay {
         self.bundle.style.padding = padding;
+        self
     }
 
     pub fn spawn(
         self,
         commands: &mut Commands,
-        marker: impl Component,
         children: impl FnOnce(&mut ChildBuilder),
+        marker: impl Component,
     ) {
         commands
             .spawn_bundle(self.bundle)

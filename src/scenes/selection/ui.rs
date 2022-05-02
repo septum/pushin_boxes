@@ -1,179 +1,109 @@
 use bevy::prelude::*;
 
 use crate::{
-    resources::{AssetsHandles, Colors, SaveFile},
-    state::SelectionKind,
-    ui::{self, ButtonKind, ButtonMarker, LevelKind},
+    game,
+    resources::prelude::*,
+    state::Selection,
+    ui::{ActionButton, ButtonMarker, EmbossedText, Housing, Overlay, SimpleText},
 };
 
-use super::CleanupMarker;
+#[derive(Component)]
+pub struct UiMarker;
 
-pub fn spawn(
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
+}
+
+fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
+    for (index, record) in save_file.stock.iter().enumerate() {
+        let housing = Housing::percent(25.0, 25.0);
+        let button = ActionButton::square(format!("{}", index + 1), font);
+        let marker = ButtonMarker::stock_level(index);
+        let text = if *record > 0 {
+            format!("Record: {}", record)
+        } else {
+            "New Level!".to_string()
+        };
+        let record_new_level = SimpleText::small(text, font);
+
+        housing.spawn(parent, |parent| {
+            button.spawn(parent, marker);
+            record_new_level.spawn(parent);
+        });
+    }
+}
+
+fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
+    for (uuid, record) in save_file.custom.iter() {
+        let housing = Housing::percent(100.0, 20.0);
+        let button = ActionButton::full(format!("{}", uuid), font);
+        let marker = ButtonMarker::custom_level(*uuid);
+        let text = if *record > 0 {
+            format!("Record: {}", record)
+        } else {
+            "New Level!".to_string()
+        };
+        let record_new_level = SimpleText::small(text, font);
+
+        housing.spawn(parent, |parent| {
+            button.spawn(parent, marker);
+            record_new_level.spawn(parent);
+        });
+    }
+}
+
+pub fn spawn_ui(
     commands: &mut Commands,
-    assets: &AssetsHandles,
+    fonts: &Fonts,
     save_file: &SaveFile,
-    selection_kind: &SelectionKind,
+    selection_kind: &Selection,
 ) {
-    let stock_levels = matches!(selection_kind, SelectionKind::Stock);
+    let font = &fonts.fredoka;
+    let is_stock = game::scenes::is_stock_selection(selection_kind);
+    let levels_simple_text = if is_stock {
+        "Custom Levels"
+    } else {
+        "Stock Levels"
+    };
 
-    let overlay = ui::Overlay::new();
+    let overlay = Overlay::new();
+    let mut top = Housing::percent(100.0, 10.0);
+    let mut bottom = Housing::percent(100.0, 90.0);
 
-    let mut top = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
-    let mut bottom = ui::Housing::new(Val::Percent(100.0), Val::Percent(90.0));
+    let title = EmbossedText::medium("Select a Level", font);
+    let levels = ActionButton::full(levels_simple_text, font);
 
-    let title = ui::EmbossedText::new(
-        "Select a Level".to_string(),
-        2.0,
-        TextStyle {
-            font_size: 42.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
+    top.flex_direction(FlexDirection::Row)
+        .justify_content(JustifyContent::SpaceBetween)
+        .left_padding(Val::Px(43.0))
+        .right_padding(Val::Px(43.0));
+
+    bottom
+        .flex_wrap(FlexWrap::WrapReverse)
+        .flex_direction(FlexDirection::Row)
+        .justify_content(JustifyContent::FlexStart)
+        .align_items(AlignItems::FlexStart)
+        .align_content(AlignContent::FlexStart);
+
+    overlay.spawn(
+        commands,
+        |parent| {
+            top.spawn(parent, |parent| {
+                title.spawn(parent);
+                levels.spawn(parent, ButtonMarker::levels());
+            });
+            bottom.spawn(parent, |parent| {
+                if is_stock {
+                    spawn_stock_buttons(parent, save_file, font);
+                } else {
+                    spawn_custom_buttons(parent, save_file, font);
+                }
+            });
         },
+        UiMarker,
     );
 
-    let levels = ui::Button::new(
-        ui::SimpleText::new(
-            if stock_levels {
-                "Custom Levels".to_string()
-            } else {
-                "Stock Levels".to_string()
-            },
-            TextStyle {
-                font_size: 28.0,
-                color: Colors::DARK,
-                font: assets.fonts.fredoka.clone(),
-            },
-        ),
-        Style {
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            size: Size::new(Val::Px(200.0), Val::Px(36.0)),
-            ..Default::default()
-        },
-        Colors::PRIMARY.into(),
-    );
-
-    top.set_flex_direction(FlexDirection::Row);
-    top.set_justify_content(JustifyContent::SpaceBetween);
-    top.set_padding(Rect {
-        left: Val::Px(43.0),
-        right: Val::Px(43.0),
-        ..Default::default()
-    });
-    bottom.set_flex_wrap(FlexWrap::WrapReverse);
-    bottom.set_flex_direction(FlexDirection::Row);
-    bottom.set_justify_content(JustifyContent::FlexStart);
-    bottom.set_align_items(AlignItems::FlexStart);
-    bottom.set_align_content(AlignContent::FlexStart);
-
-    assets.images.spawn_background(commands, CleanupMarker);
-
-    overlay.spawn(commands, CleanupMarker, |parent| {
-        top.spawn(parent, |parent| {
-            title.spawn(parent);
-            levels.spawn(parent, ButtonMarker::new(ButtonKind::Levels));
-        });
-        bottom.spawn(parent, |parent| {
-            // TODO: DRY this
-            if stock_levels {
-                for (index, record) in save_file.stock.iter().enumerate() {
-                    let housing = ui::Housing::new(Val::Percent(25.0), Val::Percent(25.0));
-                    let button = ui::Button::new(
-                        ui::SimpleText::new(
-                            format!("{}", index + 1),
-                            TextStyle {
-                                font_size: 49.0,
-                                color: Colors::DARK,
-                                font: assets.fonts.fredoka.clone(),
-                            },
-                        ),
-                        Style {
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            size: Size::new(Val::Px(56.0), Val::Px(56.0)),
-                            ..Default::default()
-                        },
-                        Colors::PRIMARY.into(),
-                    );
-                    let mut record_or_new_level = ui::SimpleText::new(
-                        if *record > 0 {
-                            format!("Record: {}", record)
-                        } else {
-                            "New Level!".to_string()
-                        },
-                        TextStyle {
-                            font: assets.fonts.fredoka.clone(),
-                            font_size: 19.0,
-                            color: Colors::LIGHT,
-                        },
-                    );
-
-                    record_or_new_level.set_node_style(Style {
-                        position: Rect {
-                            top: Val::Px(3.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    });
-
-                    housing.spawn(parent, |parent| {
-                        button.spawn(
-                            parent,
-                            ButtonMarker::new(ButtonKind::Level(LevelKind::Stock(index))),
-                        );
-                        record_or_new_level.spawn(parent);
-                    });
-                }
-            } else {
-                for (uuid, record) in save_file.custom.iter() {
-                    let housing = ui::Housing::new(Val::Percent(100.0), Val::Percent(20.0));
-                    let button = ui::Button::new(
-                        ui::SimpleText::new(
-                            format!("{}", uuid),
-                            TextStyle {
-                                font_size: 21.0,
-                                color: Colors::DARK,
-                                font: assets.fonts.fredoka.clone(),
-                            },
-                        ),
-                        Style {
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            size: Size::new(Val::Px(560.0), Val::Px(40.0)),
-                            ..Default::default()
-                        },
-                        Colors::PRIMARY.into(),
-                    );
-                    let mut record_or_new_level = ui::SimpleText::new(
-                        if *record > 0 {
-                            format!("Record: {}", record)
-                        } else {
-                            "New Level!".to_string()
-                        },
-                        TextStyle {
-                            font: assets.fonts.fredoka.clone(),
-                            font_size: 19.0,
-                            color: Colors::LIGHT,
-                        },
-                    );
-
-                    record_or_new_level.set_node_style(Style {
-                        position: Rect {
-                            top: Val::Px(3.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    });
-
-                    housing.spawn(parent, |parent| {
-                        button.spawn(
-                            parent,
-                            ButtonMarker::new(ButtonKind::Level(LevelKind::Custom(*uuid))),
-                        );
-                        record_or_new_level.spawn(parent);
-                    });
-                }
-            }
-        });
-    });
+    spawn_ui_camera(commands);
 }

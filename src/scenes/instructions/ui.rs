@@ -1,146 +1,74 @@
 use bevy::prelude::*;
 
 use crate::{
-    resources::{AssetsHandles, Colors},
-    ui,
+    resources::prelude::*,
+    ui::{EmbossedText, Housing, Overlay, Picture, SimpleText},
 };
 
-use super::CleanupMarker;
+#[derive(Component)]
+pub struct UiMarker;
 
-pub fn spawn(commands: &mut Commands, assets: &AssetsHandles) {
-    let overlay = ui::Overlay::new();
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
+}
 
-    let housing_a = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
-    let housing_b = ui::Housing::new(Val::Percent(100.0), Val::Percent(20.0));
-    let housing_c = ui::Housing::new(Val::Percent(100.0), Val::Percent(20.0));
-    let housing_d = ui::Housing::new(Val::Percent(100.0), Val::Percent(20.0));
-    let housing_e = ui::Housing::new(Val::Percent(100.0), Val::Percent(20.0));
-    let housing_f = ui::Housing::new(Val::Percent(100.0), Val::Percent(10.0));
+pub fn spawn_ui(commands: &mut Commands, images: &Images, fonts: &Fonts) {
+    let font = &fonts.fredoka;
 
-    let how_to_play = ui::EmbossedText::new(
-        "How to Play".to_string(),
-        2.0,
-        TextStyle {
-            font_size: 44.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
+    let overlay = Overlay::new();
+    let line_a = Housing::percent(100.0, 10.0);
+    let line_b = Housing::percent(100.0, 20.0);
+    let line_c = Housing::percent(100.0, 20.0);
+    let line_d = Housing::percent(100.0, 20.0);
+    let line_e = Housing::percent(100.0, 20.0);
+    let line_f = Housing::percent(100.0, 10.0);
 
-    let press = ui::SimpleText::new(
-        "Press".to_string(),
-        TextStyle {
-            font_size: 44.0,
-            color: Colors::LIGHT,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
+    let controls = Picture::full(&images.controls);
+    let mut pushin = Picture::px(64.0, 64.0, &images.player.idle);
+    let mut pbox = Picture::px(64.0, 64.0, &images.entities.pbox);
+    let mut zone = Picture::px(64.0, 64.0, &images.entities.zone);
 
-    let or = ui::SimpleText::new(
-        "or".to_string(),
-        TextStyle {
-            font_size: 44.0,
-            color: Colors::LIGHT,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
+    let how_to_play = EmbossedText::medium("How to Play", font);
+    let press = SimpleText::medium("Press", font);
+    let or = SimpleText::medium("or", font);
+    let to_move = SimpleText::medium("to move        ,", font);
+    let to_win = SimpleText::medium("pushing all         into         to win!", font);
+    let press_space = EmbossedText::small("Press [SPACE] to continue", font);
 
-    let to_move = ui::SimpleText::new(
-        "to move        ,".to_string(),
-        TextStyle {
-            font_size: 44.0,
-            color: Colors::LIGHT,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
+    pushin.left_position(Val::Percent(56.0));
+    pbox.left_position(Val::Percent(39.0));
+    zone.left_position(Val::Percent(62.0));
 
-    let to_win = ui::SimpleText::new(
-        "pushing all         into         to win!".to_string(),
-        TextStyle {
-            font_size: 44.0,
-            color: Colors::LIGHT,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
-
-    let press_space = ui::EmbossedText::new(
-        "Press [SPACE] to continue".to_string(),
-        2.0,
-        TextStyle {
-            font_size: 24.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
-
-    assets.images.spawn_background(commands, CleanupMarker);
-
-    overlay.spawn(commands, CleanupMarker, |parent| {
-        housing_a.spawn(parent, |parent| {
-            how_to_play.spawn(parent);
-        });
-        housing_b.spawn(parent, |parent| {
-            press.spawn(parent);
-        });
-        housing_c.spawn(parent, |parent| {
-            parent.spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    ..Default::default()
-                },
-                image: assets.images.controls.clone().into(),
-                ..Default::default()
+    overlay.spawn(
+        commands,
+        |parent| {
+            line_a.spawn(parent, |parent| {
+                how_to_play.spawn(parent);
             });
-            or.spawn(parent);
-        });
-        housing_d.spawn(parent, |parent| {
-            parent.spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        left: Val::Percent(56.0),
-                        ..Default::default()
-                    },
-                    size: Size::new(Val::Px(64.0), Val::Px(64.0)),
-                    ..Default::default()
-                },
-                image: assets.images.player.idle.clone().into(),
-                ..Default::default()
+            line_b.spawn(parent, |parent| {
+                press.spawn(parent);
             });
-            to_move.spawn(parent);
-        });
-        housing_e.spawn(parent, |parent| {
-            parent.spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        left: Val::Percent(39.0),
-                        ..Default::default()
-                    },
-                    size: Size::new(Val::Px(64.0), Val::Px(64.0)),
-                    ..Default::default()
-                },
-                image: assets.images.entities.pbox.clone().into(),
-                ..Default::default()
+            line_c.spawn(parent, |parent| {
+                controls.spawn(parent);
+                or.spawn(parent);
             });
-            parent.spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        left: Val::Percent(63.0),
-                        ..Default::default()
-                    },
-                    size: Size::new(Val::Px(64.0), Val::Px(64.0)),
-                    ..Default::default()
-                },
-                image: assets.images.entities.zone.clone().into(),
-                ..Default::default()
+            line_d.spawn(parent, |parent| {
+                pushin.spawn(parent);
+                to_move.spawn(parent);
             });
-            to_win.spawn(parent);
-        });
-        housing_f.spawn(parent, |parent| {
-            press_space.spawn(parent);
-        });
-    });
+            line_e.spawn(parent, |parent| {
+                pbox.spawn(parent);
+                zone.spawn(parent);
+                to_win.spawn(parent);
+            });
+            line_f.spawn(parent, |parent| {
+                press_space.spawn(parent);
+            });
+        },
+        UiMarker,
+    );
+
+    spawn_ui_camera(commands);
 }

@@ -1,84 +1,65 @@
 use bevy::prelude::*;
 
 use crate::{
-    config::MAX_TOTAL_LEVELS,
-    level::{Level, LevelTag},
-    resources::{AssetsHandles, Colors, SaveFile},
-    ui,
+    game,
+    resources::prelude::*,
+    ui::{EmbossedText, Housing, Overlay, SimpleText},
 };
 
-use super::CleanupMarker;
+#[derive(Component)]
+pub struct UiMarker;
 
-pub fn spawn(commands: &mut Commands, assets: &AssetsHandles, level: &Level, save_file: &SaveFile) {
-    let last_stock_level = match level.tag {
-        LevelTag::Stock(index) => index + 1 == MAX_TOTAL_LEVELS,
-        _ => false,
-    };
-    let overlay = ui::Overlay::new();
+fn spawn_ui_camera(commands: &mut Commands) {
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(UiMarker);
+}
 
-    let title_housing_height = if last_stock_level {
+pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file: &SaveFile) {
+    let font = &fonts.fredoka;
+    let is_last_level = game::level::stock::is_last(&level.tag);
+    let title_housing_height = if is_last_level {
         Val::Px(196.0)
     } else {
         Val::Px(98.0)
     };
-    let title_housing = ui::Housing::new(Val::Percent(100.0), title_housing_height);
-    let any_key_housing = ui::Housing::new(Val::Percent(100.0), Val::Px(32.0));
 
-    let new_record = level.record == 0 || level.moves < level.record;
-    let record_or_empty_text = if last_stock_level {
-        format!("FINAL RECORD: {}", save_file.final_stock_levels_record())
-    } else if new_record {
+    let final_or_new = if is_last_level {
+        format!("FINAL RECORD: {}", game::save_file::stock::total(save_file))
+    } else if level.is_new_record() {
         format!("NEW RECORD: {}", level.moves)
     } else {
         String::new()
     };
-    let record_or_empty = ui::SimpleText::new(
-        record_or_empty_text,
-        TextStyle {
-            font_size: 40.0,
-            color: Colors::SECONDARY,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
-
-    let title_text = if last_stock_level {
-        "Thank you\nfor playing!".to_string()
+    let title = if is_last_level {
+        "Thank you\nfor playing!"
+    } else if level.is_test() {
+        "Level Saved!"
     } else {
-        if let LevelTag::Test(_) = level.tag {
-            "Level Saved!".to_string()
-        } else {
-            "You Win!".to_string()
-        }
+        "You Win!"
     };
-    let title = ui::EmbossedText::new(
-        title_text,
-        4.0,
-        TextStyle {
-            font_size: 96.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
+
+    let overlay = Overlay::new();
+    let title_housing = Housing::new(Val::Percent(100.0), title_housing_height);
+    let any_key_housing = Housing::new(Val::Percent(100.0), Val::Px(32.0));
+
+    let final_or_new = SimpleText::medium(final_or_new, font);
+    let title = EmbossedText::big(title, font);
+    let press_space = EmbossedText::small("Press [SPACE] to continue", font);
+
+    overlay.spawn(
+        commands,
+        |parent| {
+            final_or_new.spawn(parent);
+            title_housing.spawn(parent, |parent| {
+                title.spawn(parent);
+            });
+            any_key_housing.spawn(parent, |parent| {
+                press_space.spawn(parent);
+            });
         },
+        UiMarker,
     );
 
-    let press_space = ui::EmbossedText::new(
-        "Press [SPACE] to continue".to_string(),
-        2.0,
-        TextStyle {
-            font_size: 24.0,
-            color: Colors::PRIMARY,
-            font: assets.fonts.fredoka.clone(),
-        },
-    );
-
-    assets.images.spawn_background(commands, CleanupMarker);
-
-    overlay.spawn(commands, CleanupMarker, |parent| {
-        record_or_empty.spawn(parent);
-        title_housing.spawn(parent, |parent| {
-            title.spawn(parent);
-        });
-        any_key_housing.spawn(parent, |parent| {
-            press_space.spawn(parent);
-        });
-    });
+    spawn_ui_camera(commands);
 }
