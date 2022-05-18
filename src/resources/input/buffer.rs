@@ -1,25 +1,25 @@
-use super::Input;
+use super::GameInput;
 
-pub struct InputBuffer {
-    pub buffer: Vec<Input>,
+pub struct GameInputBuffer {
+    pub buffer: Vec<GameInput>,
 }
 
-impl Default for InputBuffer {
-    fn default() -> InputBuffer {
-        InputBuffer::new()
+impl Default for GameInputBuffer {
+    fn default() -> GameInputBuffer {
+        GameInputBuffer::new()
     }
 }
 
-impl InputBuffer {
-    pub fn new() -> InputBuffer {
-        InputBuffer { buffer: vec![] }
+impl GameInputBuffer {
+    pub fn new() -> GameInputBuffer {
+        GameInputBuffer { buffer: vec![] }
     }
 
-    pub fn insert(&mut self, input: Input) {
+    pub fn insert(&mut self, input: GameInput) {
         self.buffer.insert(0, input);
     }
 
-    pub fn pop(&mut self) -> Option<Input> {
+    pub fn pop(&mut self) -> Option<GameInput> {
         self.buffer.pop()
     }
 }

@@ -13,6 +13,7 @@ impl Plugin for WinPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_enter(GameState::Win)
+                .with_system(save_record)
                 .with_system(setup)
                 .with_system(start_audio),
         )
@@ -23,6 +24,11 @@ impl Plugin for WinPlugin {
                 .with_system(stop_audio),
         );
     }
+}
+
+fn save_record(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
+    game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+    game::save_file::save(&save_file);
 }
 
 fn setup(mut commands: Commands, save_file: Res<SaveFile>, fonts: Res<Fonts>, level: Res<Level>) {
@@ -48,11 +54,8 @@ fn interactions(
     if keyboard.just_pressed(KeyCode::Space) {
         match &level.tag {
             LevelTag::Stock(current_index) => {
-                game::save_file::stock::unlock(&mut save_file, &level);
-                game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
-                game::save_file::save(&save_file);
-
                 if !game::level::stock::is_last(&level.tag) {
+                    game::save_file::stock::unlock(&mut save_file, &level);
                     game::level::stock::insert(
                         &mut commands,
                         *current_index + 1,
@@ -66,8 +69,6 @@ fn interactions(
                 }
             }
             LevelTag::Custom(_) => {
-                game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
-                game::save_file::save(&save_file);
                 game_state.set(GameState::custom_selection()).unwrap();
             }
             LevelTag::Test(level_state) => {

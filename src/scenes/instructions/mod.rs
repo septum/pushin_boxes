@@ -15,7 +15,7 @@ impl Plugin for InstructionsPlugin {
                 .with_system(setup)
                 .with_system(start_audio),
         )
-        .add_system_set(SystemSet::on_update(GameState::Instructions).with_system(interactions))
+        .add_system_set(SystemSet::on_update(GameState::Instructions).with_system(keyboard_input))
         .add_system_set(
             SystemSet::on_exit(GameState::Instructions)
                 .with_system(cleanup)
@@ -34,10 +34,17 @@ fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
     audio.play_looped_in_channel(audio_source, channel_id);
 }
 
-fn interactions(mut state: ResMut<State<GameState>>, keyboard: Res<Input<KeyCode>>) {
+fn keyboard_input(mut game_state: ResMut<State<GameState>>, mut keyboard: ResMut<Input<KeyCode>>) {
     if keyboard.just_pressed(KeyCode::Space) {
-        state.set(GameState::stock_selection()).unwrap();
+        game_state.set(GameState::stock_selection()).unwrap();
     }
+
+    if keyboard.just_pressed(KeyCode::Escape) {
+        game_state.set(GameState::Title).unwrap();
+    }
+
+    // workaround for input persistence between systems
+    keyboard.clear();
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {

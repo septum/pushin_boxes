@@ -43,9 +43,11 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
     let title_housing = Housing::new(Val::Percent(100.0), title_housing_height);
     let any_key_housing = Housing::new(Val::Percent(100.0), Val::Px(32.0));
 
-    let final_or_new = SimpleText::medium(final_or_new, font);
+    let mut final_or_new = SimpleText::medium(final_or_new, font);
     let title = EmbossedText::big(title, font);
     let press_space = EmbossedText::small("Press [SPACE] to continue", font);
+
+    final_or_new.color(Colors::SECONDARY);
 
     overlay.spawn(
         commands,

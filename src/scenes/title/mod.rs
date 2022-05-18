@@ -1,6 +1,9 @@
 mod ui;
 
-use bevy::{app::AppExit, prelude::*};
+use bevy::{
+    app::AppExit,
+    prelude::{Input, *},
+};
 use bevy_kira_audio::Audio;
 
 use crate::{
@@ -21,7 +24,11 @@ impl Plugin for TitlePlugin {
                 .with_system(setup)
                 .with_system(start_audio),
         )
-        .add_system_set(SystemSet::on_update(GameState::Title).with_system(interactions))
+        .add_system_set(
+            SystemSet::on_update(GameState::Title)
+                .with_system(buttons_interactions)
+                .with_system(keyboard_input),
+        )
         .add_system_set(
             SystemSet::on_exit(GameState::Title)
                 .with_system(cleanup)
@@ -40,18 +47,23 @@ fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
     audio.play_looped_in_channel(audio_source, channel_id);
 }
 
-fn interactions(
+fn buttons_interactions(
     mut exit_event: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
+    mut mouse_button_input: ResMut<Input<MouseButton>>,
+    save_file: Res<SaveFile>,
     mut query: Query<
         (&ButtonMarker, &Interaction, &mut UiColor),
         (Changed<Interaction>, With<Button>),
     >,
-    save_file: Res<SaveFile>,
 ) {
     for (button, interaction, mut color) in query.iter_mut() {
         match interaction {
             Interaction::Clicked => {
+                // workaround for input persistence between systems
+                // see: https://github.com/bevyengine/bevy/issues/1700#issuecomment-886999222
+                mouse_button_input.reset(MouseButton::Left);
+
                 match button.kind {
                     ButtonKind::Play => {
                         if save_file::is_default(&save_file) {
@@ -82,6 +94,36 @@ fn interactions(
             }
         }
     }
+}
+
+fn keyboard_input(
+    mut exit_event: EventWriter<AppExit>,
+    mut game_state: ResMut<State<GameState>>,
+    mut keyboard: ResMut<Input<KeyCode>>,
+    save_file: Res<SaveFile>,
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        if save_file::is_default(&save_file) {
+            game_state.set(GameState::Instructions).unwrap();
+        } else {
+            game_state.set(GameState::stock_selection()).unwrap();
+        }
+    }
+
+    if keyboard.just_pressed(KeyCode::E) {
+        game_state.set(GameState::Editor).unwrap();
+    }
+
+    if keyboard.just_pressed(KeyCode::O) {
+        // TODO: Set game_state to show options scene
+    }
+
+    if keyboard.just_pressed(KeyCode::Escape) {
+        exit_event.send(AppExit);
+    }
+
+    // workaround for input persistence between systems
+    keyboard.clear();
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {

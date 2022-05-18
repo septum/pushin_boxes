@@ -3,44 +3,44 @@ mod buffer;
 mod direction;
 
 pub use action::Action;
-pub use buffer::InputBuffer;
+pub use buffer::GameInputBuffer;
 pub use direction::Direction;
 
-pub enum Input {
+pub enum GameInput {
     Direction(Direction),
     Action(Action),
 }
 
-impl Input {
-    pub fn up() -> Input {
-        Input::Direction(Direction::Up)
+impl GameInput {
+    pub fn up() -> GameInput {
+        GameInput::Direction(Direction::Up)
     }
 
-    pub fn down() -> Input {
-        Input::Direction(Direction::Down)
+    pub fn down() -> GameInput {
+        GameInput::Direction(Direction::Down)
     }
 
-    pub fn left() -> Input {
-        Input::Direction(Direction::Left)
+    pub fn left() -> GameInput {
+        GameInput::Direction(Direction::Left)
     }
 
-    pub fn right() -> Input {
-        Input::Direction(Direction::Right)
+    pub fn right() -> GameInput {
+        GameInput::Direction(Direction::Right)
     }
 
-    pub fn undo() -> Input {
-        Input::Action(Action::Undo)
+    pub fn undo() -> GameInput {
+        GameInput::Action(Action::Undo)
     }
 
-    pub fn reload() -> Input {
-        Input::Action(Action::Reload)
+    pub fn reload() -> GameInput {
+        GameInput::Action(Action::Reload)
     }
 
-    pub fn selection() -> Input {
-        Input::Action(Action::Selection)
+    pub fn selection() -> GameInput {
+        GameInput::Action(Action::Selection)
     }
 
-    pub fn exit() -> Input {
-        Input::Action(Action::Exit)
+    pub fn exit() -> GameInput {
+        GameInput::Action(Action::Exit)
     }
 }

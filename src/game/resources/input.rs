@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::{
-        input::{Action, Direction, Input},
+        input::{Action, Direction},
         prelude::*,
     },
     state::GameState,
@@ -11,17 +11,17 @@ use crate::{
 use super::level;
 
 pub fn process(
-    input: &Input,
+    input: &GameInput,
     level: &mut Level,
     game_state: &mut ResMut<State<GameState>>,
     levels: &LevelHandles,
     level_states: &Res<Assets<LevelState>>,
 ) {
     match input {
-        Input::Direction(direction) => {
+        GameInput::Direction(direction) => {
             handle_direction(level, direction);
         }
-        Input::Action(action) => {
+        GameInput::Action(action) => {
             handle_action(action, level, game_state, levels, level_states);
         }
     }

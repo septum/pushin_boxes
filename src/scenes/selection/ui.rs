@@ -37,8 +37,8 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
 
 fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
     for (uuid, record) in save_file.custom.iter() {
-        let housing = Housing::percent(100.0, 20.0);
-        let button = ActionButton::full(format!("{}", uuid), font);
+        let housing = Housing::percent(80.0, 20.0);
+        let mut button = ActionButton::full(format!("{}", uuid), font);
         let marker = ButtonMarker::custom_level(*uuid);
         let text = if *record > 0 {
             format!("Record: {}", record)
@@ -46,6 +46,8 @@ fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &
             "New Level!".to_string()
         };
         let record_new_level = SimpleText::small(text, font);
+
+        button.font_size(28.0);
 
         housing.spawn(parent, |parent| {
             button.spawn(parent, marker);
@@ -61,8 +63,9 @@ pub fn spawn_ui(
     selection_kind: &Selection,
 ) {
     let font = &fonts.fredoka;
+    let levels_size = Size::new(Val::Percent(50.0), Val::Px(40.0));
     let is_stock = game::scenes::is_stock_selection(selection_kind);
-    let levels_simple_text = if is_stock {
+    let levels = if is_stock {
         "Custom Levels"
     } else {
         "Stock Levels"
@@ -73,19 +76,25 @@ pub fn spawn_ui(
     let mut bottom = Housing::percent(100.0, 90.0);
 
     let title = EmbossedText::medium("Select a Level", font);
-    let levels = ActionButton::full(levels_simple_text, font);
+    let mut levels = ActionButton::new(levels, font, levels_size);
 
     top.flex_direction(FlexDirection::Row)
         .justify_content(JustifyContent::SpaceBetween)
         .left_padding(Val::Px(43.0))
         .right_padding(Val::Px(43.0));
 
-    bottom
-        .flex_wrap(FlexWrap::WrapReverse)
-        .flex_direction(FlexDirection::Row)
-        .justify_content(JustifyContent::FlexStart)
-        .align_items(AlignItems::FlexStart)
-        .align_content(AlignContent::FlexStart);
+    if is_stock {
+        bottom
+            .flex_wrap(FlexWrap::WrapReverse)
+            .flex_direction(FlexDirection::Row)
+            .justify_content(JustifyContent::FlexStart)
+            .align_items(AlignItems::FlexStart)
+            .align_content(AlignContent::FlexStart);
+    } else {
+        bottom.justify_content(JustifyContent::FlexStart);
+    }
+
+    levels.font_size(28.0);
 
     overlay.spawn(
         commands,

@@ -11,7 +11,7 @@ use crate::{
         self,
         level::{CameraMarker, PlayerMarker},
     },
-    resources::prelude::{Input, *},
+    resources::prelude::*,
     state::GameState,
     ui::{CounterKind, CounterMarker},
 };
@@ -21,7 +21,7 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(InputBuffer::new())
+        app.insert_resource(GameInputBuffer::new())
             .add_system_set(
                 SystemSet::on_enter(GameState::Level)
                     .with_system(spawn_scene)
@@ -57,23 +57,28 @@ fn start_music(audio: Res<Audio>, sounds: Res<Sounds>) {
 
 // TODO: Implement keybindings
 fn gather_input(
+    mut keyboard_input: ResMut<Input<KeyCode>>,
     mut keyboard_events: EventReader<KeyboardInput>,
-    mut input_buffer: ResMut<InputBuffer>,
+    mut input_buffer: ResMut<GameInputBuffer>,
 ) {
     for event in keyboard_events.iter() {
         if let ElementState::Pressed = event.state {
             if let Some(keycode) = event.key_code {
+                // workaround for input persistence between systems
+                keyboard_input.reset(keycode);
+
                 let input = match keycode {
-                    KeyCode::W => Input::up(),
-                    KeyCode::S => Input::down(),
-                    KeyCode::A => Input::left(),
-                    KeyCode::D => Input::right(),
-                    KeyCode::U => Input::undo(),
-                    KeyCode::R => Input::reload(),
-                    KeyCode::L => Input::selection(),
-                    KeyCode::Escape => Input::exit(),
+                    KeyCode::W => GameInput::up(),
+                    KeyCode::S => GameInput::down(),
+                    KeyCode::A => GameInput::left(),
+                    KeyCode::D => GameInput::right(),
+                    KeyCode::U => GameInput::undo(),
+                    KeyCode::R => GameInput::reload(),
+                    KeyCode::L => GameInput::selection(),
+                    KeyCode::Escape => GameInput::exit(),
                     _ => return,
                 };
+
                 input_buffer.insert(input);
             };
         };
@@ -82,7 +87,7 @@ fn gather_input(
 
 fn handle_input(
     mut level: ResMut<Level>,
-    mut input: ResMut<InputBuffer>,
+    mut input: ResMut<GameInputBuffer>,
     mut game_state: ResMut<State<GameState>>,
     levels: Res<LevelHandles>,
     level_states: Res<Assets<LevelState>>,

@@ -36,7 +36,7 @@ pub fn set_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize) {
 
 pub fn set_if_new_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize) {
     let record = get_record(save_file, tag);
-    if record == 0 || record < moves {
+    if record == 0 || record > moves {
         set_record(save_file, tag, moves);
     }
 }

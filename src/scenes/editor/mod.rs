@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::{
     input::mouse::{MouseScrollUnit, MouseWheel},
-    prelude::{Input, *},
+    prelude::*,
 };
 use bevy_kira_audio::Audio;
 
@@ -21,7 +21,7 @@ pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(InputBuffer::new())
+        app.insert_resource(GameInputBuffer::new())
             .add_system_set(
                 SystemSet::on_enter(GameState::Editor)
                     .with_system(spawn_scene)
@@ -66,7 +66,7 @@ fn handle_cursor_movement(
 ) {
     for event in cursor_moved_event.iter() {
         let mut transform = query.single_mut();
-        game::brush::lock_brush_to_map_grid(&event.position, &mut transform.translation);
+        game::brush::lock_to_grid(&event.position, &mut transform.translation);
     }
 }
 
@@ -85,12 +85,15 @@ fn handle_mouse_scroll(
 }
 
 fn handle_mouse_click(
-    buttons: Res<Input<MouseButton>>,
+    mut buttons: ResMut<Input<MouseButton>>,
     windows: Res<Windows>,
     mut level: ResMut<Level>,
     query: Query<&Brush>,
 ) {
     if buttons.pressed(MouseButton::Left) {
+        // workaround for input persistence between systems
+        buttons.reset(MouseButton::Left);
+
         let window = windows.get_primary().unwrap();
         if let Some(position) = window.cursor_position() {
             let brush = query.single();
@@ -102,12 +105,15 @@ fn handle_mouse_click(
 fn handle_keyboard_input(
     mut state: ResMut<State<GameState>>,
     mut level: ResMut<Level>,
-    keyboard: Res<Input<KeyCode>>,
+    mut keyboard: ResMut<Input<KeyCode>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         level.tag = LevelTag::Test(level.state);
         state.set(GameState::Level).unwrap();
     }
+
+    // workaround for input persistence between systems
+    keyboard.clear();
 }
 
 fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, With<PlayerMarker>>) {

@@ -31,6 +31,17 @@ impl Default for ActionButton {
 }
 
 impl ActionButton {
+    pub fn new<S: Into<String>>(value: S, font: &Handle<Font>, size: Size<Val>) -> ActionButton {
+        let mut child = SimpleText::medium(value, font);
+        child.color(Colors::DARK);
+
+        let mut button = ActionButton::default();
+        button.bundle.style.size = size;
+        button.child = child;
+
+        button
+    }
+
     pub fn full<S: Into<String>>(value: S, font: &Handle<Font>) -> ActionButton {
         let mut child = SimpleText::medium(value, font);
         child.color(Colors::DARK);
@@ -69,6 +80,11 @@ impl ActionButton {
 
     pub fn child<S: Into<String>>(&mut self, value: S) -> &mut ActionButton {
         self.child.bundle.text.sections[0].value = value.into();
+        self
+    }
+
+    pub fn font_size(&mut self, font_size: f32) -> &mut ActionButton {
+        self.child.bundle.text.sections[0].style.font_size = font_size;
         self
     }
 

@@ -24,24 +24,21 @@ pub fn to_image(brush: &Brush, images: &Images) -> Handle<Image> {
 pub fn spawn(commands: &mut Commands, images: &Images) {
     let brush = Brush::default();
     let image = to_image(&brush, images);
-    // `z` is 20 to stand above the map
-    let transform = Transform::from_xyz(0.0, 0.0, 20.0);
 
     commands
         .spawn_bundle(SpriteBundle {
             texture: image,
-            transform,
             ..Default::default()
         })
         .insert(brush);
 }
 
-pub fn lock_brush_to_map_grid(position: &Vec2, translation: &mut Vec3) {
+pub fn lock_to_grid(position: &Vec2, translation: &mut Vec3) {
     if position.x > 0.0 && position.x < GAME_WIDTH && position.y > 0.0 && position.y < GAME_HEIGHT {
         let x = position.x as usize / SPRITE_SIZE;
         let y = (MAP_COLS - 1) - (position.y as usize / SPRITE_SIZE);
         let position = MapPosition::new(x, y);
-        level::position::update_entity_translation(&position, translation);
+        level::position::update_brush_translation(&position, translation);
     }
 }
 

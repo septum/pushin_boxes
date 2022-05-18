@@ -16,6 +16,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let font = &fonts.fredoka;
+    let button_size = Size::new(Val::Percent(50.0), Val::Px(50.0));
 
     let overlay = Overlay::new();
     let mut actions = Housing::percent(100.0, 90.0);
@@ -25,12 +26,14 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
 
     let title = EmbossedText::big("Pushin'\nBoxes", font);
     let notice = SimpleText::small("Created by septum | https://septum.io", font);
-    let play = ActionButton::full("Play", font);
-    let editor = ActionButton::full("Editor", font);
-    let options = ActionButton::full("Options", font);
-    let quit = ActionButton::full("Quit", font);
+    let play = ActionButton::new("Play", font, button_size);
+    let editor = ActionButton::new("Editor", font, button_size);
+    let options = ActionButton::new("Options", font, button_size);
+    let quit = ActionButton::new("Quit", font, button_size);
 
-    actions.justify_content(JustifyContent::SpaceEvenly);
+    actions
+        .justify_content(JustifyContent::SpaceEvenly)
+        .align_items(AlignItems::Center);
 
     overlay.spawn(
         commands,

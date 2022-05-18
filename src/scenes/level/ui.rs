@@ -16,7 +16,6 @@ fn spawn_ui_camera(commands: &mut Commands) {
 
 pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let font = &fonts.fredoka;
-    let level_name = level.get_name();
     let record_new_level = if level.is_record_set() {
         format!("Record: {}", level.record)
     } else {
@@ -30,7 +29,7 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let mut bottom_left = Housing::percent(50.0, 100.0);
     let mut bottom_right = Housing::percent(50.0, 100.0);
 
-    let mut level_number = SimpleText::medium(format!("Level {}", level_name), font);
+    let mut level_number = SimpleText::medium(format!("Level {}", level.get_name()), font);
     let mut moves = DynamicText::small("Moves: ", font);
     let mut record_new_level = SimpleText::small(record_new_level, font);
     let mut undos_left = DynamicText::small("Undos: ", font);
