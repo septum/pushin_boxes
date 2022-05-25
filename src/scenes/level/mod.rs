@@ -121,12 +121,18 @@ fn update_counters(
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Handle<Image>, &MapPosition)>,
+    mut query: Query<(&mut Handle<Image>, &mut Transform, &MapPosition)>,
 ) {
-    for (mut image, position) in query.iter_mut() {
-        let entity = level.get_entity(position);
-        let new_image = game::level::entity::to_image(entity, &images);
-        *image = new_image;
+    for (mut image, mut transform, position) in query.iter_mut() {
+        let map_entity = level.get_entity(position);
+
+        *image = game::level::entity::to_image(map_entity, &images);
+        game::level::position::update_entity_translation(position, &mut transform.translation);
+
+        if matches!(map_entity, MapEntity::B | MapEntity::P) {
+            transform.translation.y += game::BOX_ENTITY_OFFSET as f32;
+            transform.translation.z += 1.0;
+        }
     }
 }
 

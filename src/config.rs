@@ -1,17 +1,14 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowMode};
 
 pub struct ConfigPlugin;
 
 const GAME_TITLE: &str = "Pushin' Boxes";
-pub const GAME_WIDTH: f32 = 640.0;
-pub const GAME_HEIGHT: f32 = 640.0;
 
 impl Plugin for ConfigPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(WindowDescriptor {
             title: GAME_TITLE.to_string(),
-            width: GAME_WIDTH,
-            height: GAME_HEIGHT,
+            mode: WindowMode::BorderlessFullscreen,
             ..Default::default()
         });
     }

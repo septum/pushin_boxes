@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
-use crate::{
-    config::{GAME_HEIGHT, GAME_WIDTH},
-    resources::{
-        brush::{Brush, BrushSprite},
-        level::map::MAP_COLS,
-        prelude::*,
-    },
+use crate::resources::{
+    brush::{Brush, BrushSprite},
+    level::map::{MAP_COLS, MAP_ROWS},
+    prelude::*,
 };
 
-use super::{level, SPRITE_SIZE};
+use super::{
+    level, BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, MAP_HEIGHT, MAP_WIDTH,
+    SPRITE_SIZE,
+};
 
 pub fn to_image(brush: &Brush, images: &Images) -> Handle<Image> {
     match brush.current_sprite() {
@@ -33,19 +33,63 @@ pub fn spawn(commands: &mut Commands, images: &Images) {
         .insert(brush);
 }
 
-pub fn lock_to_grid(position: &Vec2, translation: &mut Vec3) {
-    if position.x > 0.0 && position.x < GAME_WIDTH && position.y > 0.0 && position.y < GAME_HEIGHT {
-        let x = position.x as usize / SPRITE_SIZE;
-        let y = (MAP_COLS - 1) - (position.y as usize / SPRITE_SIZE);
+pub fn lock_to_grid(
+    brush: &Brush,
+    position: &Vec2,
+    camera: &Camera,
+    camera_transform: &GlobalTransform,
+    windows: &Windows,
+    translation: &mut Vec3,
+) {
+    // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+    let window = windows.get_primary().unwrap();
+    let window_size = Vec2::new(window.width() as f32, window.height() as f32);
+    let ndc = (*position / window_size) * 2.0 - Vec2::ONE;
+    let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix.inverse();
+    let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
+
+    let x = world_pos.x + (MAP_WIDTH / 2.0);
+    let y = world_pos.y + (MAP_HEIGHT / 2.0);
+
+    let x = x as usize / SPRITE_SIZE;
+    let y = y as usize / ENTITY_SURFACE;
+
+    if x < MAP_ROWS && y < MAP_COLS {
+        let y = (MAP_COLS - 1) - y;
         let position = MapPosition::new(x, y);
         level::position::update_brush_translation(&position, translation);
+
+        if matches!(brush.current_sprite(), &BrushSprite::Box) {
+            translation.y += BOX_ENTITY_OFFSET as f32;
+        } else if matches!(brush.current_sprite(), &BrushSprite::Player) {
+            translation.y += ENTITY_ON_TOP_OFFSET as f32;
+        }
     }
 }
 
-pub fn add_entity_to_map(position: &Vec2, level: &mut Level, brush: &Brush) {
-    if position.x > 0.0 && position.x < GAME_WIDTH && position.y > 0.0 && position.y < GAME_HEIGHT {
-        let x = position.x as usize / SPRITE_SIZE;
-        let y = (MAP_COLS - 1) - (position.y as usize / SPRITE_SIZE);
+pub fn add_entity_to_map(
+    position: &Vec2,
+    camera: &Camera,
+    camera_transform: &GlobalTransform,
+    windows: &Windows,
+    level: &mut Level,
+    brush: &Brush,
+) {
+    // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+    let window = windows.get_primary().unwrap();
+    let window_size = Vec2::new(window.width() as f32, window.height() as f32);
+    let ndc = (*position / window_size) * 2.0 - Vec2::ONE;
+    let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix.inverse();
+    let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
+
+    let x = world_pos.x + (MAP_WIDTH / 2.0);
+    let y = world_pos.y + (MAP_HEIGHT / 2.0);
+
+    let x = x as usize / SPRITE_SIZE;
+    let y = y as usize / ENTITY_SURFACE;
+
+    if x < MAP_ROWS && y < MAP_COLS {
+        let y = (MAP_COLS - 1) - y;
         let position = MapPosition::new(x, y);
 
         match brush.current_sprite() {

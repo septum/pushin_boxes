@@ -10,8 +10,14 @@ use crate::{
     game::{
         self,
         level::{CameraMarker, PlayerMarker},
+        BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, MAP_HEIGHT, MAP_WIDTH,
+        SPRITE_SIZE,
     },
-    resources::{brush::Brush, prelude::*},
+    resources::{
+        brush::{Brush, BrushSprite},
+        level::map::MAP_COLS,
+        prelude::*,
+    },
     state::GameState,
 };
 
@@ -61,34 +67,78 @@ fn start_music(audio: Res<Audio>, sounds: Res<Sounds>) {
 }
 
 fn handle_cursor_movement(
+    windows: Res<Windows>,
     mut cursor_moved_event: EventReader<CursorMoved>,
-    mut query: Query<&mut Transform, With<Brush>>,
+    mut query: Query<(&mut Transform, &Brush)>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<CameraMarker>>,
 ) {
     for event in cursor_moved_event.iter() {
-        let mut transform = query.single_mut();
-        game::brush::lock_to_grid(&event.position, &mut transform.translation);
+        let (mut transform, brush) = query.single_mut();
+        let (camera, camera_transform) = camera_query.single();
+        game::brush::lock_to_grid(
+            brush,
+            &event.position,
+            &camera,
+            &camera_transform,
+            &windows,
+            &mut transform.translation,
+        );
     }
 }
 
 fn handle_mouse_scroll(
     images: Res<Images>,
+    windows: Res<Windows>,
     mut scroll_event: EventReader<MouseWheel>,
-    mut query: Query<(&mut Handle<Image>, &mut Brush), With<Brush>>,
+    mut query: Query<(&mut Handle<Image>, &mut Transform, &mut Brush)>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<CameraMarker>>,
 ) {
     for scroll in scroll_event.iter() {
         if let MouseScrollUnit::Line = scroll.unit {
-            let (mut sprite, mut brush) = query.single_mut();
-            brush.rotate_sprite(scroll.y > 0.0);
-            *sprite = game::brush::to_image(&brush, &images);
+            let (mut sprite, mut transform, mut brush) = query.single_mut();
+            // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+            let window = windows.get_primary().unwrap();
+
+            if let Some(position) = window.cursor_position() {
+                let (camera, camera_transform) = camera_query.single();
+                let window_size = Vec2::new(window.width() as f32, window.height() as f32);
+                let ndc = (position / window_size) * 2.0 - Vec2::ONE;
+                let ndc_to_world =
+                    camera_transform.compute_matrix() * camera.projection_matrix.inverse();
+                let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
+
+                let x = world_pos.x + (MAP_WIDTH / 2.0);
+                let y = world_pos.y + (MAP_HEIGHT / 2.0);
+
+                let x = x as usize / SPRITE_SIZE;
+                let y = (MAP_COLS - 1) - (y as usize / ENTITY_SURFACE);
+
+                let position = MapPosition::new(x, y);
+                game::level::position::update_brush_translation(
+                    &position,
+                    &mut transform.translation,
+                );
+
+                brush.rotate_sprite(scroll.y > 0.0);
+
+                *sprite = game::brush::to_image(&brush, &images);
+
+                if matches!(brush.current_sprite(), &BrushSprite::Box) {
+                    transform.translation.y += BOX_ENTITY_OFFSET as f32;
+                } else if matches!(brush.current_sprite(), &BrushSprite::Player) {
+                    transform.translation.y += ENTITY_ON_TOP_OFFSET as f32;
+                }
+            }
         }
     }
 }
 
 fn handle_mouse_click(
-    mut buttons: ResMut<Input<MouseButton>>,
     windows: Res<Windows>,
+    mut buttons: ResMut<Input<MouseButton>>,
     mut level: ResMut<Level>,
     query: Query<&Brush>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<CameraMarker>>,
 ) {
     if buttons.pressed(MouseButton::Left) {
         // workaround for input persistence between systems
@@ -97,7 +147,15 @@ fn handle_mouse_click(
         let window = windows.get_primary().unwrap();
         if let Some(position) = window.cursor_position() {
             let brush = query.single();
-            game::brush::add_entity_to_map(&position, &mut level, brush);
+            let (camera, camera_transform) = camera_query.single();
+            game::brush::add_entity_to_map(
+                &position,
+                &camera,
+                &camera_transform,
+                &windows,
+                &mut level,
+                brush,
+            );
         }
     }
 }
@@ -127,12 +185,18 @@ fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, Wi
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Handle<Image>, &MapPosition)>,
+    mut query: Query<(&mut Handle<Image>, &mut Transform, &MapPosition)>,
 ) {
-    for (mut image, position) in query.iter_mut() {
-        let entity = level.get_entity(position);
-        let new_image = game::level::entity::to_image(entity, &images);
-        *image = new_image;
+    for (mut image, mut transform, position) in query.iter_mut() {
+        let map_entity = level.get_entity(position);
+
+        *image = game::level::entity::to_image(map_entity, &images);
+        game::level::position::update_entity_translation(position, &mut transform.translation);
+
+        if matches!(map_entity, MapEntity::B | MapEntity::P) {
+            transform.translation.y += game::BOX_ENTITY_OFFSET as f32;
+            transform.translation.z += 1.0;
+        }
     }
 }
 
