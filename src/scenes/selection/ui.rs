@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use crate::{
-    game,
     resources::prelude::*,
     state::Selection,
     ui::{ActionButton, ButtonMarker, EmbossedText, Housing, Overlay, SimpleText},
@@ -64,7 +63,7 @@ pub fn spawn_ui(
 ) {
     let font = &fonts.fredoka;
     let levels_size = Size::new(Val::Percent(50.0), Val::Px(40.0));
-    let is_stock = game::scenes::is_stock_selection(selection_kind);
+    let is_stock = matches!(selection_kind, Selection::Stock);
     let levels = if is_stock {
         "Custom Levels"
     } else {
