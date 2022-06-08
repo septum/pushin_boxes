@@ -13,7 +13,7 @@ use crate::{
     },
     resources::prelude::*,
     state::GameState,
-    ui::{CounterKind, CounterMarker},
+    ui::{TextKind, TextMarker},
 };
 use ui::{spawn_ui, UiMarker};
 
@@ -64,7 +64,7 @@ fn gather_input(
     for event in keyboard_events.iter() {
         if let ElementState::Pressed = event.state {
             if let Some(keycode) = event.key_code {
-                // workaround for input persistence between systems
+                // workaround for input persistence between states
                 keyboard_input.reset(keycode);
 
                 let input = match keycode {
@@ -107,12 +107,12 @@ fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, Wi
 
 fn update_counters(
     level: Res<Level>,
-    mut texts: Query<(&mut Text, &CounterMarker), With<CounterMarker>>,
+    mut texts: Query<(&mut Text, &TextMarker), With<TextMarker>>,
 ) {
     for (mut text, counter) in texts.iter_mut() {
         let value = match counter.kind {
-            CounterKind::Moves => level.moves,
-            CounterKind::Undos => level.undos,
+            TextKind::Moves => level.moves,
+            TextKind::Undos => level.undos,
         };
         game::ui::update_dynamic_text(&mut text, value.to_string());
     }

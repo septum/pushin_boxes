@@ -6,7 +6,7 @@ use bevy_kira_audio::Audio;
 use crate::{
     game,
     resources::prelude::*,
-    state::{GameState, Selection},
+    state::{GameState, SelectionState},
     ui::{ButtonKind, ButtonMarker, LevelKind},
 };
 
@@ -71,7 +71,7 @@ fn select_level(
     if let Ok((button, interaction, mut color)) = query.get_single_mut() {
         match interaction {
             Interaction::Clicked => {
-                // workaround for input persistence between systems
+                // workaround for input persistence between states
                 // see: https://github.com/bevyengine/bevy/issues/1700#issuecomment-886999222
                 mouse_button_input.reset(MouseButton::Left);
 
@@ -103,10 +103,10 @@ fn select_level(
                     ButtonKind::Levels => {
                         if let GameState::Selection(selection_kind) = state.current() {
                             match selection_kind {
-                                Selection::Stock => {
+                                SelectionState::Stock => {
                                     state.set(GameState::custom_selection()).unwrap()
                                 }
-                                Selection::Custom => {
+                                SelectionState::Custom => {
                                     state.set(GameState::stock_selection()).unwrap()
                                 }
                             }
@@ -129,7 +129,7 @@ fn select_level(
 
 fn keyboard_input(mut game_state: ResMut<State<GameState>>, mut keyboard: ResMut<Input<KeyCode>>) {
     if keyboard.just_pressed(KeyCode::Space) {
-        if let GameState::Selection(Selection::Stock) = game_state.current() {
+        if let GameState::Selection(SelectionState::Stock) = game_state.current() {
             game_state.set(GameState::custom_selection()).unwrap();
         } else {
             game_state.set(GameState::stock_selection()).unwrap();
@@ -140,7 +140,7 @@ fn keyboard_input(mut game_state: ResMut<State<GameState>>, mut keyboard: ResMut
         game_state.set(GameState::Title).unwrap();
     }
 
-    // workaround for input persistence between systems
+    // workaround for input persistence between states
     keyboard.clear();
 }
 

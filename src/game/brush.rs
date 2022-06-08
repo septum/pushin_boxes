@@ -33,26 +33,38 @@ pub fn spawn(commands: &mut Commands, images: &Images) {
         .insert(brush);
 }
 
-pub fn lock_to_grid(
-    brush: &Brush,
-    position: &Vec2,
-    camera: &Camera,
-    camera_transform: &GlobalTransform,
+pub fn cursor_to_world_coords(
     windows: &Windows,
-    translation: &mut Vec3,
-) {
+    camera_transform: &GlobalTransform,
+    camera: &Camera,
+) -> Vec2 {
     // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
     let window = windows.get_primary().unwrap();
+    let cursor_position = window.cursor_position().unwrap();
     let window_size = Vec2::new(window.width() as f32, window.height() as f32);
-    let ndc = (*position / window_size) * 2.0 - Vec2::ONE;
+    let ndc = (cursor_position / window_size) * 2.0 - Vec2::ONE;
     let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix.inverse();
     let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
 
     let x = world_pos.x + (MAP_WIDTH / 2.0);
     let y = world_pos.y + (MAP_HEIGHT / 2.0);
 
-    let x = x as usize / SPRITE_SIZE;
-    let y = y as usize / ENTITY_SURFACE;
+    let x = x / SPRITE_SIZE as f32;
+    let y = y / ENTITY_SURFACE as f32;
+
+    Vec2::new(x, y)
+}
+
+pub fn lock_to_grid(
+    brush: &Brush,
+    camera: &Camera,
+    camera_transform: &GlobalTransform,
+    windows: &Windows,
+    translation: &mut Vec3,
+) {
+    let coords = cursor_to_world_coords(windows, camera_transform, camera);
+    let x = coords.x as usize;
+    let y = coords.y as usize;
 
     if x < MAP_ROWS && y < MAP_COLS {
         let y = (MAP_COLS - 1) - y;
@@ -68,25 +80,15 @@ pub fn lock_to_grid(
 }
 
 pub fn add_entity_to_map(
-    position: &Vec2,
     camera: &Camera,
     camera_transform: &GlobalTransform,
     windows: &Windows,
     level: &mut Level,
     brush: &Brush,
 ) {
-    // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
-    let window = windows.get_primary().unwrap();
-    let window_size = Vec2::new(window.width() as f32, window.height() as f32);
-    let ndc = (*position / window_size) * 2.0 - Vec2::ONE;
-    let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix.inverse();
-    let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
-
-    let x = world_pos.x + (MAP_WIDTH / 2.0);
-    let y = world_pos.y + (MAP_HEIGHT / 2.0);
-
-    let x = x as usize / SPRITE_SIZE;
-    let y = y as usize / ENTITY_SURFACE;
+    let coords = cursor_to_world_coords(windows, camera_transform, camera);
+    let x = coords.x as usize;
+    let y = coords.y as usize;
 
     if x < MAP_ROWS && y < MAP_COLS {
         let y = (MAP_COLS - 1) - y;

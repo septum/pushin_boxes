@@ -10,8 +10,7 @@ use crate::{
     game::{
         self,
         level::{CameraMarker, PlayerMarker},
-        BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, MAP_HEIGHT, MAP_WIDTH,
-        SPRITE_SIZE,
+        BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET,
     },
     resources::{
         brush::{Brush, BrushSprite},
@@ -72,14 +71,13 @@ fn handle_cursor_movement(
     mut query: Query<(&mut Transform, &Brush)>,
     camera_query: Query<(&Camera, &GlobalTransform), With<CameraMarker>>,
 ) {
-    for event in cursor_moved_event.iter() {
+    for _ in cursor_moved_event.iter() {
         let (mut transform, brush) = query.single_mut();
         let (camera, camera_transform) = camera_query.single();
         game::brush::lock_to_grid(
             brush,
-            &event.position,
-            &camera,
-            &camera_transform,
+            camera,
+            camera_transform,
             &windows,
             &mut transform.translation,
         );
@@ -96,38 +94,22 @@ fn handle_mouse_scroll(
     for scroll in scroll_event.iter() {
         if let MouseScrollUnit::Line = scroll.unit {
             let (mut sprite, mut transform, mut brush) = query.single_mut();
-            // from: https://bevy-cheatbook.github.io/cookbook/cursor2world.html
-            let window = windows.get_primary().unwrap();
+            let (camera, camera_transform) = camera_query.single();
+            let coords = game::brush::cursor_to_world_coords(&windows, camera_transform, camera);
+            let x = coords.x as usize;
+            let y = (MAP_COLS - 1) - coords.y as usize;
 
-            if let Some(position) = window.cursor_position() {
-                let (camera, camera_transform) = camera_query.single();
-                let window_size = Vec2::new(window.width() as f32, window.height() as f32);
-                let ndc = (position / window_size) * 2.0 - Vec2::ONE;
-                let ndc_to_world =
-                    camera_transform.compute_matrix() * camera.projection_matrix.inverse();
-                let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0)).truncate();
+            let position = MapPosition::new(x, y);
+            game::level::position::update_brush_translation(&position, &mut transform.translation);
 
-                let x = world_pos.x + (MAP_WIDTH / 2.0);
-                let y = world_pos.y + (MAP_HEIGHT / 2.0);
+            brush.rotate_sprite(scroll.y > 0.0);
 
-                let x = x as usize / SPRITE_SIZE;
-                let y = (MAP_COLS - 1) - (y as usize / ENTITY_SURFACE);
+            *sprite = game::brush::to_image(&brush, &images);
 
-                let position = MapPosition::new(x, y);
-                game::level::position::update_brush_translation(
-                    &position,
-                    &mut transform.translation,
-                );
-
-                brush.rotate_sprite(scroll.y > 0.0);
-
-                *sprite = game::brush::to_image(&brush, &images);
-
-                if matches!(brush.current_sprite(), &BrushSprite::Box) {
-                    transform.translation.y += BOX_ENTITY_OFFSET as f32;
-                } else if matches!(brush.current_sprite(), &BrushSprite::Player) {
-                    transform.translation.y += ENTITY_ON_TOP_OFFSET as f32;
-                }
+            if matches!(brush.current_sprite(), &BrushSprite::Box) {
+                transform.translation.y += BOX_ENTITY_OFFSET as f32;
+            } else if matches!(brush.current_sprite(), &BrushSprite::Player) {
+                transform.translation.y += ENTITY_ON_TOP_OFFSET as f32;
             }
         }
     }
@@ -141,22 +123,12 @@ fn handle_mouse_click(
     camera_query: Query<(&Camera, &GlobalTransform), With<CameraMarker>>,
 ) {
     if buttons.pressed(MouseButton::Left) {
-        // workaround for input persistence between systems
+        // workaround for input persistence between states
         buttons.reset(MouseButton::Left);
 
-        let window = windows.get_primary().unwrap();
-        if let Some(position) = window.cursor_position() {
-            let brush = query.single();
-            let (camera, camera_transform) = camera_query.single();
-            game::brush::add_entity_to_map(
-                &position,
-                &camera,
-                &camera_transform,
-                &windows,
-                &mut level,
-                brush,
-            );
-        }
+        let brush = query.single();
+        let (camera, camera_transform) = camera_query.single();
+        game::brush::add_entity_to_map(camera, camera_transform, &windows, &mut level, brush);
     }
 }
 
@@ -165,12 +137,16 @@ fn handle_keyboard_input(
     mut level: ResMut<Level>,
     mut keyboard: ResMut<Input<KeyCode>>,
 ) {
+    if keyboard.just_pressed(KeyCode::Escape) {
+        state.set(GameState::Title).unwrap();
+    }
+
     if keyboard.just_pressed(KeyCode::Space) {
         level.tag = LevelTag::Test(level.state);
         state.set(GameState::Level).unwrap();
     }
 
-    // workaround for input persistence between systems
+    // workaround for input persistence between states
     keyboard.clear();
 }
 

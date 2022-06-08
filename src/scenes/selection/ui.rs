@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    state::Selection,
+    state::SelectionState,
     ui::{ActionButton, ButtonMarker, EmbossedText, Housing, Overlay, SimpleText},
 };
 
@@ -59,11 +59,11 @@ pub fn spawn_ui(
     commands: &mut Commands,
     fonts: &Fonts,
     save_file: &SaveFile,
-    selection_kind: &Selection,
+    selection_kind: &SelectionState,
 ) {
     let font = &fonts.fredoka;
     let levels_size = Size::new(Val::Percent(50.0), Val::Px(40.0));
-    let is_stock = matches!(selection_kind, Selection::Stock);
+    let is_stock = matches!(selection_kind, SelectionState::Stock);
     let levels = if is_stock {
         "Custom Levels"
     } else {

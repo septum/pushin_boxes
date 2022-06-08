@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{CounterMarker, DynamicText, Housing, Overlay, SimpleText},
+    ui::{DynamicText, Housing, Overlay, SimpleText, TextMarker},
 };
 
 #[derive(Component)]
@@ -64,7 +64,7 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
             top.spawn(parent, |parent| {
                 level_number.spawn(parent);
                 top_right.spawn(parent, |parent| {
-                    moves.spawn(parent, CounterMarker::moves());
+                    moves.spawn(parent, TextMarker::moves());
                     record_new_level.spawn(parent);
                 });
             });
@@ -74,7 +74,7 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
                     selection.spawn(parent);
                 });
                 bottom_right.spawn(parent, |parent| {
-                    undos_left.spawn(parent, CounterMarker::undos());
+                    undos_left.spawn(parent, TextMarker::undos());
                     undo.spawn(parent);
                 });
             });

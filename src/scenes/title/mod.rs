@@ -60,7 +60,7 @@ fn buttons_interactions(
     for (button, interaction, mut color) in query.iter_mut() {
         match interaction {
             Interaction::Clicked => {
-                // workaround for input persistence between systems
+                // workaround for input persistence between states
                 // see: https://github.com/bevyengine/bevy/issues/1700#issuecomment-886999222
                 mouse_button_input.reset(MouseButton::Left);
 
@@ -122,7 +122,7 @@ fn keyboard_input(
         exit_event.send(AppExit);
     }
 
-    // workaround for input persistence between systems
+    // workaround for input persistence between states
     keyboard.clear();
 }
 

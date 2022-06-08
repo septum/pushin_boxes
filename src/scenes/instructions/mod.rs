@@ -43,7 +43,7 @@ fn keyboard_input(mut game_state: ResMut<State<GameState>>, mut keyboard: ResMut
         game_state.set(GameState::Title).unwrap();
     }
 
-    // workaround for input persistence between systems
+    // workaround for input persistence between states
     keyboard.clear();
 }
 

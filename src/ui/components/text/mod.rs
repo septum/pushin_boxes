@@ -12,3 +12,27 @@ const ALIGNMENT: TextAlignment = TextAlignment {
     vertical: VerticalAlign::Center,
     horizontal: HorizontalAlign::Center,
 };
+
+#[derive(Component)]
+pub struct TextMarker {
+    pub kind: TextKind,
+}
+
+pub enum TextKind {
+    Moves,
+    Undos,
+}
+
+impl TextMarker {
+    pub fn moves() -> TextMarker {
+        TextMarker {
+            kind: TextKind::Moves,
+        }
+    }
+
+    pub fn undos() -> TextMarker {
+        TextMarker {
+            kind: TextKind::Undos,
+        }
+    }
+}
