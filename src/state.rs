@@ -10,6 +10,7 @@ pub enum GameState {
     Loading,
     Title,
     Editor,
+    Options,
     Instructions,
     Selection(SelectionState),
     Level,

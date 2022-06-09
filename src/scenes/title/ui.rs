@@ -15,7 +15,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 }
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
-    let font = &fonts.fredoka;
+    let font = &fonts.upheavtt;
     let button_size = Size::new(Val::Percent(50.0), Val::Px(50.0));
 
     let overlay = Overlay::new();

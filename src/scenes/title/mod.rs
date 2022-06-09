@@ -76,6 +76,7 @@ fn buttons_interactions(
                         game_state.set(GameState::Editor).unwrap();
                     }
                     ButtonKind::Options => {
+                        game_state.set(GameState::Options).unwrap();
                         // TODO: Set game_state to show options scene
                     }
                     ButtonKind::Quit => {
