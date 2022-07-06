@@ -16,7 +16,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let overlay = Overlay::new();
-    let mut loading_text = SimpleText::big("Loading...", &fonts.fredoka);
+    let mut loading_text = SimpleText::big("Loading...", &fonts.upheavtt);
 
     loading_text.color(Colors::PRIMARY);
 

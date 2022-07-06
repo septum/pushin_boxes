@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{EmbossedText, Housing, Overlay, ActionButton},
+    ui::{EmbossedText, Housing, Overlay},
 };
 
 #[derive(Component)]
@@ -14,7 +14,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
         .insert(UiMarker);
 }
 
-pub fn spawn_ui(commands: &mut Commands, _images: &Images, fonts: &Fonts, save_file: &SaveFile) {
+pub fn spawn_ui(commands: &mut Commands, _images: &Images, fonts: &Fonts) {
     let font = &fonts.upheavtt;
 
     let overlay = Overlay::new();
@@ -22,10 +22,6 @@ pub fn spawn_ui(commands: &mut Commands, _images: &Images, fonts: &Fonts, save_f
     let line_a = Housing::percent(100.0, 10.0);
 
     let title = EmbossedText::medium("Options", font);
-
-    save_file.get_option("audio");
-
-    let audio = ActionButton::new("Audio", font, button_size);
 
     overlay.spawn(
         commands,

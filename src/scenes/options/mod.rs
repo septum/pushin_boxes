@@ -15,10 +15,7 @@ impl Plugin for OptionsPlugin {
                 .with_system(setup)
                 .with_system(start_audio),
         )
-        .add_system_set(
-            SystemSet::on_update(GameState::Options)
-                .with_system(handle_keyboard_input)
-        )
+        .add_system_set(SystemSet::on_update(GameState::Options).with_system(handle_keyboard_input))
         .add_system_set(
             SystemSet::on_exit(GameState::Options)
                 .with_system(cleanup)

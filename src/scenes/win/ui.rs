@@ -16,7 +16,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 }
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file: &SaveFile) {
-    let font = &fonts.fredoka;
+    let font = &fonts.upheavtt;
     let is_last_level = game::level::stock::is_last(&level.tag);
     let title_housing_height = if is_last_level {
         Val::Px(196.0)

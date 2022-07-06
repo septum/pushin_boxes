@@ -61,7 +61,7 @@ pub fn spawn_ui(
     save_file: &SaveFile,
     selection_kind: &SelectionState,
 ) {
-    let font = &fonts.fredoka;
+    let font = &fonts.upheavtt;
     let levels_size = Size::new(Val::Percent(50.0), Val::Px(40.0));
     let is_stock = matches!(selection_kind, SelectionState::Stock);
     let levels = if is_stock {

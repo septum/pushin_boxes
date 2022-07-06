@@ -15,7 +15,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 }
 
 pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
-    let font = &fonts.fredoka;
+    let font = &fonts.upheavtt;
     let record_new_level = if level.is_record_set() {
         format!("Record: {}", level.record)
     } else {

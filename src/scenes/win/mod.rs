@@ -46,8 +46,8 @@ fn interactions(
     mut game_state: ResMut<State<GameState>>,
     mut save_file: ResMut<SaveFile>,
     mut level_handles: ResMut<LevelHandles>,
+    mut keyboard: ResMut<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
-    keyboard: Res<Input<KeyCode>>,
     level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
 ) {
@@ -83,6 +83,13 @@ fn interactions(
             }
         }
     }
+
+    if keyboard.just_pressed(KeyCode::Escape) {
+        game_state.set(GameState::Title).unwrap();
+    }
+
+    // workaround for input persistence between states
+    keyboard.clear();
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
