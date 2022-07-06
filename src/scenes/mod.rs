@@ -2,10 +2,10 @@ mod editor;
 mod instructions;
 mod level;
 mod loading;
+mod options;
 mod selection;
 mod title;
 mod win;
-mod options;
 
 use bevy::prelude::*;
 
