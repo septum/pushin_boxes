@@ -1,6 +1,7 @@
 use crate::resources::prelude::*;
 
-#[must_use] pub fn total(save_file: &SaveFile) -> usize {
+#[must_use]
+pub fn total(save_file: &SaveFile) -> usize {
     save_file.stock.iter().sum()
 }
 

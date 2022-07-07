@@ -20,19 +20,23 @@ pub struct ButtonMarker {
 }
 
 impl ButtonMarker {
-    #[must_use] pub fn new(kind: ButtonKind) -> ButtonMarker {
+    #[must_use]
+    pub fn new(kind: ButtonKind) -> ButtonMarker {
         ButtonMarker { kind }
     }
 
-    #[must_use] pub fn play() -> ButtonMarker {
+    #[must_use]
+    pub fn play() -> ButtonMarker {
         ButtonMarker::new(ButtonKind::Play)
     }
 
-    #[must_use] pub fn quit() -> ButtonMarker {
+    #[must_use]
+    pub fn quit() -> ButtonMarker {
         ButtonMarker::new(ButtonKind::Quit)
     }
 
-    #[must_use] pub fn stock_level(index: usize) -> ButtonMarker {
+    #[must_use]
+    pub fn stock_level(index: usize) -> ButtonMarker {
         ButtonMarker::new(ButtonKind::Level(LevelKind::Stock(index)))
     }
 }

@@ -24,13 +24,15 @@ pub enum TextKind {
 }
 
 impl TextMarker {
-    #[must_use] pub fn moves() -> TextMarker {
+    #[must_use]
+    pub fn moves() -> TextMarker {
         TextMarker {
             kind: TextKind::Moves,
         }
     }
 
-    #[must_use] pub fn undos() -> TextMarker {
+    #[must_use]
+    pub fn undos() -> TextMarker {
         TextMarker {
             kind: TextKind::Undos,
         }

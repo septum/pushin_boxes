@@ -18,11 +18,13 @@ impl Default for SaveFile {
 }
 
 impl SaveFile {
-    #[must_use] pub fn new(stock: Vec<usize>) -> SaveFile {
+    #[must_use]
+    pub fn new(stock: Vec<usize>) -> SaveFile {
         SaveFile { stock }
     }
 
-    #[must_use] pub fn stock_levels_len(&self) -> usize {
+    #[must_use]
+    pub fn stock_levels_len(&self) -> usize {
         self.stock.len()
     }
 
@@ -34,7 +36,8 @@ impl SaveFile {
         self.stock[*index] = moves;
     }
 
-    #[must_use] pub fn get_stock_level_record(&self, index: &usize) -> usize {
+    #[must_use]
+    pub fn get_stock_level_record(&self, index: &usize) -> usize {
         self.stock[*index]
     }
 }

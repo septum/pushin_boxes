@@ -8,13 +8,15 @@ pub struct SaveFileHandle {
 }
 
 impl SaveFileHandle {
-    #[must_use] pub fn load(asset_server: &Res<AssetServer>) -> SaveFileHandle {
+    #[must_use]
+    pub fn load(asset_server: &Res<AssetServer>) -> SaveFileHandle {
         SaveFileHandle {
             save_file: asset_server.load("game.dat"),
         }
     }
 
-    #[must_use] pub fn check_loaded_or_failed(&self, asset_server: &Res<AssetServer>) -> bool {
+    #[must_use]
+    pub fn check_loaded_or_failed(&self, asset_server: &Res<AssetServer>) -> bool {
         let load_state = asset_server.get_load_state(self.save_file.clone());
 
         matches!(load_state, LoadState::Loaded | LoadState::Failed)

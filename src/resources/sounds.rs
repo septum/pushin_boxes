@@ -26,7 +26,8 @@ pub struct Sounds {
 }
 
 impl Sounds {
-    #[must_use] pub fn load(asset_server: &Res<AssetServer>) -> Sounds {
+    #[must_use]
+    pub fn load(asset_server: &Res<AssetServer>) -> Sounds {
         let channels = Channels {
             sfx: AudioChannel::new("sfx".to_string()),
             music: AudioChannel::new("music".to_string()),
@@ -50,7 +51,8 @@ impl Sounds {
         }
     }
 
-    #[must_use] pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
+    #[must_use]
+    pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
         let sounds_untyped = vec![
             self.sfx.move_player.clone_untyped(),
             self.sfx.push_box.clone_untyped(),

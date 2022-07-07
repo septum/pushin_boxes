@@ -7,7 +7,8 @@ pub struct LevelHandles {
 }
 
 impl LevelHandles {
-    #[must_use] pub fn load_stock(asset_server: &Res<AssetServer>) -> LevelHandles {
+    #[must_use]
+    pub fn load_stock(asset_server: &Res<AssetServer>) -> LevelHandles {
         LevelHandles {
             stock: vec![
                 asset_server.load("levels/stock/1.lvl"),
@@ -30,7 +31,8 @@ impl LevelHandles {
         }
     }
 
-    #[must_use] pub fn all_stock_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
+    #[must_use]
+    pub fn all_stock_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
         let stock_levels = self.stock.iter().map(bevy::prelude::Handle::clone_untyped);
 
         for level_handle in stock_levels {

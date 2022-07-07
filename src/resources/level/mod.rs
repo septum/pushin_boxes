@@ -31,7 +31,8 @@ impl Default for Level {
 }
 
 impl Level {
-    #[must_use] pub fn new(tag: LevelTag, state: LevelState, record: usize) -> Level {
+    #[must_use]
+    pub fn new(tag: LevelTag, state: LevelState, record: usize) -> Level {
         Level {
             tag,
             state,
@@ -62,7 +63,8 @@ impl Level {
         }
     }
 
-    #[must_use] pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
+    #[must_use]
+    pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
         &self.state.map[position.y][position.x]
     }
 
@@ -74,7 +76,8 @@ impl Level {
         self.state.player_position.equals(position)
     }
 
-    #[must_use] pub fn get_player_position(&self) -> &MapPosition {
+    #[must_use]
+    pub fn get_player_position(&self) -> &MapPosition {
         &self.state.player_position
     }
 
@@ -102,23 +105,28 @@ impl Level {
         self.state.remaining_zones -= 1;
     }
 
-    #[must_use] pub fn no_remaining_zones(&self) -> bool {
+    #[must_use]
+    pub fn no_remaining_zones(&self) -> bool {
         self.state.remaining_zones == 0
     }
 
-    #[must_use] pub fn is_record_set(&self) -> bool {
+    #[must_use]
+    pub fn is_record_set(&self) -> bool {
         self.record > 0
     }
 
-    #[must_use] pub fn is_new_record(&self) -> bool {
+    #[must_use]
+    pub fn is_new_record(&self) -> bool {
         self.record == 0 || self.moves < self.record
     }
 
-    #[must_use] pub fn is_stock(&self) -> bool {
+    #[must_use]
+    pub fn is_stock(&self) -> bool {
         matches!(self.tag, LevelTag::Stock(_))
     }
 
-    #[must_use] pub fn get_name(&self) -> String {
+    #[must_use]
+    pub fn get_name(&self) -> String {
         match self.tag {
             LevelTag::Stock(index) => (index + 1).to_string(),
         }

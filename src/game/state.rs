@@ -15,7 +15,8 @@ pub enum GameState {
 }
 
 impl GameState {
-    #[must_use] pub fn stock_selection() -> GameState {
+    #[must_use]
+    pub fn stock_selection() -> GameState {
         GameState::Selection(SelectionState::Stock)
     }
 }
