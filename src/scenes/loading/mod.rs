@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::prelude::*;
 
-use crate::{game::state::GameState, resources::prelude::*};
+use crate::{core::state::GameState, resources::prelude::*};
 
 use ui::{spawn_ui, UiMarker};
 

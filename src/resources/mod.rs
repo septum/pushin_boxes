@@ -12,7 +12,7 @@ pub mod save_file;
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
 
-use crate::game::{self, state::GameState};
+use crate::core::{self, state::GameState};
 
 use level::prelude::*;
 use save_file::SaveFile;
@@ -68,7 +68,7 @@ fn check_loading(
         && save_file_handle.check_loaded_or_failed(&asset_server);
 
     if all_loaded {
-        game::save_file::insert(&mut commands, &save_file_handle, &asset_server, &save_file);
+        core::save_file::insert(&mut commands, &save_file_handle, &asset_server, &save_file);
 
         state.set(GameState::Title).unwrap();
     }

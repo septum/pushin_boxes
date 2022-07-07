@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::{
+    core::{
         ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, ENTITY_SURFACE_OFFSET, MAP_HEIGHT, MAP_WIDTH,
         SPRITE_OFFSET, SPRITE_SIZE,
     },

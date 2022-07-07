@@ -7,7 +7,7 @@ use bevy::{
 use bevy_kira_audio::Audio;
 
 use crate::{
-    game::{
+    core::{
         self,
         level::{CameraMarker, PlayerMarker},
         state::GameState,
@@ -45,7 +45,7 @@ impl Plugin for LevelPlugin {
 }
 
 fn spawn_scene(mut commands: Commands, level: Res<Level>, images: Res<Images>, fonts: Res<Fonts>) {
-    game::level::spawn(&mut commands, &level, &images);
+    core::level::spawn(&mut commands, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
 }
 
@@ -93,13 +93,13 @@ fn handle_input(
     level_states: Res<Assets<LevelState>>,
 ) {
     if let Some(input) = input.pop() {
-        game::input::process(&input, &mut level, &mut game_state, &levels, &level_states);
+        core::input::process(&input, &mut level, &mut game_state, &levels, &level_states);
     }
 }
 
 fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, With<PlayerMarker>>) {
     let mut transform = query.single_mut();
-    game::level::position::update_player_translation(
+    core::level::position::update_player_translation(
         &level.state.player_position,
         &mut transform.translation,
     );
@@ -114,7 +114,7 @@ fn update_counters(
             TextKind::Moves => level.moves,
             TextKind::Undos => level.undos,
         };
-        game::ui::update_dynamic_text(&mut text, value.to_string());
+        core::ui::update_dynamic_text(&mut text, value.to_string());
     }
 }
 
@@ -126,11 +126,11 @@ fn update_map(
     for (mut image, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
 
-        *image = game::level::entity::to_image(map_entity, &images);
-        game::level::position::update_entity_translation(position, &mut transform.translation);
+        *image = core::level::entity::to_image(map_entity, &images);
+        core::level::position::update_entity_translation(position, &mut transform.translation);
 
         if matches!(map_entity, MapEntity::B | MapEntity::P) {
-            transform.translation.y += game::BOX_ENTITY_OFFSET as f32;
+            transform.translation.y += core::BOX_ENTITY_OFFSET as f32;
             transform.translation.z += 1.0;
         }
     }

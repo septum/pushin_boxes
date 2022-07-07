@@ -11,7 +11,7 @@ pub mod config;
 
 pub mod resources;
 
-pub mod game;
+pub mod core;
 
 pub mod ui;
 

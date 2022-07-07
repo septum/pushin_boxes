@@ -5,7 +5,7 @@ use bevy_kira_audio::AudioPlugin;
 
 use pushin_boxes::{
     config::ConfigPlugin,
-    game::state::GameState,
+    core::state::GameState,
     resources::{prelude::*, ResourcesPlugin},
     scenes::ScenesPlugin,
 };

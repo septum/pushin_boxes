@@ -4,7 +4,7 @@ use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
 
 use crate::{
-    game::{self, state::GameState},
+    core::{self, state::GameState},
     resources::prelude::*,
     ui::{ButtonKind, ButtonMarker, LevelKind},
 };
@@ -68,7 +68,7 @@ fn select_level(
 
                 if let ButtonKind::Level(level_kind) = &button.kind {
                     let LevelKind::Stock(index) = level_kind;
-                    game::level::stock::insert(
+                    core::level::stock::insert(
                         &mut commands,
                         *index,
                         &save_file,

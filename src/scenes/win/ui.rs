@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    game,
+    core,
     resources::prelude::*,
     ui::{EmbossedText, Housing, Overlay, SimpleText},
 };
@@ -17,7 +17,7 @@ fn spawn_ui_camera(commands: &mut Commands) {
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file: &SaveFile) {
     let font = &fonts.upheavtt;
-    let is_last_level = game::level::stock::is_last(&level.tag);
+    let is_last_level = core::level::stock::is_last(&level.tag);
     let title_housing_height = if is_last_level {
         Val::Px(196.0)
     } else {
@@ -25,7 +25,7 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
     };
 
     let final_or_new = if is_last_level {
-        format!("FINAL RECORD: {}", game::save_file::stock::total(save_file))
+        format!("FINAL RECORD: {}", core::save_file::stock::total(save_file))
     } else if level.is_new_record() {
         format!("NEW RECORD: {}", level.moves)
     } else {

@@ -3,7 +3,7 @@ mod ui;
 use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
 
-use crate::{game::state::GameState, resources::prelude::*};
+use crate::{core::state::GameState, resources::prelude::*};
 
 use ui::{spawn_ui, UiMarker};
 pub struct InstructionsPlugin;

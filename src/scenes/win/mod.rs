@@ -4,7 +4,7 @@ use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
 
 use crate::{
-    game::{self, state::GameState},
+    core::{self, state::GameState},
     resources::prelude::*,
 };
 
@@ -30,8 +30,8 @@ impl Plugin for WinPlugin {
 }
 
 fn save_record(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    game::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
-    game::save_file::save(&save_file);
+    core::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+    core::save_file::save(&save_file);
 }
 
 fn setup(mut commands: Commands, save_file: Res<SaveFile>, fonts: Res<Fonts>, level: Res<Level>) {
@@ -56,11 +56,11 @@ fn interactions(
     if keyboard.just_pressed(KeyCode::Space) {
         match &level.tag {
             LevelTag::Stock(current_index) => {
-                if game::level::stock::is_last(&level.tag) {
+                if core::level::stock::is_last(&level.tag) {
                     game_state.set(GameState::stock_selection()).unwrap();
                 } else {
-                    game::save_file::stock::unlock(&mut save_file, &level);
-                    game::level::stock::insert(
+                    core::save_file::stock::unlock(&mut save_file, &level);
+                    core::level::stock::insert(
                         &mut commands,
                         *current_index + 1,
                         &save_file,
