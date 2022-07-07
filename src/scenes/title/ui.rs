@@ -16,16 +16,16 @@ fn spawn_ui_camera(commands: &mut Commands) {
 
 pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let font = &fonts.upheavtt;
-    let button_size = Size::new(Val::Percent(50.0), Val::Px(50.0));
+    let button_size = Size::new(Val::Px(400.0), Val::Px(60.0));
 
     let overlay = Overlay::new();
-    let mut actions = Housing::percent(100.0, 90.0);
-    let top = Housing::percent(100.0, 50.0);
-    let bottom = Housing::percent(100.0, 50.0);
-    let footer = Housing::percent(100.0, 10.0);
+    let top = Housing::percent(100.0, 35.0);
+    let bottom = Housing::percent(100.0, 35.0);
+    let mut actions = Housing::percent(100.0, 70.0);
+    let footer = Housing::percent(100.0, 30.0);
 
     let title = EmbossedText::big("Pushin'\nBoxes", font);
-    let notice = SimpleText::small("Created by septum | https://septum.io", font);
+    let notice = SimpleText::small("https://septum.io", font);
     let play = ActionButton::new("Play", font, button_size);
     let quit = ActionButton::new("Quit", font, button_size);
 
