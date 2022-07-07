@@ -20,7 +20,7 @@ impl Default for Picture {
 }
 
 impl Picture {
-    pub fn new(width: Val, height: Val, image: &Handle<Image>) -> Picture {
+    #[must_use] pub fn new(width: Val, height: Val, image: &Handle<Image>) -> Picture {
         let mut picture = Picture::default();
         picture.bundle.style.size.width = width;
         picture.bundle.style.size.height = height;
@@ -28,7 +28,7 @@ impl Picture {
         picture
     }
 
-    pub fn percent(width: f32, height: f32, image: &Handle<Image>) -> Picture {
+    #[must_use] pub fn percent(width: f32, height: f32, image: &Handle<Image>) -> Picture {
         let mut picture = Picture::default();
         picture.bundle.style.size.width = Val::Percent(width);
         picture.bundle.style.size.height = Val::Percent(height);
@@ -36,7 +36,7 @@ impl Picture {
         picture
     }
 
-    pub fn px(width: f32, height: f32, image: &Handle<Image>) -> Picture {
+    #[must_use] pub fn px(width: f32, height: f32, image: &Handle<Image>) -> Picture {
         let mut picture = Picture::default();
         picture.bundle.style.size.width = Val::Px(width);
         picture.bundle.style.size.height = Val::Px(height);
@@ -44,7 +44,7 @@ impl Picture {
         picture
     }
 
-    pub fn full(image: &Handle<Image>) -> Picture {
+    #[must_use] pub fn full(image: &Handle<Image>) -> Picture {
         let mut picture = Picture::default();
         picture.bundle.image = image.clone().into();
         picture

@@ -25,25 +25,25 @@ impl Default for Housing {
 }
 
 impl Housing {
-    pub fn new(width: Val, height: Val) -> Housing {
+    #[must_use] pub fn new(width: Val, height: Val) -> Housing {
         let mut housing = Housing::default();
         housing.bundle.style.size.width = width;
         housing.bundle.style.size.height = height;
         housing
     }
 
-    pub fn full() -> Housing {
+    #[must_use] pub fn full() -> Housing {
         Housing::default()
     }
 
-    pub fn percent(width: f32, height: f32) -> Housing {
+    #[must_use] pub fn percent(width: f32, height: f32) -> Housing {
         let mut housing = Housing::default();
         housing.bundle.style.size.width = Val::Percent(width);
         housing.bundle.style.size.height = Val::Percent(height);
         housing
     }
 
-    pub fn px(width: f32, height: f32) -> Housing {
+    #[must_use] pub fn px(width: f32, height: f32) -> Housing {
         let mut housing = Housing::default();
         housing.bundle.style.size.width = Val::Px(width);
         housing.bundle.style.size.height = Val::Px(height);

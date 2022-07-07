@@ -1,6 +1,5 @@
 mod components;
 
-pub mod custom;
 pub mod entity;
 pub mod position;
 pub mod stock;

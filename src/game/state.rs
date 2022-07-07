@@ -1,7 +1,6 @@
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum SelectionState {
     Stock,
-    Custom,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -9,8 +8,6 @@ pub enum GameState {
     Startup,
     Loading,
     Title,
-    Editor,
-    Options,
     Instructions,
     Selection(SelectionState),
     Level,
@@ -18,11 +15,7 @@ pub enum GameState {
 }
 
 impl GameState {
-    pub fn custom_selection() -> GameState {
-        GameState::Selection(SelectionState::Custom)
-    }
-
-    pub fn stock_selection() -> GameState {
+    #[must_use] pub fn stock_selection() -> GameState {
         GameState::Selection(SelectionState::Stock)
     }
 }

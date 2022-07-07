@@ -11,6 +11,7 @@ use super::{
     SPRITE_SIZE,
 };
 
+#[must_use]
 pub fn to_image(brush: &Brush, images: &Images) -> Handle<Image> {
     match brush.current_sprite() {
         BrushSprite::Box => images.entities.pbox.clone(),
@@ -33,6 +34,10 @@ pub fn spawn(commands: &mut Commands, images: &Images) {
         .insert(brush);
 }
 
+/// # Panics
+///
+/// Will panic if no primary window is found
+#[must_use]
 pub fn cursor_to_world_coords(
     windows: &Windows,
     camera_transform: &GlobalTransform,
@@ -116,7 +121,7 @@ pub fn add_entity_to_map(
                             level.set_entity(&position, MapEntity::Z);
                             level.increment_remaining_zones();
                         }
-                        _ => {}
+                        BrushSprite::Player => {}
                     }
                 }
             }

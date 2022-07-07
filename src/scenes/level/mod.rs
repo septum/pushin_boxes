@@ -10,9 +10,9 @@ use crate::{
     game::{
         self,
         level::{CameraMarker, PlayerMarker},
+        state::GameState,
     },
     resources::prelude::*,
-    state::GameState,
     ui::{TextKind, TextMarker},
 };
 use ui::{spawn_ui, UiMarker};
@@ -161,5 +161,5 @@ fn cleanup(
 
 fn stop_music(audio: Res<Audio>, sounds: Res<Sounds>) {
     let channel_id = &sounds.channels.music;
-    audio.stop_channel(channel_id)
+    audio.stop_channel(channel_id);
 }

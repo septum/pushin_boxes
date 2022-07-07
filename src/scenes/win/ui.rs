@@ -33,8 +33,6 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
     };
     let title = if is_last_level {
         "Thank you\nfor playing!"
-    } else if level.is_test() {
-        "Level Saved!"
     } else {
         "You Win!"
     };

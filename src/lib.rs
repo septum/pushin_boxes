@@ -3,10 +3,11 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_possible_truncation)]
 
 pub mod config;
-
-pub mod state;
 
 pub mod resources;
 

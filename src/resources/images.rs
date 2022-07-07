@@ -31,7 +31,7 @@ pub struct Images {
 }
 
 impl Images {
-    pub fn load(asset_server: &Res<AssetServer>) -> Images {
+    #[must_use] pub fn load(asset_server: &Res<AssetServer>) -> Images {
         let entities = EntitiesImages {
             pbox: asset_server.load("images/entities/box.png"),
             floor: asset_server.load("images/entities/floor.png"),
@@ -61,7 +61,7 @@ impl Images {
         }
     }
 
-    pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
+    #[must_use] pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
         let images_untyped = vec![
             self.entities.pbox.clone_untyped(),
             self.entities.floor.clone_untyped(),

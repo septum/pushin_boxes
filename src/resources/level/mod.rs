@@ -24,14 +24,14 @@ pub struct Level {
 impl Default for Level {
     fn default() -> Level {
         let state = LevelState::default();
-        let tag = LevelTag::Test(state);
+        let tag = LevelTag::Stock(0);
         let record = 0;
         Level::new(tag, state, record)
     }
 }
 
 impl Level {
-    pub fn new(tag: LevelTag, state: LevelState, record: usize) -> Level {
+    #[must_use] pub fn new(tag: LevelTag, state: LevelState, record: usize) -> Level {
         Level {
             tag,
             state,
@@ -62,7 +62,7 @@ impl Level {
         }
     }
 
-    pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
+    #[must_use] pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
         &self.state.map[position.y][position.x]
     }
 
@@ -74,7 +74,7 @@ impl Level {
         self.state.player_position.equals(position)
     }
 
-    pub fn get_player_position(&self) -> &MapPosition {
+    #[must_use] pub fn get_player_position(&self) -> &MapPosition {
         &self.state.player_position
     }
 
@@ -102,35 +102,25 @@ impl Level {
         self.state.remaining_zones -= 1;
     }
 
-    pub fn no_remaining_zones(&self) -> bool {
+    #[must_use] pub fn no_remaining_zones(&self) -> bool {
         self.state.remaining_zones == 0
     }
 
-    pub fn is_record_set(&self) -> bool {
+    #[must_use] pub fn is_record_set(&self) -> bool {
         self.record > 0
     }
 
-    pub fn is_new_record(&self) -> bool {
+    #[must_use] pub fn is_new_record(&self) -> bool {
         self.record == 0 || self.moves < self.record
     }
 
-    pub fn is_test(&self) -> bool {
-        matches!(self.tag, LevelTag::Test(_))
-    }
-
-    pub fn is_custom(&self) -> bool {
-        matches!(self.tag, LevelTag::Custom(_))
-    }
-
-    pub fn is_stock(&self) -> bool {
+    #[must_use] pub fn is_stock(&self) -> bool {
         matches!(self.tag, LevelTag::Stock(_))
     }
 
-    pub fn get_name(&self) -> String {
+    #[must_use] pub fn get_name(&self) -> String {
         match self.tag {
             LevelTag::Stock(index) => (index + 1).to_string(),
-            LevelTag::Custom(uuid) => uuid.to_string(),
-            LevelTag::Test(_) => "Test".to_string(),
         }
     }
 

@@ -4,9 +4,8 @@ use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
 
 use crate::{
-    game,
+    game::{self, state::GameState},
     resources::prelude::*,
-    state::{GameState, SelectionState},
     ui::{ButtonKind, ButtonMarker, LevelKind},
 };
 
@@ -17,7 +16,6 @@ pub struct SelectionPlugin;
 impl Plugin for SelectionPlugin {
     fn build(&self, app: &mut App) {
         add_systems_lifecycle(app, GameState::stock_selection());
-        add_systems_lifecycle(app, GameState::custom_selection());
     }
 }
 
@@ -39,15 +37,8 @@ fn add_systems_lifecycle(app: &mut App, state: GameState) {
     );
 }
 
-fn setup(
-    mut commands: Commands,
-    state: Res<State<GameState>>,
-    fonts: Res<Fonts>,
-    save_file: Res<SaveFile>,
-) {
-    if let GameState::Selection(selection_kind) = state.current() {
-        spawn_ui(&mut commands, &fonts, &save_file, selection_kind);
-    }
+fn setup(mut commands: Commands, fonts: Res<Fonts>, save_file: Res<SaveFile>) {
+    spawn_ui(&mut commands, &fonts, &save_file);
 }
 
 fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
@@ -75,45 +66,17 @@ fn select_level(
                 // see: https://github.com/bevyengine/bevy/issues/1700#issuecomment-886999222
                 mouse_button_input.reset(MouseButton::Left);
 
-                match &button.kind {
-                    ButtonKind::Level(level_kind) => {
-                        match level_kind {
-                            LevelKind::Stock(index) => {
-                                game::level::stock::insert(
-                                    &mut commands,
-                                    *index,
-                                    &save_file,
-                                    &level_handles,
-                                    &level_states_assets,
-                                );
-                            }
-                            LevelKind::Custom(uuid) => {
-                                game::level::custom::insert(
-                                    &mut commands,
-                                    uuid,
-                                    &save_file,
-                                    &level_handles,
-                                    &level_states_assets,
-                                );
-                            }
-                        };
-
-                        state.set(GameState::Level).unwrap();
-                    }
-                    ButtonKind::Levels => {
-                        if let GameState::Selection(selection_kind) = state.current() {
-                            match selection_kind {
-                                SelectionState::Stock => {
-                                    state.set(GameState::custom_selection()).unwrap()
-                                }
-                                SelectionState::Custom => {
-                                    state.set(GameState::stock_selection()).unwrap()
-                                }
-                            }
-                        }
-                    }
-                    _ => {}
-                };
+                if let ButtonKind::Level(level_kind) = &button.kind {
+                    let LevelKind::Stock(index) = level_kind;
+                    game::level::stock::insert(
+                        &mut commands,
+                        *index,
+                        &save_file,
+                        &level_handles,
+                        &level_states_assets,
+                    );
+                    state.set(GameState::Level).unwrap();
+                }
 
                 *color = Colors::PRIMARY_DARK.into();
             }
@@ -128,14 +91,6 @@ fn select_level(
 }
 
 fn keyboard_input(mut game_state: ResMut<State<GameState>>, mut keyboard: ResMut<Input<KeyCode>>) {
-    if keyboard.just_pressed(KeyCode::Space) {
-        if let GameState::Selection(SelectionState::Stock) = game_state.current() {
-            game_state.set(GameState::custom_selection()).unwrap();
-        } else {
-            game_state.set(GameState::stock_selection()).unwrap();
-        }
-    }
-
     if keyboard.just_pressed(KeyCode::Escape) {
         game_state.set(GameState::Title).unwrap();
     }

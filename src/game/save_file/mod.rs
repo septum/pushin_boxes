@@ -6,6 +6,9 @@ use std::{env, fs::File, io::Write, path::PathBuf};
 
 use crate::resources::prelude::*;
 
+/// # Panics
+///
+/// Will panic if file cannot be created in path
 pub fn save(save_file: &SaveFile) {
     let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
         PathBuf::from(manifest_dir).join("assets").join("game.dat")
@@ -18,19 +21,16 @@ pub fn save(save_file: &SaveFile) {
     }
 }
 
+#[must_use]
 pub fn get_record(save_file: &SaveFile, tag: &LevelTag) -> usize {
     match tag {
         LevelTag::Stock(index) => save_file.get_stock_level_record(index),
-        LevelTag::Custom(uuid) => save_file.get_custom_level_record(uuid),
-        LevelTag::Test(_) => 0,
     }
 }
 
 pub fn set_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize) {
     match tag {
         LevelTag::Stock(index) => save_file.set_stock_level_record(index, moves),
-        LevelTag::Custom(uuid) => save_file.set_custom_level_record(uuid, moves),
-        _ => (),
     };
 }
 
@@ -41,11 +41,15 @@ pub fn set_if_new_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize)
     }
 }
 
+#[must_use]
 pub fn is_default(save_file: &SaveFile) -> bool {
     let default = SaveFile::default();
-    default.stock.eq(&save_file.stock) && default.custom.eq(&save_file.custom)
+    default.stock.eq(&save_file.stock)
 }
 
+/// # Panics
+///
+/// Will panic if no save file asset is found
 pub fn insert(
     commands: &mut Commands,
     handle: &Res<SaveFileHandle>,

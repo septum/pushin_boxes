@@ -19,21 +19,13 @@ bevy_asset_ron = "0.4.0"
 serde = "1.0.138"
 ron = "0.7.1"
 
-[dependencies.hashbrown]
-version = "0.12.1"
-features = ["serde"]
-
 [dependencies.bevy]
 version = "0.7.0"
 default-features = false
-features = ["render", "png", "x11"]
+features = ["bevy_winit", "render", "png", "x11"]
 
 [dependencies.bevy_kira_audio]
 version = "0.9.0"
 default-features = false
 features = ["wav"]
 
-[dependencies.uuid]
-version = "1.1.2"
-default-features = false
-features = ["v4", "fast-rng", "serde"]

@@ -18,15 +18,16 @@ impl Default for Brush {
 }
 
 impl Brush {
+    #[must_use]
     pub fn current_sprite(&self) -> &BrushSprite {
         &self.0
     }
 
     pub fn rotate_sprite(&mut self, forward: bool) {
         if forward {
-            self.next_sprite()
+            self.next_sprite();
         } else {
-            self.prev_sprite()
+            self.prev_sprite();
         }
     }
 

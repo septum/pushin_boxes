@@ -11,7 +11,7 @@ impl Default for GameInputBuffer {
 }
 
 impl GameInputBuffer {
-    pub fn new() -> GameInputBuffer {
+    #[must_use] pub fn new() -> GameInputBuffer {
         GameInputBuffer { buffer: vec![] }
     }
 

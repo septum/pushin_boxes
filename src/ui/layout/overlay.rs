@@ -25,7 +25,7 @@ impl Default for Overlay {
 }
 
 impl Overlay {
-    pub fn new() -> Overlay {
+    #[must_use] pub fn new() -> Overlay {
         Overlay::default()
     }
 

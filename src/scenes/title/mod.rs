@@ -7,9 +7,8 @@ use bevy::{
 use bevy_kira_audio::Audio;
 
 use crate::{
-    game::save_file,
+    game::{save_file, state::GameState},
     resources::prelude::*,
-    state::GameState,
     ui::{ButtonKind, ButtonMarker},
 };
 
@@ -72,17 +71,10 @@ fn buttons_interactions(
                             game_state.set(GameState::stock_selection()).unwrap();
                         }
                     }
-                    ButtonKind::Editor => {
-                        game_state.set(GameState::Editor).unwrap();
-                    }
-                    ButtonKind::Options => {
-                        game_state.set(GameState::Options).unwrap();
-                        // TODO: Set game_state to show options scene
-                    }
                     ButtonKind::Quit => {
                         exit_event.send(AppExit);
                     }
-                    _ => (),
+                    ButtonKind::Level(_) => (),
                 };
 
                 *color = Colors::PRIMARY_DARK.into();
@@ -109,14 +101,6 @@ fn keyboard_input(
         } else {
             game_state.set(GameState::stock_selection()).unwrap();
         }
-    }
-
-    if keyboard.just_pressed(KeyCode::E) {
-        game_state.set(GameState::Editor).unwrap();
-    }
-
-    if keyboard.just_pressed(KeyCode::O) {
-        // TODO: Set game_state to show options scene
     }
 
     if keyboard.just_pressed(KeyCode::Escape) {

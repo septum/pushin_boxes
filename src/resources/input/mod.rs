@@ -12,35 +12,35 @@ pub enum GameInput {
 }
 
 impl GameInput {
-    pub fn up() -> GameInput {
+    #[must_use] pub fn up() -> GameInput {
         GameInput::Direction(Direction::Up)
     }
 
-    pub fn down() -> GameInput {
+    #[must_use] pub fn down() -> GameInput {
         GameInput::Direction(Direction::Down)
     }
 
-    pub fn left() -> GameInput {
+    #[must_use] pub fn left() -> GameInput {
         GameInput::Direction(Direction::Left)
     }
 
-    pub fn right() -> GameInput {
+    #[must_use] pub fn right() -> GameInput {
         GameInput::Direction(Direction::Right)
     }
 
-    pub fn undo() -> GameInput {
+    #[must_use] pub fn undo() -> GameInput {
         GameInput::Action(Action::Undo)
     }
 
-    pub fn reload() -> GameInput {
+    #[must_use] pub fn reload() -> GameInput {
         GameInput::Action(Action::Reload)
     }
 
-    pub fn selection() -> GameInput {
+    #[must_use] pub fn selection() -> GameInput {
         GameInput::Action(Action::Selection)
     }
 
-    pub fn exit() -> GameInput {
+    #[must_use] pub fn exit() -> GameInput {
         GameInput::Action(Action::Exit)
     }
 }

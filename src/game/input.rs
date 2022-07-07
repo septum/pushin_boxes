@@ -1,14 +1,11 @@
 use bevy::prelude::*;
 
-use crate::{
-    resources::{
-        input::{Action, Direction},
-        prelude::*,
-    },
-    state::GameState,
+use crate::resources::{
+    input::{Action, Direction},
+    prelude::*,
 };
 
-use super::level;
+use super::{level, state::GameState};
 
 pub fn process(
     input: &GameInput,
@@ -102,7 +99,5 @@ fn handle_action(
 fn handle_selection_action(tag: &LevelTag, state: &mut ResMut<State<GameState>>) {
     match tag {
         LevelTag::Stock(_) => state.set(GameState::stock_selection()).unwrap(),
-        LevelTag::Custom(_) => state.set(GameState::custom_selection()).unwrap(),
-        LevelTag::Test(_) => state.set(GameState::Editor).unwrap(),
     }
 }

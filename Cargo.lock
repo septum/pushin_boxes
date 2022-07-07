@@ -541,7 +541,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
- "uuid 0.8.2",
+ "uuid",
 ]
 
 [[package]]
@@ -596,7 +596,7 @@ dependencies = [
  "ron",
  "serde",
  "thiserror",
- "uuid 0.8.2",
+ "uuid",
 ]
 
 [[package]]
@@ -714,10 +714,10 @@ dependencies = [
  "ahash",
  "bevy_derive",
  "getrandom",
- "hashbrown 0.11.2",
+ "hashbrown",
  "instant",
  "tracing",
- "uuid 0.8.2",
+ "uuid",
 ]
 
 [[package]]
@@ -1440,7 +1440,7 @@ checksum = "a538f217be4d405ff4719a283ca68323cc2384003eca5baaa87501e821c81dda"
 dependencies = [
  "bitflags",
  "gpu-descriptor-types",
- "hashbrown 0.11.2",
+ "hashbrown",
 ]
 
 [[package]]
@@ -1467,16 +1467,6 @@ name = "hashbrown"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
-dependencies = [
- "ahash",
- "serde",
-]
-
-[[package]]
-name = "hashbrown"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db0d4cf898abf0081f964436dc980e96670a0f36863e4b83aaacdb65c9d7ccc3"
 dependencies = [
  "ahash",
  "serde",
@@ -1547,7 +1537,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "282a6247722caba404c065016bbfa522806e51714c34f5dfc3e4a3a46fcb4223"
 dependencies = [
  "autocfg",
- "hashbrown 0.11.2",
+ "hashbrown",
 ]
 
 [[package]]
@@ -1644,7 +1634,7 @@ dependencies = [
  "rand",
  "ringbuf",
  "thiserror",
- "uuid 0.8.2",
+ "uuid",
 ]
 
 [[package]]
@@ -2200,10 +2190,8 @@ dependencies = [
  "bevy",
  "bevy_asset_ron",
  "bevy_kira_audio",
- "hashbrown 0.12.1",
  "ron",
  "serde",
- "uuid 1.1.2",
 ]
 
 [[package]]
@@ -2619,17 +2607,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom",
- "serde",
-]
-
-[[package]]
-name = "uuid"
-version = "1.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd6469f4314d5f1ffec476e05f17cc9a78bc7a27a6a857842170bdf8d6f98d2f"
-dependencies = [
- "getrandom",
- "rand",
  "serde",
 ]
 

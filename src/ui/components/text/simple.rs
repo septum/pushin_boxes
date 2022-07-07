@@ -14,7 +14,7 @@ impl Default for SimpleText {
         let style = TextStyle {
             font_size: 42.0,
             color: Colors::LIGHT,
-            font: Default::default(),
+            font: Handle::default(),
         };
 
         SimpleText {

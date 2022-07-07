@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 use crate::resources::{level::TOTAL_STOCK_LEVELS, prelude::*, save_file::SaveFile};
 
+/// # Panics
+///
+/// Will panic if no level states assets are found
 pub fn insert(
     commands: &mut Commands,
     index: usize,
@@ -18,9 +21,9 @@ pub fn insert(
     commands.insert_resource(level);
 }
 
+#[must_use]
 pub fn is_last(tag: &LevelTag) -> bool {
     match tag {
         LevelTag::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
-        _ => false,
     }
 }

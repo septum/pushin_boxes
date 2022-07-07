@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::resources::prelude::*;
 
-pub fn to_image(entity: &MapEntity, images: &Images) -> Handle<Image> {
+#[must_use] pub fn to_image(entity: &MapEntity, images: &Images) -> Handle<Image> {
     match entity {
         MapEntity::W => images.entities.wall.clone(),
         MapEntity::F => images.entities.floor.clone(),

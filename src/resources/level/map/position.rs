@@ -10,11 +10,11 @@ pub struct MapPosition {
 }
 
 impl MapPosition {
-    pub fn new(x: usize, y: usize) -> MapPosition {
+    #[must_use] pub fn new(x: usize, y: usize) -> MapPosition {
         MapPosition { x, y }
     }
 
-    pub fn equals(&self, other: &MapPosition) -> bool {
+    #[must_use] pub fn equals(&self, other: &MapPosition) -> bool {
         self.x == other.x && self.y == other.y
     }
 

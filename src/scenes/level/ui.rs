@@ -29,17 +29,13 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let mut bottom_left = Housing::percent(50.0, 100.0);
     let mut bottom_right = Housing::percent(50.0, 100.0);
 
-    let mut level_number = SimpleText::medium(format!("Level {}", level.get_name()), font);
+    let level_name = SimpleText::medium(format!("Level {}", level.get_name()), font);
     let mut moves = DynamicText::small("Moves: ", font);
     let mut record_new_level = SimpleText::small(record_new_level, font);
     let mut undos_left = DynamicText::small("Undos: ", font);
     let mut undo = SimpleText::small("[U] - Undo Movement", font);
     let mut reload = SimpleText::small("[R] - Reload Level", font);
     let mut selection = SimpleText::small("[L] - Level Selection", font);
-
-    if level.is_custom() {
-        level_number.size(24.0);
-    }
 
     moves.size(28.0);
     undos_left.size(28.0);
@@ -62,7 +58,7 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
         commands,
         |parent| {
             top.spawn(parent, |parent| {
-                level_number.spawn(parent);
+                level_name.spawn(parent);
                 top_right.spawn(parent, |parent| {
                     moves.spawn(parent, TextMarker::moves());
                     record_new_level.spawn(parent);

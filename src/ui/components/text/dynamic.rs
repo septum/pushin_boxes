@@ -13,7 +13,7 @@ impl Default for DynamicText {
         let style = TextStyle {
             font_size: 42.0,
             color: Colors::LIGHT,
-            font: Default::default(),
+            font: Handle::default(),
         };
 
         DynamicText {

@@ -15,12 +15,12 @@ impl Default for EmbossedText {
         let style = TextStyle {
             font_size: 42.0,
             color: Colors::PRIMARY,
-            font: Default::default(),
+            font: Handle::default(),
         };
         let foreground = TextBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                ..Default::default()
+                ..Style::default()
             },
             text: Text::with_section("", style.clone(), ALIGNMENT),
             ..Default::default()

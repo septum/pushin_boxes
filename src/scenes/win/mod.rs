@@ -3,7 +3,10 @@ mod ui;
 use bevy::prelude::{Input, *};
 use bevy_kira_audio::Audio;
 
-use crate::{game, resources::prelude::*, state::GameState};
+use crate::{
+    game::{self, state::GameState},
+    resources::prelude::*,
+};
 
 use ui::{spawn_ui, UiMarker};
 
@@ -45,16 +48,17 @@ fn interactions(
     mut commands: Commands,
     mut game_state: ResMut<State<GameState>>,
     mut save_file: ResMut<SaveFile>,
-    mut level_handles: ResMut<LevelHandles>,
     mut keyboard: ResMut<Input<KeyCode>>,
-    asset_server: Res<AssetServer>,
+    level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         match &level.tag {
             LevelTag::Stock(current_index) => {
-                if !game::level::stock::is_last(&level.tag) {
+                if game::level::stock::is_last(&level.tag) {
+                    game_state.set(GameState::stock_selection()).unwrap();
+                } else {
                     game::save_file::stock::unlock(&mut save_file, &level);
                     game::level::stock::insert(
                         &mut commands,
@@ -64,22 +68,7 @@ fn interactions(
                         &level_states_assets,
                     );
                     game_state.set(GameState::Level).unwrap();
-                } else {
-                    game_state.set(GameState::stock_selection()).unwrap();
                 }
-            }
-            LevelTag::Custom(_) => {
-                game_state.set(GameState::custom_selection()).unwrap();
-            }
-            LevelTag::Test(level_state) => {
-                game::level::custom::write(
-                    &level,
-                    &mut level_handles,
-                    level_state,
-                    &asset_server,
-                    &mut save_file,
-                );
-                game_state.set(GameState::Title).unwrap();
             }
         }
     }
