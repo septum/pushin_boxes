@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_kira_audio::Audio;
 
 use crate::resources::{
     input::{Action, Direction},
@@ -13,13 +14,23 @@ pub fn process(
     game_state: &mut ResMut<State<GameState>>,
     levels: &LevelHandles,
     level_states: &Res<Assets<LevelState>>,
+    audio: &Audio,
+    sounds: &mut Sounds,
 ) {
     match input {
         GameInput::Direction(direction) => {
             handle_direction(level, direction);
         }
         GameInput::Action(action) => {
-            handle_action(action, level, game_state, levels, level_states);
+            handle_action(
+                action,
+                level,
+                game_state,
+                levels,
+                level_states,
+                audio,
+                sounds,
+            );
         }
     }
 }
@@ -87,12 +98,24 @@ fn handle_action(
     state: &mut ResMut<State<GameState>>,
     levels: &LevelHandles,
     level_states: &Res<Assets<LevelState>>,
+    audio: &Audio,
+    sounds: &mut Sounds,
 ) {
     match action {
         Action::Undo => level.undo(),
         Action::Reload => level::reload(level, levels, level_states),
         Action::Selection => handle_selection_action(&level.tag, state),
         Action::Exit => state.set(GameState::Title).unwrap(),
+        Action::Volume => {
+            if sounds.volume < 0.1 {
+                sounds.volume = 1.0;
+            } else {
+                sounds.volume -= 0.25;
+            }
+            audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+            audio.set_volume_in_channel(sounds.volume, &sounds.channels.music);
+        }
+        _ => (),
     }
 }
 

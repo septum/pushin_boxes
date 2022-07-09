@@ -1,10 +1,8 @@
 mod ui;
 
-use bevy::{
-    input::{keyboard::KeyboardInput, ElementState},
-    prelude::*,
-};
+use bevy::prelude::*;
 use bevy_kira_audio::Audio;
+use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
     core::{
@@ -55,37 +53,32 @@ fn start_music(audio: Res<Audio>, sounds: Res<Sounds>) {
     audio.play_looped_in_channel(audio_source, channel_id);
 }
 
-// TODO: Implement keybindings
 fn gather_input(
-    mut keyboard_input: ResMut<Input<KeyCode>>,
-    mut keyboard_events: EventReader<KeyboardInput>,
+    mut arcade_input_events: EventReader<ArcadeInputEvent>,
     mut input_buffer: ResMut<GameInputBuffer>,
 ) {
-    for event in keyboard_events.iter() {
-        if let ElementState::Pressed = event.state {
-            if let Some(keycode) = event.key_code {
-                // workaround for input persistence between states
-                keyboard_input.reset(keycode);
-
-                let input = match keycode {
-                    KeyCode::W => GameInput::up(),
-                    KeyCode::S => GameInput::down(),
-                    KeyCode::A => GameInput::left(),
-                    KeyCode::D => GameInput::right(),
-                    KeyCode::U => GameInput::undo(),
-                    KeyCode::R => GameInput::reload(),
-                    KeyCode::L => GameInput::selection(),
-                    KeyCode::Escape => GameInput::exit(),
-                    _ => return,
-                };
-
-                input_buffer.insert(input);
+    for event in arcade_input_events.iter() {
+        if event.value > 0.0 {
+            let input = match event.arcade_input {
+                ArcadeInput::JoyUp => GameInput::up(),
+                ArcadeInput::JoyDown => GameInput::down(),
+                ArcadeInput::JoyLeft => GameInput::left(),
+                ArcadeInput::JoyRight => GameInput::right(),
+                ArcadeInput::ButtonTop1 => GameInput::undo(),
+                ArcadeInput::ButtonTop2 => GameInput::reload(),
+                ArcadeInput::ButtonTop3 => GameInput::selection(),
+                ArcadeInput::ButtonFront1 => GameInput::exit(),
+                ArcadeInput::ButtonFront2 => GameInput::volume(),
+                _ => return,
             };
-        };
+            input_buffer.insert(input);
+        }
     }
 }
 
 fn handle_input(
+    audio: Res<Audio>,
+    mut sounds: ResMut<Sounds>,
     mut level: ResMut<Level>,
     mut input: ResMut<GameInputBuffer>,
     mut game_state: ResMut<State<GameState>>,
@@ -93,7 +86,15 @@ fn handle_input(
     level_states: Res<Assets<LevelState>>,
 ) {
     if let Some(input) = input.pop() {
-        core::input::process(&input, &mut level, &mut game_state, &levels, &level_states);
+        core::input::process(
+            &input,
+            &mut level,
+            &mut game_state,
+            &levels,
+            &level_states,
+            &audio,
+            &mut sounds,
+        );
     }
 }
 

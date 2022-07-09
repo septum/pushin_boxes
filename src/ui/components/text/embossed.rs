@@ -114,8 +114,12 @@ impl EmbossedText {
         self
     }
 
-    pub fn color(&mut self, color: Color) -> &mut EmbossedText {
+    pub fn foreground_color(&mut self, color: Color) -> &mut EmbossedText {
         self.foreground.text.sections[0].style.color = color;
+        self
+    }
+
+    pub fn background_color(&mut self, color: Color) -> &mut EmbossedText {
         self.background.text.sections[0].style.color = color;
         self
     }

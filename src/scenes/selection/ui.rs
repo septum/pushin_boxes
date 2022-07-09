@@ -15,10 +15,11 @@ fn spawn_ui_camera(commands: &mut Commands) {
 }
 
 fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
+    let last_index = save_file.stock_levels_len();
     for (index, record) in save_file.stock.iter().enumerate() {
         let housing = Housing::percent(25.0, 25.0);
         let button = ActionButton::square(format!("{}", index + 1), font);
-        let marker = ButtonMarker::stock_level(index);
+        let marker = ButtonMarker::stock_level(index, last_index == index + 1);
         let text = if *record > 0 {
             format!("Record: {}", record)
         } else {

@@ -1,7 +1,7 @@
 use super::GameInput;
 
 pub struct GameInputBuffer {
-    pub buffer: Vec<GameInput>,
+    buffer: Vec<GameInput>,
 }
 
 impl Default for GameInputBuffer {
@@ -22,5 +22,9 @@ impl GameInputBuffer {
 
     pub fn pop(&mut self) -> Option<GameInput> {
         self.buffer.pop()
+    }
+
+    pub fn clear(&mut self) {
+        self.buffer.clear()
     }
 }

@@ -2,48 +2,57 @@ use bevy::prelude::*;
 
 use crate::resources::prelude::Colors;
 
-use super::text::SimpleText;
+use super::text::EmbossedText;
 
+#[derive(PartialEq, Clone, Copy)]
 pub enum LevelKind {
     Stock(usize),
 }
 
+#[derive(PartialEq, Clone, Copy)]
 pub enum ButtonKind {
     Play,
     Quit,
+    Instructions,
     Level(LevelKind),
 }
 
 #[derive(Component)]
 pub struct ButtonMarker {
     pub kind: ButtonKind,
+    pub selected: bool,
 }
 
 impl ButtonMarker {
     #[must_use]
-    pub fn new(kind: ButtonKind) -> ButtonMarker {
-        ButtonMarker { kind }
+    pub fn new(kind: ButtonKind, selected: bool) -> ButtonMarker {
+        ButtonMarker { kind, selected }
     }
 
     #[must_use]
-    pub fn play() -> ButtonMarker {
-        ButtonMarker::new(ButtonKind::Play)
+    pub fn play(selected: bool) -> ButtonMarker {
+        ButtonMarker::new(ButtonKind::Play, selected)
     }
 
     #[must_use]
-    pub fn quit() -> ButtonMarker {
-        ButtonMarker::new(ButtonKind::Quit)
+    pub fn instructions(selected: bool) -> ButtonMarker {
+        ButtonMarker::new(ButtonKind::Instructions, selected)
     }
 
     #[must_use]
-    pub fn stock_level(index: usize) -> ButtonMarker {
-        ButtonMarker::new(ButtonKind::Level(LevelKind::Stock(index)))
+    pub fn quit(selected: bool) -> ButtonMarker {
+        ButtonMarker::new(ButtonKind::Quit, selected)
+    }
+
+    #[must_use]
+    pub fn stock_level(index: usize, selected: bool) -> ButtonMarker {
+        ButtonMarker::new(ButtonKind::Level(LevelKind::Stock(index)), selected)
     }
 }
 
 pub struct ActionButton {
     pub bundle: ButtonBundle,
-    pub child: SimpleText,
+    pub child: EmbossedText,
 }
 
 impl Default for ActionButton {
@@ -54,12 +63,12 @@ impl Default for ActionButton {
             size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
             ..Default::default()
         };
-        let child = SimpleText::default();
+        let child = EmbossedText::default();
 
         ActionButton {
             bundle: ButtonBundle {
                 style,
-                color: Colors::PRIMARY.into(),
+                color: Colors::TRANSPARENT.into(),
                 ..Default::default()
             },
             child,
@@ -69,8 +78,9 @@ impl Default for ActionButton {
 
 impl ActionButton {
     pub fn new<S: Into<String>>(value: S, font: &Handle<Font>, size: Size<Val>) -> ActionButton {
-        let mut child = SimpleText::medium(value, font);
-        child.color(Colors::DARK);
+        let mut child = EmbossedText::medium(value, font);
+        child.foreground_color(Colors::LIGHT);
+        child.background_color(Colors::DARK);
 
         let mut button = ActionButton::default();
         button.bundle.style.size = size;
@@ -80,8 +90,9 @@ impl ActionButton {
     }
 
     pub fn full<S: Into<String>>(value: S, font: &Handle<Font>) -> ActionButton {
-        let mut child = SimpleText::medium(value, font);
-        child.color(Colors::DARK);
+        let mut child = EmbossedText::medium(value, font);
+        child.foreground_color(Colors::LIGHT);
+        child.background_color(Colors::DARK);
 
         ActionButton {
             child,
@@ -90,8 +101,9 @@ impl ActionButton {
     }
 
     pub fn square<S: Into<String>>(value: S, font: &Handle<Font>) -> ActionButton {
-        let mut child = SimpleText::medium(value, font);
-        child.color(Colors::DARK);
+        let mut child = EmbossedText::medium(value, font);
+        child.foreground_color(Colors::LIGHT);
+        child.background_color(Colors::DARK);
 
         let mut button = ActionButton::default();
         button.width(Val::Px(50.0));
@@ -112,16 +124,6 @@ impl ActionButton {
 
     pub fn color(&mut self, color: Color) -> &mut ActionButton {
         self.bundle.color = color.into();
-        self
-    }
-
-    pub fn child<S: Into<String>>(&mut self, value: S) -> &mut ActionButton {
-        self.child.bundle.text.sections[0].value = value.into();
-        self
-    }
-
-    pub fn font_size(&mut self, font_size: f32) -> &mut ActionButton {
-        self.child.bundle.text.sections[0].style.font_size = font_size;
         self
     }
 

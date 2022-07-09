@@ -6,6 +6,27 @@ pub use action::Action;
 pub use buffer::GameInputBuffer;
 pub use direction::Direction;
 
+const COUNTER_START_VALUE: usize = 32;
+
+#[derive(Default)]
+pub struct IgnoreInputCounter {
+    value: usize,
+}
+
+impl IgnoreInputCounter {
+    pub fn start(&mut self) {
+        self.value = COUNTER_START_VALUE;
+    }
+
+    pub fn tick(&mut self) {
+        self.value = self.value.saturating_sub(1);
+    }
+
+    pub fn done(&mut self) -> bool {
+        self.value < 1
+    }
+}
+
 pub enum GameInput {
     Direction(Direction),
     Action(Action),
@@ -45,6 +66,16 @@ impl GameInput {
     #[must_use]
     pub fn selection() -> GameInput {
         GameInput::Action(Action::Selection)
+    }
+
+    #[must_use]
+    pub fn pick() -> GameInput {
+        GameInput::Action(Action::Pick)
+    }
+
+    #[must_use]
+    pub fn volume() -> GameInput {
+        GameInput::Action(Action::Volume)
     }
 
     #[must_use]

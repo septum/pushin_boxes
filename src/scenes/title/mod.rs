@@ -1,14 +1,15 @@
 mod ui;
 
-use bevy::{
-    app::AppExit,
-    prelude::{Input, *},
-};
+use bevy::{app::AppExit, prelude::*};
 use bevy_kira_audio::Audio;
+use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
-    core::{save_file, state::GameState},
-    resources::prelude::*,
+    core::state::GameState,
+    resources::{
+        input::{Action, Direction},
+        prelude::*,
+    },
     ui::{ButtonKind, ButtonMarker},
 };
 
@@ -25,8 +26,8 @@ impl Plugin for TitlePlugin {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Title)
-                .with_system(buttons_interactions)
-                .with_system(keyboard_input),
+                .with_system(gather_input)
+                .with_system(handle_input),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Title)
@@ -36,8 +37,13 @@ impl Plugin for TitlePlugin {
     }
 }
 
-fn setup(mut commands: Commands, fonts: Res<Fonts>) {
+fn setup(
+    mut commands: Commands,
+    fonts: Res<Fonts>,
+    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
+) {
     spawn_ui(&mut commands, &fonts);
+    ignore_input_counter.start();
 }
 
 fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
@@ -46,69 +52,131 @@ fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
     audio.play_looped_in_channel(audio_source, channel_id);
 }
 
-fn buttons_interactions(
-    mut exit_event: EventWriter<AppExit>,
-    mut game_state: ResMut<State<GameState>>,
-    mut mouse_button_input: ResMut<Input<MouseButton>>,
-    save_file: Res<SaveFile>,
-    mut query: Query<
-        (&ButtonMarker, &Interaction, &mut UiColor),
-        (Changed<Interaction>, With<Button>),
-    >,
+fn gather_input(
+    mut arcade_input_events: EventReader<ArcadeInputEvent>,
+    mut input_buffer: ResMut<GameInputBuffer>,
+    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
 ) {
-    for (button, interaction, mut color) in query.iter_mut() {
-        match interaction {
-            Interaction::Clicked => {
-                // workaround for input persistence between states
-                // see: https://github.com/bevyengine/bevy/issues/1700#issuecomment-886999222
-                mouse_button_input.reset(MouseButton::Left);
-
-                match button.kind {
-                    ButtonKind::Play => {
-                        if save_file::is_default(&save_file) {
-                            game_state.set(GameState::Instructions).unwrap();
-                        } else {
-                            game_state.set(GameState::stock_selection()).unwrap();
-                        }
-                    }
-                    ButtonKind::Quit => {
-                        exit_event.send(AppExit);
-                    }
-                    ButtonKind::Level(_) => (),
+    if ignore_input_counter.done() {
+        for event in arcade_input_events.iter() {
+            if event.value > 0.0 {
+                let input = match event.arcade_input {
+                    ArcadeInput::JoyUp => GameInput::up(),
+                    ArcadeInput::JoyDown => GameInput::down(),
+                    ArcadeInput::JoyButton => GameInput::pick(),
+                    ArcadeInput::ButtonFront1 => GameInput::exit(),
+                    ArcadeInput::ButtonFront2 => GameInput::volume(),
+                    _ => return,
                 };
-
-                *color = Colors::PRIMARY_DARK.into();
-            }
-            Interaction::Hovered => {
-                *color = Colors::PRIMARY_LIGHT.into();
-            }
-            Interaction::None => {
-                *color = Colors::PRIMARY.into();
+                input_buffer.insert(input);
             }
         }
+    } else {
+        ignore_input_counter.tick();
     }
 }
 
-fn keyboard_input(
+fn handle_input(
+    audio: Res<Audio>,
+    mut sounds: ResMut<Sounds>,
     mut exit_event: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
-    mut keyboard: ResMut<Input<KeyCode>>,
-    save_file: Res<SaveFile>,
+    mut query: Query<(&mut ButtonMarker, &mut UiColor)>,
+    mut input: ResMut<GameInputBuffer>,
 ) {
-    if keyboard.just_pressed(KeyCode::Space) {
-        if save_file::is_default(&save_file) {
-            game_state.set(GameState::Instructions).unwrap();
-        } else {
-            game_state.set(GameState::stock_selection()).unwrap();
+    let mut selected_button = None;
+
+    if let Some(input) = input.pop() {
+        let mut button_clicked = false;
+        let mut direction = None;
+
+        match input {
+            GameInput::Direction(Direction::Up) => direction = Some(Direction::Up),
+            GameInput::Direction(Direction::Down) => direction = Some(Direction::Down),
+            GameInput::Action(Action::Pick) => button_clicked = true,
+            GameInput::Action(Action::Exit) => exit_event.send(AppExit),
+            GameInput::Action(Action::Volume) => {
+                if sounds.volume < 0.1 {
+                    sounds.volume = 1.0;
+                } else {
+                    sounds.volume -= 0.25;
+                }
+                audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+                audio.set_volume_in_channel(sounds.volume, &sounds.channels.music);
+            }
+            _ => (),
+        }
+
+        for (button, _) in query.iter_mut() {
+            match (&button.kind, button.selected) {
+                (ButtonKind::Play, selected) => {
+                    if selected {
+                        if button_clicked {
+                            game_state.set(GameState::stock_selection()).unwrap();
+                        }
+                        if let Some(direction) = &direction {
+                            selected_button = Some(if matches!(direction, Direction::Up) {
+                                ButtonKind::Quit
+                            } else {
+                                ButtonKind::Instructions
+                            });
+                        } else {
+                            selected_button = None;
+                        }
+                    }
+                }
+                (ButtonKind::Instructions, selected) => {
+                    if selected {
+                        if button_clicked {
+                            game_state.set(GameState::Instructions).unwrap();
+                        }
+                        if let Some(direction) = &direction {
+                            selected_button = Some(if matches!(direction, Direction::Up) {
+                                ButtonKind::Play
+                            } else {
+                                ButtonKind::Quit
+                            });
+                        } else {
+                            selected_button = None;
+                        }
+                    }
+                }
+                (ButtonKind::Quit, selected) => {
+                    if selected {
+                        if button_clicked {
+                            exit_event.send(AppExit);
+                        }
+                        if let Some(direction) = &direction {
+                            selected_button = Some(if matches!(direction, Direction::Up) {
+                                ButtonKind::Instructions
+                            } else {
+                                ButtonKind::Play
+                            });
+                        } else {
+                            selected_button = None;
+                        }
+                    }
+                }
+                _ => {}
+            };
         }
     }
 
-    if keyboard.just_pressed(KeyCode::Escape) {
-        exit_event.send(AppExit);
-    }
+    for (mut button, mut color) in query.iter_mut() {
+        if let Some(selected_kind) = selected_button {
+            if selected_kind == button.kind {
+                button.selected = true;
+            } else {
+                button.selected = false;
+            }
+        }
 
-    // workaround for input persistence between states
-    keyboard.clear();
+        if button.selected {
+            *color = Colors::PRIMARY_DARK.into();
+        } else {
+            *color = Colors::TRANSPARENT.into();
+        }
+    }
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {

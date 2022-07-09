@@ -20,6 +20,7 @@ pub struct Music {
 }
 
 pub struct Sounds {
+    pub volume: f32,
     pub channels: Channels,
     pub sfx: Sfx,
     pub music: Music,
@@ -45,6 +46,7 @@ impl Sounds {
         };
 
         Sounds {
+            volume: 1.0,
             channels,
             sfx,
             music,

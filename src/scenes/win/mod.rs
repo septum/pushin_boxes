@@ -1,11 +1,12 @@
 mod ui;
 
-use bevy::prelude::{Input, *};
+use bevy::prelude::*;
 use bevy_kira_audio::Audio;
+use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
     core::{self, state::GameState},
-    resources::prelude::*,
+    resources::{input::Action, prelude::*},
 };
 
 use ui::{spawn_ui, UiMarker};
@@ -20,7 +21,11 @@ impl Plugin for WinPlugin {
                 .with_system(setup)
                 .with_system(start_audio),
         )
-        .add_system_set(SystemSet::on_update(GameState::Win).with_system(interactions))
+        .add_system_set(
+            SystemSet::on_update(GameState::Win)
+                .with_system(gather_input)
+                .with_system(handle_input),
+        )
         .add_system_set(
             SystemSet::on_exit(GameState::Win)
                 .with_system(cleanup)
@@ -44,41 +49,71 @@ fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
     audio.play_looped_in_channel(audio_source, channel_id);
 }
 
-fn interactions(
+fn gather_input(
+    mut arcade_input_events: EventReader<ArcadeInputEvent>,
+    mut input_buffer: ResMut<GameInputBuffer>,
+    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
+) {
+    if ignore_input_counter.done() {
+        for event in arcade_input_events.iter() {
+            if event.value > 0.0 {
+                let input = match event.arcade_input {
+                    ArcadeInput::ButtonFront1 => GameInput::exit(),
+                    ArcadeInput::ButtonFront2 => GameInput::volume(),
+                    ArcadeInput::JoyButton => GameInput::pick(),
+                    _ => return,
+                };
+                input_buffer.insert(input);
+            }
+        }
+    } else {
+        ignore_input_counter.tick();
+    }
+}
+
+fn handle_input(
     mut commands: Commands,
-    mut game_state: ResMut<State<GameState>>,
     mut save_file: ResMut<SaveFile>,
-    mut keyboard: ResMut<Input<KeyCode>>,
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
+    audio: Res<Audio>,
+    mut sounds: ResMut<Sounds>,
+    mut game_state: ResMut<State<GameState>>,
+    mut input: ResMut<GameInputBuffer>,
 ) {
-    if keyboard.just_pressed(KeyCode::Space) {
-        match &level.tag {
-            LevelTag::Stock(current_index) => {
-                if core::level::stock::is_last(&level.tag) {
-                    game_state.set(GameState::stock_selection()).unwrap();
-                } else {
-                    core::save_file::stock::unlock(&mut save_file, &level);
-                    core::level::stock::insert(
-                        &mut commands,
-                        *current_index + 1,
-                        &save_file,
-                        &level_handles,
-                        &level_states_assets,
-                    );
-                    game_state.set(GameState::Level).unwrap();
+    if let Some(input) = input.pop() {
+        match input {
+            GameInput::Action(Action::Pick) => match &level.tag {
+                LevelTag::Stock(current_index) => {
+                    if core::level::stock::is_last(&level.tag) {
+                        game_state.set(GameState::stock_selection()).unwrap();
+                    } else {
+                        core::save_file::stock::unlock(&mut save_file, &level);
+                        core::level::stock::insert(
+                            &mut commands,
+                            *current_index + 1,
+                            &save_file,
+                            &level_handles,
+                            &level_states_assets,
+                        );
+                        game_state.set(GameState::Level).unwrap();
+                    }
                 }
+            },
+            GameInput::Action(Action::Exit) => game_state.set(GameState::Title).unwrap(),
+            GameInput::Action(Action::Volume) => {
+                if sounds.volume < 0.1 {
+                    sounds.volume = 1.0;
+                } else {
+                    sounds.volume -= 0.25;
+                }
+                audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+                audio.set_volume_in_channel(sounds.volume, &sounds.channels.music);
             }
+            _ => (),
         }
     }
-
-    if keyboard.just_pressed(KeyCode::Escape) {
-        game_state.set(GameState::Title).unwrap();
-    }
-
-    // workaround for input persistence between states
-    keyboard.clear();
 }
 
 fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {

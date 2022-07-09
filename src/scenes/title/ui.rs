@@ -27,6 +27,7 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let title = EmbossedText::big("Pushin'\nBoxes", font);
     let notice = SimpleText::small("https://septum.io", font);
     let play = ActionButton::new("Play", font, button_size);
+    let instructions = ActionButton::new("Instructions", font, button_size);
     let quit = ActionButton::new("Quit", font, button_size);
 
     actions
@@ -41,8 +42,9 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
             });
             bottom.spawn(parent, |parent| {
                 actions.spawn(parent, |parent| {
-                    play.spawn(parent, ButtonMarker::play());
-                    quit.spawn(parent, ButtonMarker::quit());
+                    play.spawn(parent, ButtonMarker::play(true));
+                    instructions.spawn(parent, ButtonMarker::instructions(false));
+                    quit.spawn(parent, ButtonMarker::quit(false));
                 });
                 footer.spawn(parent, |parent| {
                     notice.spawn(parent);
