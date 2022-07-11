@@ -91,18 +91,43 @@ fn handle_input(
         let mut direction = None;
 
         match input {
-            GameInput::Direction(Direction::Up) => direction = Some(Direction::Up),
-            GameInput::Direction(Direction::Down) => direction = Some(Direction::Down),
-            GameInput::Action(Action::Pick) => button_clicked = true,
-            GameInput::Action(Action::Exit) => exit_event.send(AppExit),
+            GameInput::Direction(Direction::Up) => {
+                let audio_source = sounds.sfx.move_player.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+                direction = Some(Direction::Up);
+            }
+            GameInput::Direction(Direction::Down) => {
+                let audio_source = sounds.sfx.move_player.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+                direction = Some(Direction::Down);
+            }
+            GameInput::Action(Action::Pick) => {
+                let audio_source = sounds.sfx.set_zone.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+                button_clicked = true;
+            }
+            GameInput::Action(Action::Exit) => {
+                let audio_source = sounds.sfx.push_box.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+                exit_event.send(AppExit);
+            }
             GameInput::Action(Action::Volume) => {
+                let audio_source = sounds.sfx.toggle_volume.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+
                 if sounds.volume < 0.1 {
                     sounds.volume = 1.0;
                 } else {
                     sounds.volume -= 0.25;
                 }
+
+                audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
                 audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
-                audio.set_volume_in_channel(sounds.volume, &sounds.channels.music);
             }
             _ => (),
         }

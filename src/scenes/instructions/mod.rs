@@ -79,17 +79,30 @@ fn handle_input(
     if let Some(input) = input.pop() {
         match input {
             GameInput::Action(Action::Pick) => {
+                let audio_source = sounds.sfx.move_player.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
                 game_state.set(GameState::stock_selection()).unwrap()
             }
-            GameInput::Action(Action::Exit) => game_state.set(GameState::Title).unwrap(),
+            GameInput::Action(Action::Exit) => {
+                let audio_source = sounds.sfx.push_box.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+                game_state.set(GameState::Title).unwrap()
+            }
             GameInput::Action(Action::Volume) => {
+                let audio_source = sounds.sfx.toggle_volume.clone();
+                let channel_id = &sounds.channels.sfx;
+                audio.play_in_channel(audio_source, channel_id);
+
                 if sounds.volume < 0.1 {
                     sounds.volume = 1.0;
                 } else {
                     sounds.volume -= 0.25;
                 }
+
+                audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
                 audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
-                audio.set_volume_in_channel(sounds.volume, &sounds.channels.music);
             }
             _ => (),
         }

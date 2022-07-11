@@ -137,7 +137,7 @@ impl Level {
         self.snapshots[0] = Some(self.state);
     }
 
-    pub fn undo(&mut self) {
+    pub fn undo(&mut self) -> bool {
         if self.undos > 0 {
             if let Some(state) = self.snapshots[0] {
                 self.state = state;
@@ -145,7 +145,10 @@ impl Level {
                 self.snapshots[MAX_SNAPSHOTS - 1] = None;
                 self.decrement_undos();
                 self.decrement_moves();
+                return true;
             }
+            return false;
         }
+        return false;
     }
 }

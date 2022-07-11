@@ -10,6 +10,9 @@ pub struct Sfx {
     pub move_player: Handle<AudioSource>,
     pub push_box: Handle<AudioSource>,
     pub set_zone: Handle<AudioSource>,
+    pub toggle_volume: Handle<AudioSource>,
+    pub undo_move: Handle<AudioSource>,
+    pub reload_level: Handle<AudioSource>,
 }
 
 pub struct Music {
@@ -34,9 +37,12 @@ impl Sounds {
             music: AudioChannel::new("music".to_string()),
         };
         let sfx = Sfx {
-            move_player: asset_server.load("sounds/fx/move_player.wav"),
-            push_box: asset_server.load("sounds/fx/push_box.wav"),
-            set_zone: asset_server.load("sounds/fx/set_zone.wav"),
+            move_player: asset_server.load("sounds/sfx/move_player.wav"),
+            push_box: asset_server.load("sounds/sfx/push_box.wav"),
+            set_zone: asset_server.load("sounds/sfx/set_zone.wav"),
+            toggle_volume: asset_server.load("sounds/sfx/toggle_volume.wav"),
+            undo_move: asset_server.load("sounds/sfx/undo_move.wav"),
+            reload_level: asset_server.load("sounds/sfx/reload_level.wav"),
         };
         let music = Music {
             level: asset_server.load("sounds/music/level.wav"),
@@ -59,6 +65,9 @@ impl Sounds {
             self.sfx.move_player.clone_untyped(),
             self.sfx.push_box.clone_untyped(),
             self.sfx.set_zone.clone_untyped(),
+            self.sfx.toggle_volume.clone_untyped(),
+            self.sfx.undo_move.clone_untyped(),
+            self.sfx.reload_level.clone_untyped(),
             self.music.level.clone_untyped(),
             self.music.selection.clone_untyped(),
             self.music.title.clone_untyped(),

@@ -11,6 +11,7 @@ pub mod save_file;
 
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
+use bevy_kira_audio::Audio;
 
 use crate::core::{self, state::GameState};
 
@@ -55,6 +56,7 @@ fn check_loading(
     mut state: ResMut<State<GameState>>,
     levels: Res<LevelHandles>,
     asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
     images: Res<Images>,
     fonts: Res<Fonts>,
     sounds: Res<Sounds>,
@@ -69,6 +71,9 @@ fn check_loading(
 
     if all_loaded {
         core::save_file::insert(&mut commands, &save_file_handle, &asset_server, &save_file);
+
+        audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
+        audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
 
         state.set(GameState::Title).unwrap();
     }
