@@ -8,11 +8,8 @@ pub struct EntitiesImages {
 }
 
 pub struct PlayerImages {
-    pub up: Handle<Image>,
-    pub down: Handle<Image>,
-    pub idle: Handle<Image>,
-    pub left: Handle<Image>,
-    pub right: Handle<Image>,
+    pub spritesheet: Handle<Image>,
+    pub pushin: Handle<Image>,
 }
 
 pub struct VolumeImages {
@@ -40,11 +37,8 @@ impl Images {
             zone: asset_server.load("images/entities/zone.png"),
         };
         let player = PlayerImages {
-            up: asset_server.load("images/player/up.png"),
-            down: asset_server.load("images/player/down.png"),
-            idle: asset_server.load("images/player/idle.png"),
-            left: asset_server.load("images/player/left.png"),
-            right: asset_server.load("images/player/right.png"),
+            spritesheet: asset_server.load("images/player/spritesheet.png"),
+            pushin: asset_server.load("images/player/pushin.png"),
         };
         let volume = VolumeImages {
             max: asset_server.load("images/volume/max.png"),
@@ -69,11 +63,8 @@ impl Images {
             self.entities.floor.clone_untyped(),
             self.entities.wall.clone_untyped(),
             self.entities.zone.clone_untyped(),
-            self.player.up.clone_untyped(),
-            self.player.down.clone_untyped(),
-            self.player.idle.clone_untyped(),
-            self.player.left.clone_untyped(),
-            self.player.right.clone_untyped(),
+            self.player.spritesheet.clone_untyped(),
+            self.player.pushin.clone_untyped(),
             self.volume.max.clone_untyped(),
             self.volume.min.clone_untyped(),
             self.volume.muted.clone_untyped(),

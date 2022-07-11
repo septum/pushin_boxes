@@ -18,15 +18,39 @@ pub fn reload(level: &mut Level, levels: &LevelHandles, level_states: &Res<Asset
     level.set_state(state);
 }
 
-pub fn spawn(commands: &mut Commands, level: &Level, images: &Images) {
+pub fn spawn(
+    commands: &mut Commands,
+    texture_atlases: &mut Assets<TextureAtlas>,
+    level: &Level,
+    images: &Images,
+) {
     let position = level.get_player_position();
-    let texture = images.player.idle.clone();
-    spawn_entity(commands, position, texture, PlayerMarker, true);
+    let index = level.get_sprite_index();
+    let texture = images.player.spritesheet.clone();
+    spawn_entity(
+        commands,
+        texture_atlases,
+        position,
+        texture,
+        PlayerMarker,
+        true,
+        true,
+        index,
+    );
 
     level.loop_over_entity_and_position(|entity, position| {
         let on_top = matches!(entity, &MapEntity::B | &MapEntity::P);
         let texture = entity::to_image(entity, images);
-        spawn_entity(commands, &position, texture, position, on_top);
+        spawn_entity(
+            commands,
+            texture_atlases,
+            &position,
+            texture,
+            position,
+            on_top,
+            false,
+            index,
+        );
     });
 
     spawn_camera(commands);
@@ -34,10 +58,13 @@ pub fn spawn(commands: &mut Commands, level: &Level, images: &Images) {
 
 pub fn spawn_entity(
     commands: &mut Commands,
+    texture_atlases: &mut Assets<TextureAtlas>,
     position: &MapPosition,
     texture: Handle<Image>,
     component: impl Component,
     on_top: bool,
+    is_player: bool,
+    index: usize,
 ) {
     let mut translation = Vec3::default();
     position::update_entity_translation(position, &mut translation);
@@ -47,13 +74,30 @@ pub fn spawn_entity(
         translation.z += 1.0;
     }
 
-    commands
-        .spawn_bundle(SpriteBundle {
-            texture,
-            transform: Transform::from_translation(translation),
-            ..Default::default()
-        })
-        .insert(component);
+    if is_player {
+        let texture_atlas = TextureAtlas::from_grid(texture, Vec2::new(64.0, 64.0), 4, 1);
+        let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+        commands
+            .spawn_bundle(SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    index,
+                    ..TextureAtlasSprite::default()
+                },
+                texture_atlas: texture_atlas_handle,
+                transform: Transform::from_translation(translation),
+                ..SpriteSheetBundle::default()
+            })
+            .insert(component);
+    } else {
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture,
+                transform: Transform::from_translation(translation),
+                ..SpriteBundle::default()
+            })
+            .insert(component);
+    }
 }
 
 fn spawn_camera(commands: &mut Commands) {

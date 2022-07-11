@@ -15,7 +15,7 @@ use super::{
 pub fn to_image(brush: &Brush, images: &Images) -> Handle<Image> {
     match brush.current_sprite() {
         BrushSprite::Box => images.entities.pbox.clone(),
-        BrushSprite::Player => images.player.idle.clone(),
+        BrushSprite::Player => images.player.pushin.clone(),
         BrushSprite::Wall => images.entities.wall.clone(),
         BrushSprite::Floor => images.entities.floor.clone(),
         BrushSprite::Zone => images.entities.zone.clone(),

@@ -42,8 +42,8 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
             });
             bottom.spawn(parent, |parent| {
                 actions.spawn(parent, |parent| {
-                    play.spawn(parent, ButtonMarker::play(false));
-                    instructions.spawn(parent, ButtonMarker::instructions(true));
+                    play.spawn(parent, ButtonMarker::play(true));
+                    instructions.spawn(parent, ButtonMarker::instructions(false));
                     quit.spawn(parent, ButtonMarker::quit(false));
                 });
                 footer.spawn(parent, |parent| {

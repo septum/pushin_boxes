@@ -36,6 +36,7 @@ impl Plugin for WinPlugin {
 
 fn save_record(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
     core::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+    core::save_file::stock::unlock(&mut save_file, &level);
     core::save_file::save(&save_file);
 }
 
@@ -73,7 +74,7 @@ fn gather_input(
 
 fn handle_input(
     mut commands: Commands,
-    mut save_file: ResMut<SaveFile>,
+    save_file: Res<SaveFile>,
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
@@ -93,7 +94,6 @@ fn handle_input(
                         if core::level::stock::is_last(&level.tag) {
                             game_state.set(GameState::stock_selection()).unwrap();
                         } else {
-                            core::save_file::stock::unlock(&mut save_file, &level);
                             core::level::stock::insert(
                                 &mut commands,
                                 *current_index + 1,

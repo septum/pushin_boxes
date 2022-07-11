@@ -81,6 +81,15 @@ impl Level {
         &self.state.player_position
     }
 
+    #[must_use]
+    pub fn get_sprite_index(&self) -> usize {
+        self.state.sprite_index
+    }
+
+    pub fn set_sprite_index(&mut self, index: usize) {
+        self.state.sprite_index = index;
+    }
+
     pub fn increment_moves(&mut self) {
         self.moves += 1;
     }

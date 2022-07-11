@@ -26,7 +26,7 @@ pub fn spawn_ui(commands: &mut Commands, images: &Images, fonts: &Fonts) {
     let line_f = Housing::percent(100.0, 10.0);
 
     let controls = Picture::full(&images.controls);
-    let mut pushin = Picture::px(64.0, 64.0, &images.player.idle);
+    let mut pushin = Picture::px(64.0, 64.0, &images.player.pushin);
     let mut pbox = Picture::px(64.0, 64.0, &images.entities.pbox);
     let mut zone = Picture::px(64.0, 64.0, &images.entities.zone);
 

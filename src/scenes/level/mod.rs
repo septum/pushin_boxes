@@ -42,8 +42,14 @@ impl Plugin for LevelPlugin {
     }
 }
 
-fn spawn_scene(mut commands: Commands, level: Res<Level>, images: Res<Images>, fonts: Res<Fonts>) {
-    core::level::spawn(&mut commands, &level, &images);
+fn spawn_scene(
+    mut commands: Commands,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    level: Res<Level>,
+    images: Res<Images>,
+    fonts: Res<Fonts>,
+) {
+    core::level::spawn(&mut commands, &mut texture_atlases, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
 }
 
@@ -98,8 +104,12 @@ fn handle_input(
     }
 }
 
-fn update_player_position(level: Res<Level>, mut query: Query<&mut Transform, With<PlayerMarker>>) {
-    let mut transform = query.single_mut();
+fn update_player_position(
+    level: Res<Level>,
+    mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<PlayerMarker>>,
+) {
+    let (mut transform, mut sprite) = query.single_mut();
+    sprite.index = level.get_sprite_index();
     core::level::position::update_player_translation(
         &level.state.player_position,
         &mut transform.translation,

@@ -19,6 +19,12 @@ pub fn process(
 ) {
     match input {
         GameInput::Direction(direction) => {
+            match direction {
+                Direction::Down => level.set_sprite_index(0),
+                Direction::Up => level.set_sprite_index(1),
+                Direction::Left => level.set_sprite_index(2),
+                Direction::Right => level.set_sprite_index(3),
+            }
             handle_direction(level, direction, audio, sounds);
         }
         GameInput::Action(action) => {
@@ -45,9 +51,6 @@ fn update_position(direction: &Direction, position: &mut MapPosition) {
 }
 
 fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sounds: &mut Sounds) {
-    let audio_source = sounds.sfx.move_player.clone();
-    let channel_id = &sounds.channels.sfx;
-    audio.play_in_channel(audio_source, channel_id);
     level.save_snapshot();
 
     let mut next_position = level.state.player_position;
@@ -56,6 +59,10 @@ fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sou
     let next_entity = level.get_entity(&next_position);
     match next_entity {
         MapEntity::B | MapEntity::P => {
+            let audio_source = sounds.sfx.move_player.clone();
+            let channel_id = &sounds.channels.sfx;
+            audio.play_in_channel(audio_source, channel_id);
+
             let audio_source = sounds.sfx.push_box.clone();
             let channel_id = &sounds.channels.sfx;
             audio.play_in_channel(audio_source, channel_id);
@@ -97,6 +104,10 @@ fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sou
         }
         MapEntity::W => {}
         _ => {
+            let audio_source = sounds.sfx.move_player.clone();
+            let channel_id = &sounds.channels.sfx;
+            audio.play_in_channel(audio_source, channel_id);
+
             level.move_player(next_position);
             level.increment_moves();
         }
