@@ -16,6 +16,7 @@ pub fn process(
     level_states: &Res<Assets<LevelState>>,
     audio: &Audio,
     sounds: &mut Sounds,
+    player_animation: &mut PlayerAnimation,
 ) {
     match input {
         GameInput::Direction(direction) => {
@@ -25,7 +26,7 @@ pub fn process(
                 Direction::Left => level.set_sprite_index(2),
                 Direction::Right => level.set_sprite_index(3),
             }
-            handle_direction(level, direction, audio, sounds);
+            handle_direction(level, direction, audio, sounds, player_animation);
         }
         GameInput::Action(action) => {
             handle_action(
@@ -50,7 +51,13 @@ fn update_position(direction: &Direction, position: &mut MapPosition) {
     };
 }
 
-fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sounds: &mut Sounds) {
+fn handle_direction(
+    level: &mut Level,
+    direction: &Direction,
+    audio: &Audio,
+    sounds: &mut Sounds,
+    player_animation: &mut PlayerAnimation,
+) {
     level.save_snapshot();
 
     let mut next_position = level.state.player_position;
@@ -66,6 +73,9 @@ fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sou
             let audio_source = sounds.sfx.push_box.clone();
             let channel_id = &sounds.channels.sfx;
             audio.play_in_channel(audio_source, channel_id);
+
+            player_animation.idle_timer.reset();
+            player_animation.long_idle_timer.reset();
 
             let in_zone = matches!(next_entity, MapEntity::P);
             let updated_next_entity = if in_zone { MapEntity::Z } else { MapEntity::F };
@@ -107,6 +117,9 @@ fn handle_direction(level: &mut Level, direction: &Direction, audio: &Audio, sou
             let audio_source = sounds.sfx.move_player.clone();
             let channel_id = &sounds.channels.sfx;
             audio.play_in_channel(audio_source, channel_id);
+
+            player_animation.idle_timer.reset();
+            player_animation.long_idle_timer.reset();
 
             level.move_player(next_position);
             level.increment_moves();

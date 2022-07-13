@@ -21,6 +21,8 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PlayerAnimation {
             timer: Timer::from_seconds(0.25, true),
+            idle_timer: Timer::from_seconds(7.0, false),
+            long_idle_timer: Timer::from_seconds(10.0, false),
             initial_index: 0,
             index: 0,
         })
@@ -56,7 +58,6 @@ fn spawn_scene(
 ) {
     let level_sprite_index = level.get_sprite_index();
     player_animation.initial_index = level_sprite_index;
-    player_animation.index = level_sprite_index;
     core::level::spawn(&mut commands, &mut texture_atlases, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
 }
@@ -96,6 +97,7 @@ fn handle_input(
     mut level: ResMut<Level>,
     mut input: ResMut<GameInputBuffer>,
     mut game_state: ResMut<State<GameState>>,
+    mut player_animation: ResMut<PlayerAnimation>,
     levels: Res<LevelHandles>,
     level_states: Res<Assets<LevelState>>,
 ) {
@@ -108,6 +110,7 @@ fn handle_input(
             &level_states,
             &audio,
             &mut sounds,
+            &mut player_animation,
         );
     }
 }
@@ -120,11 +123,35 @@ fn update_player_position(
 ) {
     let (mut transform, mut sprite) = query.single_mut();
     let level_sprite_index = level.get_sprite_index();
-    player_animation.timer.tick(time.delta());
+    let delta = time.delta();
 
-    if player_animation.initial_index != level_sprite_index {
+    player_animation.timer.tick(delta);
+    player_animation.idle_timer.tick(delta);
+    player_animation.long_idle_timer.tick(delta);
+
+    if level_sprite_index == 0 {
+        if player_animation.idle_timer.just_finished() {
+            player_animation.initial_index = 4;
+            player_animation.index = 0;
+            player_animation.timer.reset();
+        }
+
+        if player_animation.long_idle_timer.just_finished() {
+            player_animation.initial_index = 5;
+            player_animation.index = 0;
+            player_animation.timer.reset();
+        }
+    } else {
+        player_animation.idle_timer.reset();
+        player_animation.long_idle_timer.reset();
+    }
+
+    if player_animation.initial_index != level_sprite_index
+        && !player_animation.idle_timer.finished()
+        && !player_animation.long_idle_timer.finished()
+    {
         player_animation.initial_index = level_sprite_index;
-        player_animation.index = level_sprite_index;
+        player_animation.index = 0;
         player_animation.timer.reset();
     }
 
@@ -132,7 +159,7 @@ fn update_player_position(
         player_animation.index = (player_animation.index + 1) % 4;
     }
 
-    sprite.index = player_animation.index + (4 * level_sprite_index);
+    sprite.index = player_animation.index + (4 * player_animation.initial_index);
 
     core::level::position::update_player_translation(
         &level.state.player_position,

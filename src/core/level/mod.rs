@@ -75,7 +75,7 @@ pub fn spawn_entity(
     }
 
     if is_player {
-        let texture_atlas = TextureAtlas::from_grid(texture, Vec2::new(64.0, 64.0), 4, 4);
+        let texture_atlas = TextureAtlas::from_grid(texture, Vec2::new(64.0, 64.0), 4, 6);
         let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
         commands
