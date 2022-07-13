@@ -17,6 +17,7 @@ fn main() {
         .add_plugin(AudioPlugin)
         .add_plugin(ResourcesPlugin)
         .add_plugin(ScenesPlugin)
+        .insert_resource(GameInputBuffer::new())
         .insert_resource(IgnoreInputCounter::default())
         .insert_resource(ClearColor(Colors::DARK))
         .add_state(GameState::Startup)

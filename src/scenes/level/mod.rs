@@ -19,36 +19,44 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GameInputBuffer::new())
-            .add_system_set(
-                SystemSet::on_enter(GameState::Level)
-                    .with_system(spawn_scene)
-                    .with_system(start_music),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameState::Level)
-                    .with_system(gather_input)
-                    .with_system(handle_input)
-                    .with_system(update_player_position)
-                    .with_system(update_counters)
-                    .with_system(update_map)
-                    .with_system(check_level_state),
-            )
-            .add_system_set(
-                SystemSet::on_exit(GameState::Level)
-                    .with_system(cleanup)
-                    .with_system(stop_music),
-            );
+        app.insert_resource(PlayerAnimation {
+            timer: Timer::from_seconds(0.25, true),
+            initial_index: 0,
+            index: 0,
+        })
+        .add_system_set(
+            SystemSet::on_enter(GameState::Level)
+                .with_system(spawn_scene)
+                .with_system(start_music),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Level)
+                .with_system(gather_input)
+                .with_system(handle_input)
+                .with_system(update_player_position)
+                .with_system(update_counters)
+                .with_system(update_map)
+                .with_system(check_level_state),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Level)
+                .with_system(cleanup)
+                .with_system(stop_music),
+        );
     }
 }
 
 fn spawn_scene(
     mut commands: Commands,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut player_animation: ResMut<PlayerAnimation>,
     level: Res<Level>,
     images: Res<Images>,
     fonts: Res<Fonts>,
 ) {
+    let level_sprite_index = level.get_sprite_index();
+    player_animation.initial_index = level_sprite_index;
+    player_animation.index = level_sprite_index;
     core::level::spawn(&mut commands, &mut texture_atlases, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
 }
@@ -105,11 +113,27 @@ fn handle_input(
 }
 
 fn update_player_position(
+    time: Res<Time>,
     level: Res<Level>,
+    mut player_animation: ResMut<PlayerAnimation>,
     mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<PlayerMarker>>,
 ) {
     let (mut transform, mut sprite) = query.single_mut();
-    sprite.index = level.get_sprite_index();
+    let level_sprite_index = level.get_sprite_index();
+    player_animation.timer.tick(time.delta());
+
+    if player_animation.initial_index != level_sprite_index {
+        player_animation.initial_index = level_sprite_index;
+        player_animation.index = level_sprite_index;
+        player_animation.timer.reset();
+    }
+
+    if player_animation.timer.just_finished() {
+        player_animation.index = (player_animation.index + 1) % 4;
+    }
+
+    sprite.index = player_animation.index + (4 * level_sprite_index);
+
     core::level::position::update_player_translation(
         &level.state.player_position,
         &mut transform.translation,
