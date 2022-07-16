@@ -1,7 +1,7 @@
 mod ui;
 
 use bevy::{app::AppExit, prelude::*};
-use bevy_kira_audio::Audio;
+use bevy_kira_audio::AudioChannel;
 use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
@@ -46,10 +46,8 @@ fn setup(
     ignore_input_counter.start();
 }
 
-fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
-    let audio_source = sounds.music.title.clone();
-    let channel_id = &sounds.channels.music;
-    audio.play_looped_in_channel(audio_source, channel_id);
+fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
+    music.play_looped(sounds.music.title.clone());
 }
 
 fn gather_input(
@@ -77,7 +75,8 @@ fn gather_input(
 }
 
 fn handle_input(
-    audio: Res<Audio>,
+    sfx: Res<AudioChannel<Sfx>>,
+    music: Res<AudioChannel<Music>>,
     mut sounds: ResMut<Sounds>,
     mut exit_event: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
@@ -92,42 +91,32 @@ fn handle_input(
 
         match input {
             GameInput::Direction(Direction::Up) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.move_player.clone());
                 direction = Some(Direction::Up);
             }
             GameInput::Direction(Direction::Down) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.move_player.clone());
                 direction = Some(Direction::Down);
             }
             GameInput::Action(Action::Pick) => {
-                let audio_source = sounds.sfx.set_zone.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.set_zone.clone());
                 button_clicked = true;
             }
             GameInput::Action(Action::Exit) => {
-                let audio_source = sounds.sfx.push_box.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.push_box.clone());
                 exit_event.send(AppExit);
             }
             GameInput::Action(Action::Volume) => {
-                let audio_source = sounds.sfx.toggle_volume.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-
                 if sounds.volume < 0.1 {
                     sounds.volume = 1.0;
                 } else {
                     sounds.volume -= 0.25;
                 }
 
-                audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
-                audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+                music.set_volume(sounds.volume / 2.0);
+                sfx.set_volume(sounds.volume);
+
+                sfx.play(sounds.sfx.toggle_volume.clone());
             }
             _ => (),
         }
@@ -210,7 +199,6 @@ fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
     }
 }
 
-fn stop_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
-    let channel_id = &sounds.channels.music;
-    audio.stop_channel(channel_id);
+fn stop_audio(music: Res<AudioChannel<Music>>) {
+    music.stop();
 }

@@ -1,7 +1,7 @@
 mod ui;
 
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
+use bevy_kira_audio::AudioChannel;
 use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
@@ -29,7 +29,7 @@ impl Plugin for LevelPlugin {
         .add_system_set(
             SystemSet::on_enter(GameState::Level)
                 .with_system(spawn_scene)
-                .with_system(start_music),
+                .with_system(start_audio),
         )
         .add_system_set(
             SystemSet::on_update(GameState::Level)
@@ -43,7 +43,7 @@ impl Plugin for LevelPlugin {
         .add_system_set(
             SystemSet::on_exit(GameState::Level)
                 .with_system(cleanup)
-                .with_system(stop_music),
+                .with_system(stop_audio),
         );
     }
 }
@@ -62,10 +62,8 @@ fn spawn_scene(
     spawn_ui(&mut commands, &level, &fonts);
 }
 
-fn start_music(audio: Res<Audio>, sounds: Res<Sounds>) {
-    let audio_source = sounds.music.level.clone();
-    let channel_id = &sounds.channels.music;
-    audio.play_looped_in_channel(audio_source, channel_id);
+fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
+    music.play_looped(sounds.music.level.clone());
 }
 
 fn gather_input(
@@ -92,7 +90,8 @@ fn gather_input(
 }
 
 fn handle_input(
-    audio: Res<Audio>,
+    sfx: Res<AudioChannel<Sfx>>,
+    music: Res<AudioChannel<Music>>,
     mut sounds: ResMut<Sounds>,
     mut level: ResMut<Level>,
     mut input: ResMut<GameInputBuffer>,
@@ -108,7 +107,8 @@ fn handle_input(
             &mut game_state,
             &levels,
             &level_states,
-            &audio,
+            &sfx,
+            &music,
             &mut sounds,
             &mut player_animation,
         );
@@ -221,7 +221,6 @@ fn cleanup(
     }
 }
 
-fn stop_music(audio: Res<Audio>, sounds: Res<Sounds>) {
-    let channel_id = &sounds.channels.music;
-    audio.stop_channel(channel_id);
+fn stop_audio(music: Res<AudioChannel<Music>>) {
+    music.stop();
 }

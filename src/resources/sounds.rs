@@ -1,10 +1,5 @@
 use bevy::{asset::LoadState, prelude::*};
-use bevy_kira_audio::{AudioChannel, AudioSource};
-
-pub struct Channels {
-    pub sfx: AudioChannel,
-    pub music: AudioChannel,
-}
+use bevy_kira_audio::AudioSource;
 
 pub struct Sfx {
     pub move_player: Handle<AudioSource>,
@@ -24,7 +19,6 @@ pub struct Music {
 
 pub struct Sounds {
     pub volume: f32,
-    pub channels: Channels,
     pub sfx: Sfx,
     pub music: Music,
 }
@@ -32,10 +26,6 @@ pub struct Sounds {
 impl Sounds {
     #[must_use]
     pub fn load(asset_server: &Res<AssetServer>) -> Sounds {
-        let channels = Channels {
-            sfx: AudioChannel::new("sfx".to_string()),
-            music: AudioChannel::new("music".to_string()),
-        };
         let sfx = Sfx {
             move_player: asset_server.load("sounds/sfx/move_player.wav"),
             push_box: asset_server.load("sounds/sfx/push_box.wav"),
@@ -53,7 +43,6 @@ impl Sounds {
 
         Sounds {
             volume: 1.0,
-            channels,
             sfx,
             music,
         }

@@ -12,7 +12,7 @@ pub mod save_file;
 
 use bevy::prelude::*;
 use bevy_asset_ron::RonAssetPlugin;
-use bevy_kira_audio::Audio;
+use bevy_kira_audio::{AudioApp, AudioChannel};
 
 use crate::core::{self, state::GameState};
 
@@ -25,7 +25,9 @@ pub struct ResourcesPlugin;
 
 impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(RonAssetPlugin::<SaveFile>::new(&["dat"]))
+        app.add_audio_channel::<Sfx>()
+            .add_audio_channel::<Music>()
+            .add_plugin(RonAssetPlugin::<SaveFile>::new(&["dat"]))
             .add_plugin(RonAssetPlugin::<LevelState>::new(&["lvl"]))
             .add_system_set(SystemSet::on_enter(GameState::Startup).with_system(startup))
             .add_system_set(SystemSet::on_update(GameState::Loading).with_system(check_loading));
@@ -57,7 +59,8 @@ fn check_loading(
     mut state: ResMut<State<GameState>>,
     levels: Res<LevelHandles>,
     asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
+    sfx: Res<AudioChannel<Sfx>>,
+    music: Res<AudioChannel<Music>>,
     images: Res<Images>,
     fonts: Res<Fonts>,
     sounds: Res<Sounds>,
@@ -73,8 +76,8 @@ fn check_loading(
     if all_loaded {
         core::save_file::insert(&mut commands, &save_file_handle, &asset_server, &save_file);
 
-        audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
-        audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+        music.set_volume(sounds.volume / 2.0);
+        sfx.set_volume(sounds.volume);
 
         state.set(GameState::Title).unwrap();
     }

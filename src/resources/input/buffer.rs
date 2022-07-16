@@ -25,6 +25,6 @@ impl GameInputBuffer {
     }
 
     pub fn clear(&mut self) {
-        self.buffer.clear()
+        self.buffer.clear();
     }
 }

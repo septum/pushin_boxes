@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
+use bevy_kira_audio::AudioChannel;
 
 use crate::resources::{
     input::{Action, Direction},
@@ -14,7 +14,8 @@ pub fn process(
     game_state: &mut ResMut<State<GameState>>,
     levels: &LevelHandles,
     level_states: &Res<Assets<LevelState>>,
-    audio: &Audio,
+    sfx: &AudioChannel<Sfx>,
+    music: &AudioChannel<Music>,
     sounds: &mut Sounds,
     player_animation: &mut PlayerAnimation,
 ) {
@@ -26,7 +27,7 @@ pub fn process(
                 Direction::Left => level.set_sprite_index(2),
                 Direction::Right => level.set_sprite_index(3),
             }
-            handle_direction(level, direction, audio, sounds, player_animation);
+            handle_direction(level, direction, sfx, sounds, player_animation);
         }
         GameInput::Action(action) => {
             handle_action(
@@ -35,7 +36,8 @@ pub fn process(
                 game_state,
                 levels,
                 level_states,
-                audio,
+                sfx,
+                music,
                 sounds,
             );
         }
@@ -54,8 +56,8 @@ fn update_position(direction: &Direction, position: &mut MapPosition) {
 fn handle_direction(
     level: &mut Level,
     direction: &Direction,
-    audio: &Audio,
-    sounds: &mut Sounds,
+    sfx: &AudioChannel<Sfx>,
+    sounds: &Sounds,
     player_animation: &mut PlayerAnimation,
 ) {
     level.save_snapshot();
@@ -66,13 +68,8 @@ fn handle_direction(
     let next_entity = level.get_entity(&next_position);
     match next_entity {
         MapEntity::B | MapEntity::P => {
-            let audio_source = sounds.sfx.move_player.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
-
-            let audio_source = sounds.sfx.push_box.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
+            sfx.play(sounds.sfx.move_player.clone());
+            sfx.play(sounds.sfx.push_box.clone());
 
             player_animation.idle_timer.reset();
             player_animation.long_idle_timer.reset();
@@ -96,9 +93,7 @@ fn handle_direction(
                     }
                 }
                 MapEntity::Z => {
-                    let audio_source = sounds.sfx.set_zone.clone();
-                    let channel_id = &sounds.channels.sfx;
-                    audio.play_in_channel(audio_source, channel_id);
+                    sfx.play(sounds.sfx.set_zone.clone());
 
                     level.set_entity(&next_position, updated_next_entity);
                     level.set_entity(&adjacent_position, MapEntity::P);
@@ -114,9 +109,7 @@ fn handle_direction(
         }
         MapEntity::W => {}
         _ => {
-            let audio_source = sounds.sfx.move_player.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
+            sfx.play(sounds.sfx.move_player.clone());
 
             player_animation.idle_timer.reset();
             player_animation.long_idle_timer.reset();
@@ -133,50 +126,41 @@ fn handle_action(
     state: &mut ResMut<State<GameState>>,
     levels: &LevelHandles,
     level_states: &Res<Assets<LevelState>>,
-    audio: &Audio,
+    sfx: &AudioChannel<Sfx>,
+    music: &AudioChannel<Music>,
     sounds: &mut Sounds,
 ) {
     match action {
         Action::Undo => {
             if level.undo() {
-                let audio_source = sounds.sfx.undo_move.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.undo_move.clone());
             }
         }
         Action::Reload => {
-            let audio_source = sounds.sfx.reload_level.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
+            sfx.play(sounds.sfx.reload_level.clone());
             level::reload(level, levels, level_states);
         }
         Action::Selection => {
-            let audio_source = sounds.sfx.push_box.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
-            handle_selection_action(&level.tag, state)
+            sfx.play(sounds.sfx.push_box.clone());
+            handle_selection_action(&level.tag, state);
         }
         Action::Exit => {
-            let audio_source = sounds.sfx.push_box.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
+            sfx.play(sounds.sfx.push_box.clone());
             state.set(GameState::stock_selection()).unwrap();
         }
         Action::Volume => {
-            let audio_source = sounds.sfx.toggle_volume.clone();
-            let channel_id = &sounds.channels.sfx;
-            audio.play_in_channel(audio_source, channel_id);
-
             if sounds.volume < 0.1 {
                 sounds.volume = 1.0;
             } else {
                 sounds.volume -= 0.25;
             }
 
-            audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
-            audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+            music.set_volume(sounds.volume / 2.0);
+            sfx.set_volume(sounds.volume);
+
+            sfx.play(sounds.sfx.toggle_volume.clone());
         }
-        _ => (),
+        Action::Pick => (),
     }
 }
 

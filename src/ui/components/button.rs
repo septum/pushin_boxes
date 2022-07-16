@@ -4,12 +4,12 @@ use crate::resources::prelude::Colors;
 
 use super::text::EmbossedText;
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(Eq, PartialEq, Clone, Copy)]
 pub enum LevelKind {
     Stock(usize),
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(Eq, PartialEq, Clone, Copy)]
 pub enum ButtonKind {
     Play,
     Quit,

@@ -1,7 +1,7 @@
 mod ui;
 
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
+use bevy_kira_audio::AudioChannel;
 use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
@@ -51,10 +51,8 @@ fn setup(
     ignore_input_counter.start();
 }
 
-fn start_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
-    let audio_source = sounds.music.selection.clone();
-    let channel_id = &sounds.channels.music;
-    audio.play_looped_in_channel(audio_source, channel_id);
+fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
+    music.play_looped(sounds.music.selection.clone());
 }
 
 fn gather_input(
@@ -88,7 +86,8 @@ fn handle_input(
     level_states_assets: Res<Assets<LevelState>>,
     level_handles: Res<LevelHandles>,
     save_file: Res<SaveFile>,
-    audio: Res<Audio>,
+    sfx: Res<AudioChannel<Sfx>>,
+    music: Res<AudioChannel<Music>>,
     mut sounds: ResMut<Sounds>,
     mut game_state: ResMut<State<GameState>>,
     mut query: Query<(&mut ButtonMarker, &mut UiColor)>,
@@ -101,118 +100,91 @@ fn handle_input(
         let mut direction = None;
 
         match input {
-            GameInput::Direction(Direction::Up) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-                direction = Some(Direction::Up);
-            }
-            GameInput::Direction(Direction::Down) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-                direction = Some(Direction::Down);
-            }
-            GameInput::Direction(Direction::Left) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-                direction = Some(Direction::Left);
-            }
-            GameInput::Direction(Direction::Right) => {
-                let audio_source = sounds.sfx.move_player.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-                direction = Some(Direction::Right);
+            GameInput::Direction(input_direction) => {
+                sfx.play(sounds.sfx.move_player.clone());
+                direction = Some(input_direction);
             }
             GameInput::Action(Action::Pick) => {
-                let audio_source = sounds.sfx.set_zone.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.set_zone.clone());
                 button_clicked = true;
             }
             GameInput::Action(Action::Exit) => {
-                let audio_source = sounds.sfx.push_box.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
+                sfx.play(sounds.sfx.push_box.clone());
                 game_state.set(GameState::Title).unwrap();
             }
             GameInput::Action(Action::Volume) => {
-                let audio_source = sounds.sfx.toggle_volume.clone();
-                let channel_id = &sounds.channels.sfx;
-                audio.play_in_channel(audio_source, channel_id);
-
                 if sounds.volume < 0.1 {
                     sounds.volume = 1.0;
                 } else {
                     sounds.volume -= 0.25;
                 }
 
-                audio.set_volume_in_channel(sounds.volume / 2.0, &sounds.channels.music);
-                audio.set_volume_in_channel(sounds.volume, &sounds.channels.sfx);
+                music.set_volume(sounds.volume / 2.0);
+                sfx.set_volume(sounds.volume);
+
+                sfx.play(sounds.sfx.toggle_volume.clone());
             }
-            _ => (),
+            GameInput::Action(_) => (),
         }
 
         for (button, _) in query.iter_mut() {
-            match (&button.kind, button.selected) {
-                (ButtonKind::Level(LevelKind::Stock(index)), selected) => {
-                    if selected {
-                        if button_clicked {
-                            core::level::stock::insert(
-                                &mut commands,
-                                *index,
-                                &save_file,
-                                &level_handles,
-                                &level_states_assets,
-                            );
-                            game_state.set(GameState::Level).unwrap();
-                        }
-                        if let Some(direction) = &direction {
-                            let index = index + 1;
-                            let value = match direction {
-                                Direction::Up => {
-                                    if index.saturating_sub(4) >= 1 {
-                                        index.saturating_sub(4)
-                                    } else {
-                                        index + 12
-                                    }
+            if let (ButtonKind::Level(LevelKind::Stock(index)), selected) =
+                (&button.kind, button.selected)
+            {
+                if selected {
+                    if button_clicked {
+                        core::level::stock::insert(
+                            &mut commands,
+                            *index,
+                            &save_file,
+                            &level_handles,
+                            &level_states_assets,
+                        );
+                        game_state.set(GameState::Level).unwrap();
+                    }
+                    if let Some(direction) = &direction {
+                        let index = index + 1;
+                        let value = match direction {
+                            Direction::Up => {
+                                if index.saturating_sub(4) >= 1 {
+                                    index.saturating_sub(4)
+                                } else {
+                                    index + 12
                                 }
-                                Direction::Down => {
-                                    if index + 4 <= 16 {
-                                        index + 4
-                                    } else {
-                                        index.saturating_sub(12)
-                                    }
+                            }
+                            Direction::Down => {
+                                if index + 4 <= 16 {
+                                    index + 4
+                                } else {
+                                    index.saturating_sub(12)
                                 }
-                                Direction::Left => {
-                                    if index.saturating_sub(1) >= 1 {
-                                        index.saturating_sub(1)
-                                    } else {
-                                        index + 15
-                                    }
+                            }
+                            Direction::Left => {
+                                if index.saturating_sub(1) >= 1 {
+                                    index.saturating_sub(1)
+                                } else {
+                                    index + 15
                                 }
-                                Direction::Right => {
-                                    if index + 1 <= 16 {
-                                        index + 1
-                                    } else {
-                                        index.saturating_sub(15)
-                                    }
+                            }
+                            Direction::Right => {
+                                if index < 16 {
+                                    index + 1
+                                } else {
+                                    index.saturating_sub(15)
                                 }
-                            };
-                            let value = if value < save_file.stock_levels_len() {
-                                value
-                            } else {
-                                save_file.stock_levels_len()
-                            };
-
-                            selected_button = Some(value - 1);
+                            }
+                        };
+                        let value = if value < save_file.stock_levels_len() {
+                            value
                         } else {
-                            selected_button = None;
-                        }
+                            save_file.stock_levels_len()
+                        };
+
+                        selected_button = Some(value - 1);
+                    } else {
+                        selected_button = None;
                     }
                 }
-                _ => {}
             };
         }
     }
@@ -242,7 +214,6 @@ fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
     }
 }
 
-fn stop_audio(sounds: Res<Sounds>, audio: Res<Audio>) {
-    let channel_id = &sounds.channels.music;
-    audio.stop_channel(channel_id);
+fn stop_audio(music: Res<AudioChannel<Music>>) {
+    music.stop();
 }

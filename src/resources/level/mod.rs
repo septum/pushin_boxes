@@ -158,6 +158,6 @@ impl Level {
             }
             return false;
         }
-        return false;
+        false
     }
 }

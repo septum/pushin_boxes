@@ -6,7 +6,7 @@ pub use action::Action;
 pub use buffer::GameInputBuffer;
 pub use direction::Direction;
 
-const COUNTER_START_VALUE: usize = 16;
+const COUNTER_START_VALUE: usize = 8;
 
 #[derive(Default)]
 pub struct IgnoreInputCounter {

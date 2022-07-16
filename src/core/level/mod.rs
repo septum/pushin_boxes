@@ -102,6 +102,6 @@ pub fn spawn_entity(
 
 fn spawn_camera(commands: &mut Commands) {
     let mut camera_bundle = OrthographicCameraBundle::new_2d();
-    camera_bundle.orthographic_projection.scale *= 0.50;
+    camera_bundle.orthographic_projection.scale *= 0.5;
     commands.spawn_bundle(camera_bundle).insert(CameraMarker);
 }
