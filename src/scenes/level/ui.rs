@@ -33,9 +33,9 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let mut moves = DynamicText::small("Moves: ", font);
     let mut record_new_level = SimpleText::small(record_new_level, font);
     let mut undos_left = DynamicText::small("Undos: ", font);
-    let mut undo = SimpleText::small("[U] - Undo Movement", font);
-    let mut reload = SimpleText::small("[R] - Reload Level", font);
-    let mut selection = SimpleText::small("[L] - Level Selection", font);
+    let mut undo = SimpleText::small("[Top Left Button]- Undo Movement", font);
+    let mut reload = SimpleText::small("[Top Middle Button] - Reload Level", font);
+    let mut selection = SimpleText::small("[Top Right Button] - Level Selection", font);
 
     moves.size(28.0);
     undos_left.size(28.0);

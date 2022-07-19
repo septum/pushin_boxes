@@ -3,7 +3,6 @@ use bevy::{asset::LoadState, prelude::*};
 pub struct EntitiesImages {
     pub pbox: Handle<Image>,
     pub floor: Handle<Image>,
-    pub wall: Handle<Image>,
     pub zone: Handle<Image>,
 }
 
@@ -12,19 +11,9 @@ pub struct PlayerImages {
     pub pushin: Handle<Image>,
 }
 
-pub struct VolumeImages {
-    pub max: Handle<Image>,
-    pub min: Handle<Image>,
-    pub muted: Handle<Image>,
-}
-
 pub struct Images {
     pub entities: EntitiesImages,
     pub player: PlayerImages,
-    pub volume: VolumeImages,
-    pub background: Handle<Image>,
-    pub button: Handle<Image>,
-    pub controls: Handle<Image>,
 }
 
 impl Images {
@@ -33,27 +22,14 @@ impl Images {
         let entities = EntitiesImages {
             pbox: asset_server.load("images/entities/box.png"),
             floor: asset_server.load("images/entities/floor.png"),
-            wall: asset_server.load("images/entities/wall.png"),
             zone: asset_server.load("images/entities/zone.png"),
         };
         let player = PlayerImages {
             spritesheet: asset_server.load("images/player/spritesheet.png"),
             pushin: asset_server.load("images/player/pushin.png"),
         };
-        let volume = VolumeImages {
-            max: asset_server.load("images/volume/max.png"),
-            min: asset_server.load("images/volume/min.png"),
-            muted: asset_server.load("images/volume/muted.png"),
-        };
 
-        Images {
-            entities,
-            player,
-            volume,
-            background: asset_server.load("images/background.png"),
-            button: asset_server.load("images/button.png"),
-            controls: asset_server.load("images/controls.png"),
-        }
+        Images { entities, player }
     }
 
     #[must_use]
@@ -61,16 +37,9 @@ impl Images {
         let images_untyped = vec![
             self.entities.pbox.clone_untyped(),
             self.entities.floor.clone_untyped(),
-            self.entities.wall.clone_untyped(),
             self.entities.zone.clone_untyped(),
             self.player.spritesheet.clone_untyped(),
             self.player.pushin.clone_untyped(),
-            self.volume.max.clone_untyped(),
-            self.volume.min.clone_untyped(),
-            self.volume.muted.clone_untyped(),
-            self.background.clone_untyped(),
-            self.button.clone_untyped(),
-            self.controls.clone_untyped(),
         ];
 
         for image_handle in images_untyped {

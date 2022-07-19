@@ -1,4 +1,3 @@
-pub mod brush;
 pub mod input;
 pub mod level;
 pub mod save_file;

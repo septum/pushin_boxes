@@ -174,13 +174,15 @@ fn handle_input(
                                 }
                             }
                         };
-                        let value = if value < save_file.stock_levels_len() {
+                        let value = if value <= save_file.stock_levels_len() {
                             value
+                        } else if index > 1 {
+                            1
                         } else {
                             save_file.stock_levels_len()
                         };
 
-                        selected_button = Some(value - 1);
+                        selected_button = Some(value.saturating_sub(1));
                     } else {
                         selected_button = None;
                     }

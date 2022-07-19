@@ -39,11 +39,11 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
 
     let overlay = Overlay::new();
     let title_housing = Housing::new(Val::Percent(100.0), title_housing_height);
-    let any_key_housing = Housing::new(Val::Percent(100.0), Val::Px(32.0));
+    let press_button_housing = Housing::new(Val::Percent(100.0), Val::Px(32.0));
 
     let mut final_or_new = SimpleText::medium(final_or_new, font);
     let title = EmbossedText::big(title, font);
-    let press_space = EmbossedText::small("Press [SPACE] to continue", font);
+    let press_button = EmbossedText::small("Press any button to continue", font);
 
     final_or_new.color(Colors::SECONDARY);
 
@@ -54,8 +54,8 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
             title_housing.spawn(parent, |parent| {
                 title.spawn(parent);
             });
-            any_key_housing.spawn(parent, |parent| {
-                press_space.spawn(parent);
+            press_button_housing.spawn(parent, |parent| {
+                press_button.spawn(parent);
             });
         },
         UiMarker,

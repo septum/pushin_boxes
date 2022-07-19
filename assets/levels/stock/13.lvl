@@ -12,6 +12,6 @@
         (W,W,W,W,W,W,W,W,W,W,),
     ),
     player_position: (x: 8, y: 1),
-    sprite_index: 0,
+    sprite_index: 2,
     remaining_zones: 5,
 )

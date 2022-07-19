@@ -38,7 +38,8 @@ impl Plugin for LevelPlugin {
                 .with_system(update_player_position)
                 .with_system(update_counters)
                 .with_system(update_map)
-                .with_system(check_level_state),
+                .with_system(check_level_state)
+                .with_system(lever_timer_finished),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Level)
@@ -57,6 +58,9 @@ fn spawn_scene(
     fonts: Res<Fonts>,
 ) {
     let level_sprite_index = level.get_sprite_index();
+    player_animation.timer.reset();
+    player_animation.idle_timer.reset();
+    player_animation.long_idle_timer.reset();
     player_animation.initial_index = level_sprite_index;
     core::level::spawn(&mut commands, &mut texture_atlases, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
@@ -100,18 +104,20 @@ fn handle_input(
     levels: Res<LevelHandles>,
     level_states: Res<Assets<LevelState>>,
 ) {
-    if let Some(input) = input.pop() {
-        core::input::process(
-            &input,
-            &mut level,
-            &mut game_state,
-            &levels,
-            &level_states,
-            &sfx,
-            &music,
-            &mut sounds,
-            &mut player_animation,
-        );
+    if !level.no_remaining_zones() {
+        if let Some(input) = input.pop() {
+            core::input::process(
+                &input,
+                &mut level,
+                &mut game_state,
+                &levels,
+                &level_states,
+                &sfx,
+                &music,
+                &mut sounds,
+                &mut player_animation,
+            );
+        }
     }
 }
 
@@ -198,8 +204,14 @@ fn update_map(
     }
 }
 
-fn check_level_state(level: Res<Level>, mut game_state: ResMut<State<GameState>>) {
+fn check_level_state(time: Res<Time>, mut level: ResMut<Level>) {
     if level.no_remaining_zones() {
+        level.tick_timer(time.delta());
+    }
+}
+
+fn lever_timer_finished(level: Res<Level>, mut game_state: ResMut<State<GameState>>) {
+    if level.timer_finished() {
         game_state.set(GameState::Win).unwrap();
     }
 }

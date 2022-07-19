@@ -6,11 +6,19 @@ mod tag;
 pub mod map;
 pub mod prelude;
 
+use std::time::Duration;
+
+use bevy::core::Timer;
 use map::{MAP_COLS, MAP_ROWS};
 use prelude::*;
 use snapshots::{LevelSnapshots, MAX_SNAPSHOTS};
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
+
+pub struct LevelDone {
+    pub timer: Timer,
+    pub flag: bool,
+}
 
 pub struct Level {
     pub tag: LevelTag,
@@ -19,6 +27,7 @@ pub struct Level {
     pub snapshots: LevelSnapshots,
     pub undos: usize,
     pub moves: usize,
+    pub timer: Timer,
 }
 
 impl Default for Level {
@@ -40,6 +49,7 @@ impl Level {
             snapshots: [None; MAX_SNAPSHOTS],
             undos: 4,
             moves: 0,
+            timer: Timer::from_seconds(0.25, false),
         }
     }
 
@@ -159,5 +169,14 @@ impl Level {
             return false;
         }
         false
+    }
+
+    pub fn tick_timer(&mut self, delta: Duration) {
+        self.timer.tick(delta);
+    }
+
+    #[must_use]
+    pub fn timer_finished(&self) -> bool {
+        self.timer.finished()
     }
 }

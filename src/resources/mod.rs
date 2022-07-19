@@ -4,7 +4,6 @@ mod images;
 mod sounds;
 
 pub mod animations;
-pub mod brush;
 pub mod input;
 pub mod level;
 pub mod prelude;

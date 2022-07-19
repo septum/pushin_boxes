@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::prelude::*;
 use bevy_kira_audio::AudioChannel;
-use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
+use bevy_rust_arcade::ArcadeInputEvent;
 
 use crate::{
     core::{self, state::GameState},
@@ -56,13 +56,7 @@ fn gather_input(
     if ignore_input_counter.done() {
         for event in arcade_input_events.iter() {
             if event.value > 0.0 {
-                let input = match event.arcade_input {
-                    ArcadeInput::ButtonFront1 => GameInput::exit(),
-                    ArcadeInput::ButtonFront2 => GameInput::volume(),
-                    ArcadeInput::JoyButton => GameInput::pick(),
-                    _ => return,
-                };
-                input_buffer.insert(input);
+                input_buffer.insert(GameInput::pick());
             }
         }
     } else {
@@ -77,50 +71,28 @@ fn handle_input(
     level_states_assets: Res<Assets<LevelState>>,
     level: Res<Level>,
     sfx: Res<AudioChannel<Sfx>>,
-    music: Res<AudioChannel<Music>>,
-    mut sounds: ResMut<Sounds>,
+    sounds: Res<Sounds>,
     mut game_state: ResMut<State<GameState>>,
     mut input: ResMut<GameInputBuffer>,
 ) {
-    if let Some(input) = input.pop() {
-        match input {
-            GameInput::Action(Action::Pick) => {
-                sfx.play(sounds.sfx.set_zone.clone());
+    if let Some(GameInput::Action(Action::Pick)) = input.pop() {
+        sfx.play(sounds.sfx.set_zone.clone());
 
-                match &level.tag {
-                    LevelTag::Stock(current_index) => {
-                        if core::level::stock::is_last(&level.tag) {
-                            game_state.set(GameState::stock_selection()).unwrap();
-                        } else {
-                            core::level::stock::insert(
-                                &mut commands,
-                                *current_index + 1,
-                                &save_file,
-                                &level_handles,
-                                &level_states_assets,
-                            );
-                            game_state.set(GameState::Level).unwrap();
-                        }
-                    }
-                }
-            }
-            GameInput::Action(Action::Exit) => {
-                sfx.play(sounds.sfx.push_box.clone());
-                game_state.set(GameState::Title).unwrap();
-            }
-            GameInput::Action(Action::Volume) => {
-                if sounds.volume < 0.1 {
-                    sounds.volume = 1.0;
+        match &level.tag {
+            LevelTag::Stock(current_index) => {
+                if core::level::stock::is_last(&level.tag) {
+                    game_state.set(GameState::stock_selection()).unwrap();
                 } else {
-                    sounds.volume -= 0.25;
+                    core::level::stock::insert(
+                        &mut commands,
+                        *current_index + 1,
+                        &save_file,
+                        &level_handles,
+                        &level_states_assets,
+                    );
+                    game_state.set(GameState::Level).unwrap();
                 }
-
-                music.set_volume(sounds.volume / 2.0);
-                sfx.set_volume(sounds.volume);
-
-                sfx.play(sounds.sfx.toggle_volume.clone());
             }
-            _ => (),
         }
     }
 }

@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::prelude::*;
 use bevy_kira_audio::AudioChannel;
-use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
+use bevy_rust_arcade::ArcadeInputEvent;
 
 use crate::{
     core::state::GameState,
@@ -34,18 +34,16 @@ impl Plugin for InstructionsPlugin {
 
 fn setup(
     mut commands: Commands,
-    images: Res<Images>,
     fonts: Res<Fonts>,
     mut ignore_input_counter: ResMut<IgnoreInputCounter>,
 ) {
-    spawn_ui(&mut commands, &images, &fonts);
+    spawn_ui(&mut commands, &fonts);
     ignore_input_counter.start();
 }
 
 fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
     music.play_looped(sounds.music.title.clone());
 }
-
 fn gather_input(
     mut arcade_input_events: EventReader<ArcadeInputEvent>,
     mut input_buffer: ResMut<GameInputBuffer>,
@@ -54,13 +52,7 @@ fn gather_input(
     if ignore_input_counter.done() {
         for event in arcade_input_events.iter() {
             if event.value > 0.0 {
-                let input = match event.arcade_input {
-                    ArcadeInput::ButtonFront1 => GameInput::exit(),
-                    ArcadeInput::ButtonFront2 => GameInput::volume(),
-                    ArcadeInput::JoyButton => GameInput::pick(),
-                    _ => return,
-                };
-                input_buffer.insert(input);
+                input_buffer.insert(GameInput::pick());
             }
         }
     } else {
@@ -70,35 +62,13 @@ fn gather_input(
 
 fn handle_input(
     sfx: Res<AudioChannel<Sfx>>,
-    music: Res<AudioChannel<Music>>,
-    mut sounds: ResMut<Sounds>,
+    sounds: Res<Sounds>,
     mut game_state: ResMut<State<GameState>>,
     mut input: ResMut<GameInputBuffer>,
 ) {
-    if let Some(input) = input.pop() {
-        match input {
-            GameInput::Action(Action::Pick) => {
-                sfx.play(sounds.sfx.set_zone.clone());
-                game_state.set(GameState::stock_selection()).unwrap();
-            }
-            GameInput::Action(Action::Exit) => {
-                sfx.play(sounds.sfx.push_box.clone());
-                game_state.set(GameState::Title).unwrap();
-            }
-            GameInput::Action(Action::Volume) => {
-                if sounds.volume < 0.1 {
-                    sounds.volume = 1.0;
-                } else {
-                    sounds.volume -= 0.25;
-                }
-
-                music.set_volume(sounds.volume / 2.0);
-                sfx.set_volume(sounds.volume);
-
-                sfx.play(sounds.sfx.toggle_volume.clone());
-            }
-            _ => (),
-        }
+    if let Some(GameInput::Action(Action::Pick)) = input.pop() {
+        sfx.play(sounds.sfx.set_zone.clone());
+        game_state.set(GameState::stock_selection()).unwrap();
     }
 }
 
