@@ -34,9 +34,9 @@ impl Colors {
         alpha: 1.0,
     };
     pub const DARK: Color = Color::Rgba {
-        red: 28.0 / u8::MAX as f32,
-        green: 28.0 / u8::MAX as f32,
-        blue: 28.0 / u8::MAX as f32,
+        red: 0.0 / u8::MAX as f32,
+        green: 0.0 / u8::MAX as f32,
+        blue: 0.0 / u8::MAX as f32,
         alpha: 1.0,
     };
     pub const TRANSPARENT: Color = Color::Rgba {

@@ -18,18 +18,22 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let font = &fonts.upheavtt;
     let button_size = Size::new(Val::Px(400.0), Val::Px(60.0));
 
-    let overlay = Overlay::new();
-    let top = Housing::percent(100.0, 35.0);
-    let bottom = Housing::percent(100.0, 35.0);
-    let mut actions = Housing::percent(100.0, 70.0);
+    let mut overlay = Overlay::new();
+    let top = Housing::percent(100.0, 55.0);
+    let mut bottom = Housing::percent(100.0, 35.0);
+    let mut actions = Housing::percent(100.0, 60.0);
     let footer = Housing::percent(100.0, 30.0);
 
-    let title = EmbossedText::big("Pushin'\nBoxes", font);
-    let notice = SimpleText::small("https://septum.io", font);
+    let mut title = EmbossedText::big("Pushin'\nBoxes", font);
+    let notice = SimpleText::small("By @septum (gh)\nand @andresweyman (ig)", font);
     let play = ActionButton::new("Play", font, button_size);
     let instructions = ActionButton::new("Instructions", font, button_size);
     let quit = ActionButton::new("Quit", font, button_size);
 
+    title.size(112.0);
+
+    overlay.justify_content(JustifyContent::SpaceEvenly);
+    bottom.justify_content(JustifyContent::SpaceBetween);
     actions
         .justify_content(JustifyContent::SpaceEvenly)
         .align_items(AlignItems::Center);

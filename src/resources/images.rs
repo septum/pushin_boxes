@@ -14,6 +14,8 @@ pub struct PlayerImages {
 pub struct Images {
     pub entities: EntitiesImages,
     pub player: PlayerImages,
+    pub background: Handle<Image>,
+    pub instructions: Handle<Image>,
 }
 
 impl Images {
@@ -29,7 +31,12 @@ impl Images {
             pushin: asset_server.load("images/player/pushin.png"),
         };
 
-        Images { entities, player }
+        Images {
+            entities,
+            player,
+            background: asset_server.load("images/background.png"),
+            instructions: asset_server.load("images/instructions.png"),
+        }
     }
 
     #[must_use]
@@ -40,6 +47,8 @@ impl Images {
             self.entities.zone.clone_untyped(),
             self.player.spritesheet.clone_untyped(),
             self.player.pushin.clone_untyped(),
+            self.background.clone_untyped(),
+            self.instructions.clone_untyped(),
         ];
 
         for image_handle in images_untyped {

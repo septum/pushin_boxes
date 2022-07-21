@@ -2,7 +2,7 @@ mod ui;
 
 use bevy::prelude::*;
 use bevy_kira_audio::AudioChannel;
-use bevy_rust_arcade::ArcadeInputEvent;
+use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 
 use crate::{
     core::{self, state::GameState},
@@ -56,7 +56,13 @@ fn gather_input(
     if ignore_input_counter.done() {
         for event in arcade_input_events.iter() {
             if event.value > 0.0 {
-                input_buffer.insert(GameInput::pick());
+                match event.arcade_input {
+                    ArcadeInput::JoyUp
+                    | ArcadeInput::JoyDown
+                    | ArcadeInput::JoyLeft
+                    | ArcadeInput::JoyRight => return,
+                    _ => input_buffer.insert(GameInput::pick()),
+                }
             }
         }
     } else {

@@ -114,6 +114,11 @@ impl Housing {
         self
     }
 
+    pub fn top(&mut self, top: f32) -> &mut Housing {
+        self.bundle.style.position.top = Val::Px(top);
+        self
+    }
+
     pub fn spawn(self, parent: &mut ChildBuilder, children: impl FnOnce(&mut ChildBuilder)) {
         parent.spawn_bundle(self.bundle).with_children(children);
     }

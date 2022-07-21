@@ -27,6 +27,12 @@ pub fn spawn(
     let position = level.get_player_position();
     let index = level.get_sprite_index();
     let texture = images.player.spritesheet.clone();
+
+    commands.spawn_bundle(SpriteBundle {
+        texture: images.background.clone(),
+        transform: Transform::default(),
+        ..SpriteBundle::default()
+    });
     spawn_entity(
         commands,
         texture_atlases,
@@ -102,6 +108,6 @@ pub fn spawn_entity(
 
 fn spawn_camera(commands: &mut Commands) {
     let mut camera_bundle = OrthographicCameraBundle::new_2d();
-    camera_bundle.orthographic_projection.scale *= 0.5;
+    camera_bundle.orthographic_projection.scale *= 0.75;
     commands.spawn_bundle(camera_bundle).insert(CameraMarker);
 }

@@ -20,12 +20,14 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
         let housing = Housing::percent(25.0, 25.0);
         let button = ActionButton::square(format!("{}", index + 1), font);
         let marker = ButtonMarker::stock_level(index, last_index == index + 1);
-        let text = if *record > 0 {
-            format!("Record: {}", record)
+        let (text, color) = if *record > 0 {
+            (format!("Record: {}", record), Colors::LIGHT)
         } else {
-            "New Level!".to_string()
+            ("New Level!".to_string(), Colors::SECONDARY)
         };
-        let record_new_level = SimpleText::small(text, font);
+        let mut record_new_level = SimpleText::small(text, font);
+
+        record_new_level.color(color);
 
         housing.spawn(parent, |parent| {
             button.spawn(parent, marker);

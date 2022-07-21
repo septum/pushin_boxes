@@ -42,7 +42,7 @@ impl Sounds {
         };
 
         Sounds {
-            volume: 1.0,
+            volume: 0.75,
             sfx,
             music,
         }

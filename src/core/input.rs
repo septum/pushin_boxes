@@ -68,9 +68,6 @@ fn handle_direction(
     let next_entity = level.get_entity(&next_position);
     match next_entity {
         MapEntity::B | MapEntity::P => {
-            sfx.play(sounds.sfx.move_player.clone());
-            sfx.play(sounds.sfx.push_box.clone());
-
             player_animation.idle_timer.reset();
             player_animation.long_idle_timer.reset();
 
@@ -83,6 +80,9 @@ fn handle_direction(
             let adjacent_entity = level.get_entity(&adjacent_position);
             match adjacent_entity {
                 MapEntity::F => {
+                    sfx.play(sounds.sfx.move_player.clone());
+                    sfx.play(sounds.sfx.push_box.clone());
+
                     level.set_entity(&next_position, updated_next_entity);
                     level.set_entity(&adjacent_position, MapEntity::B);
                     level.move_player(next_position);
@@ -93,6 +93,8 @@ fn handle_direction(
                     }
                 }
                 MapEntity::Z => {
+                    sfx.play(sounds.sfx.move_player.clone());
+                    sfx.play(sounds.sfx.push_box.clone());
                     sfx.play(sounds.sfx.set_zone.clone());
 
                     level.set_entity(&next_position, updated_next_entity);

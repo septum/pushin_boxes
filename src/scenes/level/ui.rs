@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{DynamicText, Housing, Overlay, SimpleText, TextMarker},
+    ui::{DynamicText, EmbossedText, Housing, Overlay, TextMarker},
 };
 
 #[derive(Component)]
@@ -23,55 +23,90 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     };
 
     let mut overlay = Overlay::new();
-    let mut top = Housing::percent(97.0, 10.0);
+    let mut top = Housing::percent(98.0, 7.0);
+    let mut bottom = Housing::percent(98.0, 8.0);
+
+    let mut top_left = Housing::percent(50.0, 100.0);
     let mut top_right = Housing::percent(50.0, 100.0);
-    let mut bottom = Housing::percent(97.0, 10.0);
-    let mut bottom_left = Housing::percent(50.0, 100.0);
-    let mut bottom_right = Housing::percent(50.0, 100.0);
+    let bottom_left = Housing::percent(50.0, 100.0);
+    let bottom_right = Housing::percent(50.0, 100.0);
 
-    let level_name = SimpleText::medium(format!("Level {}", level.get_name()), font);
+    let mut moves_housing = Housing::percent(100.0, 50.0);
+    let mut record_housing = Housing::percent(100.0, 50.0);
+    let mut reload_housing = Housing::percent(100.0, 50.0);
+    let mut selection_housing = Housing::percent(100.0, 50.0);
+    let mut undos_left_housing = Housing::percent(100.0, 50.0);
+    let mut undo_housing = Housing::percent(100.0, 50.0);
+
+    let mut level_name = EmbossedText::medium(format!("Level {}", level.get_name()), font);
     let mut moves = DynamicText::small("Moves: ", font);
-    let mut record_new_level = SimpleText::small(record_new_level, font);
+    let mut record_new_level = EmbossedText::small(record_new_level, font);
     let mut undos_left = DynamicText::small("Undos: ", font);
-    let mut undo = SimpleText::small("[Top Left Button]- Undo Movement", font);
-    let mut reload = SimpleText::small("[Top Middle Button] - Reload Level", font);
-    let mut selection = SimpleText::small("[Top Right Button] - Level Selection", font);
+    let undo = EmbossedText::small("(B) - Undo Movement", font);
+    let reload = EmbossedText::small("(X) - Reload Level", font);
+    let selection = EmbossedText::small("(L3) - Level Selection", font);
 
-    moves.size(28.0);
-    undos_left.size(28.0);
-    undo.color(Colors::PRIMARY).top_position(-4.0);
-    reload.color(Colors::PRIMARY);
-    selection.color(Colors::PRIMARY);
-    record_new_level.color(Colors::SECONDARY).top_position(-4.0);
+    moves.size(35.0);
+    undos_left.size(35.0);
+
+    level_name.foreground_color(Colors::LIGHT);
+    record_new_level.foreground_color(Colors::SECONDARY);
 
     overlay.justify_content(JustifyContent::SpaceBetween);
+    top.flex_direction(FlexDirection::Row);
+    bottom.flex_direction(FlexDirection::Row);
+
+    top_left.align_items(AlignItems::FlexStart);
     top_right.align_items(AlignItems::FlexEnd);
-    bottom_left.align_items(AlignItems::FlexStart);
-    bottom_right.align_items(AlignItems::FlexEnd);
-    top.flex_direction(FlexDirection::Row)
-        .justify_content(JustifyContent::SpaceBetween);
-    bottom
-        .flex_direction(FlexDirection::Row)
-        .justify_content(JustifyContent::SpaceBetween);
+    moves_housing.align_items(AlignItems::FlexEnd);
+    record_housing
+        .align_items(AlignItems::FlexEnd)
+        .position_type(PositionType::Absolute)
+        .top(44.0);
+    undo_housing.align_items(AlignItems::FlexEnd);
+    reload_housing
+        .align_items(AlignItems::FlexStart)
+        .position_type(PositionType::Absolute)
+        .top(-4.0);
+    selection_housing.align_items(AlignItems::FlexStart);
+    undos_left_housing
+        .align_items(AlignItems::FlexEnd)
+        .position_type(PositionType::Absolute)
+        .top(-4.0);
+    undo_housing.align_items(AlignItems::FlexEnd);
 
     overlay.spawn(
         commands,
         |parent| {
             top.spawn(parent, |parent| {
-                level_name.spawn(parent);
+                top_left.spawn(parent, |parent| {
+                    level_name.spawn(parent);
+                });
                 top_right.spawn(parent, |parent| {
-                    moves.spawn(parent, TextMarker::moves());
-                    record_new_level.spawn(parent);
+                    moves_housing.spawn(parent, |parent| {
+                        moves.spawn(parent, TextMarker::moves());
+                    });
+                    record_housing.spawn(parent, |parent| {
+                        record_new_level.spawn(parent);
+                    });
                 });
             });
             bottom.spawn(parent, |parent| {
                 bottom_left.spawn(parent, |parent| {
-                    reload.spawn(parent);
-                    selection.spawn(parent);
+                    reload_housing.spawn(parent, |parent| {
+                        reload.spawn(parent);
+                    });
+                    selection_housing.spawn(parent, |parent| {
+                        selection.spawn(parent);
+                    });
                 });
                 bottom_right.spawn(parent, |parent| {
-                    undos_left.spawn(parent, TextMarker::undos());
-                    undo.spawn(parent);
+                    undos_left_housing.spawn(parent, |parent| {
+                        undos_left.spawn(parent, TextMarker::undos());
+                    });
+                    undo_housing.spawn(parent, |parent| {
+                        undo.spawn(parent);
+                    });
                 });
             });
         },

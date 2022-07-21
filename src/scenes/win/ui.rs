@@ -43,7 +43,7 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, level: &Level, save_file
 
     let mut final_or_new = SimpleText::medium(final_or_new, font);
     let title = EmbossedText::big(title, font);
-    let press_button = EmbossedText::small("Press any button to continue", font);
+    let press_button = EmbossedText::small("Press (any button) to continue", font);
 
     final_or_new.color(Colors::SECONDARY);
 
