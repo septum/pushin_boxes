@@ -60,8 +60,6 @@ fn handle_direction(
     sounds: &Sounds,
     player_animation: &mut PlayerAnimation,
 ) {
-    level.save_snapshot();
-
     let mut next_position = level.state.player_position;
     update_position(direction, &mut next_position);
 
@@ -80,6 +78,8 @@ fn handle_direction(
             let adjacent_entity = level.get_entity(&adjacent_position);
             match adjacent_entity {
                 MapEntity::F => {
+                    level.save_snapshot();
+
                     sfx.play(sounds.sfx.move_player.clone());
                     sfx.play(sounds.sfx.push_box.clone());
 
@@ -93,6 +93,8 @@ fn handle_direction(
                     }
                 }
                 MapEntity::Z => {
+                    level.save_snapshot();
+
                     sfx.play(sounds.sfx.move_player.clone());
                     sfx.play(sounds.sfx.push_box.clone());
                     sfx.play(sounds.sfx.set_zone.clone());
@@ -111,6 +113,7 @@ fn handle_direction(
         }
         MapEntity::W => {}
         _ => {
+            level.save_snapshot();
             sfx.play(sounds.sfx.move_player.clone());
 
             player_animation.idle_timer.reset();
@@ -139,8 +142,10 @@ fn handle_action(
             }
         }
         Action::Reload => {
-            sfx.play(sounds.sfx.reload_level.clone());
-            level::reload(level, levels, level_states);
+            if level.moves > 0 && level.undos <= 4 {
+                sfx.play(sounds.sfx.reload_level.clone());
+                level::reload(level, levels, level_states);
+            }
         }
         Action::Selection => {
             sfx.play(sounds.sfx.push_box.clone());

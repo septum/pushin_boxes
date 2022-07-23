@@ -11,11 +11,28 @@ use crate::{
 
 use ui::{spawn_ui, UiMarker};
 
+#[derive(Component)]
+pub struct CameraMarker;
+
+#[derive(Component)]
+pub struct CharacterMarker;
+
+pub struct CharacterAnimation {
+    pub timer: Timer,
+    pub row: usize,
+    pub index: usize,
+}
+
 pub struct WinPlugin;
 
 impl Plugin for WinPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
+        app.insert_resource(CharacterAnimation {
+            timer: Timer::from_seconds(0.125, true),
+            row: 0,
+            index: 0,
+        })
+        .add_system_set(
             SystemSet::on_enter(GameState::Win)
                 .with_system(save_record)
                 .with_system(setup)
@@ -24,7 +41,8 @@ impl Plugin for WinPlugin {
         .add_system_set(
             SystemSet::on_update(GameState::Win)
                 .with_system(gather_input)
-                .with_system(handle_input),
+                .with_system(handle_input)
+                .with_system(unpdate_character_sprite),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Win)
@@ -40,8 +58,38 @@ fn save_record(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
     core::save_file::save(&save_file);
 }
 
-fn setup(mut commands: Commands, save_file: Res<SaveFile>, fonts: Res<Fonts>, level: Res<Level>) {
-    spawn_ui(&mut commands, &fonts, &level, &save_file);
+fn setup(
+    mut commands: Commands,
+    fonts: Res<Fonts>,
+    images: Res<Images>,
+    level: Res<Level>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let mut camera_bundle = OrthographicCameraBundle::new_2d();
+    camera_bundle.orthographic_projection.scale *= 0.75;
+    commands.spawn_bundle(camera_bundle).insert(CameraMarker);
+
+    let texture_atlas = TextureAtlas::from_grid_with_padding(
+        images.player.spritesheet.clone(),
+        Vec2::new(64.0, 64.0),
+        4,
+        6,
+        Vec2::new(4.0, 4.0),
+    );
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+    commands
+        .spawn_bundle(SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 0,
+                ..TextureAtlasSprite::default()
+            },
+            texture_atlas: texture_atlas_handle,
+            transform: Transform::from_translation(Vec3::new(160.0, 0.0, 1.0)),
+            ..SpriteSheetBundle::default()
+        })
+        .insert(CharacterMarker);
+    spawn_ui(&mut commands, &fonts, &level);
 }
 
 fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
@@ -103,7 +151,27 @@ fn handle_input(
     }
 }
 
-fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
+fn unpdate_character_sprite(
+    time: Res<Time>,
+    mut character_animation: ResMut<CharacterAnimation>,
+    mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
+) {
+    let mut sprite = query.single_mut();
+    let delta = time.delta();
+
+    character_animation.timer.tick(delta);
+
+    if character_animation.timer.just_finished() {
+        character_animation.index = (character_animation.index + 1) % 4;
+    }
+
+    sprite.index = character_animation.index + (4 * character_animation.row);
+}
+
+fn cleanup(
+    mut commands: Commands,
+    entities: Query<Entity, Or<(With<UiMarker>, With<CharacterMarker>, With<CameraMarker>)>>,
+) {
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();
     }

@@ -105,11 +105,11 @@ impl Level {
     }
 
     pub fn decrement_moves(&mut self) {
-        self.moves -= 1;
+        self.moves = self.moves.saturating_sub(1);
     }
 
     pub fn decrement_undos(&mut self) {
-        self.undos -= 1;
+        self.undos = self.undos.saturating_sub(1);
     }
 
     pub fn move_player(&mut self, position: MapPosition) {

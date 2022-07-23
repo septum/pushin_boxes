@@ -9,7 +9,7 @@ use bevy::prelude::*;
 
 use crate::resources::prelude::*;
 
-pub use components::{CameraMarker, OnTopMarker, PlayerMarker};
+pub use components::{BackgroundMarker, CameraMarker, OnTopMarker, PlayerMarker};
 
 use super::BOX_ENTITY_OFFSET;
 
@@ -28,11 +28,13 @@ pub fn spawn(
     let index = level.get_sprite_index();
     let texture = images.player.spritesheet.clone();
 
-    commands.spawn_bundle(SpriteBundle {
-        texture: images.background.clone(),
-        transform: Transform::default(),
-        ..SpriteBundle::default()
-    });
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: images.background.clone(),
+            transform: Transform::default(),
+            ..SpriteBundle::default()
+        })
+        .insert(BackgroundMarker);
     spawn_entity(
         commands,
         texture_atlases,
@@ -81,7 +83,13 @@ pub fn spawn_entity(
     }
 
     if is_player {
-        let texture_atlas = TextureAtlas::from_grid(texture, Vec2::new(64.0, 64.0), 4, 6);
+        let texture_atlas = TextureAtlas::from_grid_with_padding(
+            texture,
+            Vec2::new(64.0, 64.0),
+            4,
+            6,
+            Vec2::new(4.0, 4.0),
+        );
         let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
         commands

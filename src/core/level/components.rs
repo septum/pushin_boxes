@@ -8,3 +8,6 @@ pub struct CameraMarker;
 
 #[derive(Component)]
 pub struct OnTopMarker;
+
+#[derive(Component)]
+pub struct BackgroundMarker;

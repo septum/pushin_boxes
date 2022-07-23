@@ -7,7 +7,7 @@ use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
 use crate::{
     core::{
         self,
-        level::{CameraMarker, PlayerMarker},
+        level::{BackgroundMarker, CameraMarker, PlayerMarker},
         state::GameState,
     },
     resources::prelude::*,
@@ -225,6 +225,7 @@ fn cleanup(
             With<PlayerMarker>,
             With<CameraMarker>,
             With<MapPosition>,
+            With<BackgroundMarker>,
         )>,
     >,
 ) {

@@ -19,7 +19,7 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let button_size = Size::new(Val::Px(400.0), Val::Px(60.0));
 
     let mut overlay = Overlay::new();
-    let top = Housing::percent(100.0, 55.0);
+    let top = Housing::percent(100.0, 25.0);
     let mut bottom = Housing::percent(100.0, 35.0);
     let mut actions = Housing::percent(100.0, 60.0);
     let footer = Housing::percent(100.0, 30.0);
