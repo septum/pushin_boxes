@@ -12,7 +12,7 @@ impl Default for SimpleText {
     fn default() -> SimpleText {
         let value = "";
         let style = TextStyle {
-            font_size: 42.0,
+            font_size: 36.0,
             color: Colors::LIGHT,
             font: Handle::default(),
         };
@@ -32,7 +32,7 @@ impl SimpleText {
 
         simple.bundle.text.sections[0].value = value.into();
         simple.bundle.text.sections[0].style.font = font.clone();
-        simple.bundle.text.sections[0].style.font_size = 21.0;
+        simple.bundle.text.sections[0].style.font_size = 18.0;
 
         simple
     }
@@ -51,7 +51,7 @@ impl SimpleText {
 
         simple.bundle.text.sections[0].value = value.into();
         simple.bundle.text.sections[0].style.font = font.clone();
-        simple.bundle.text.sections[0].style.font_size = 84.0;
+        simple.bundle.text.sections[0].style.font_size = 108.0;
 
         simple
     }

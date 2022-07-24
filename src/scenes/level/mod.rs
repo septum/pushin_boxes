@@ -38,8 +38,8 @@ impl Plugin for LevelPlugin {
                 .with_system(update_player_position)
                 .with_system(update_counters)
                 .with_system(update_map)
-                .with_system(check_level_state)
-                .with_system(lever_timer_finished),
+                .with_system(update_level_state)
+                .with_system(check_lever_timer_finished),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Level)
@@ -178,11 +178,20 @@ fn update_counters(
     mut texts: Query<(&mut Text, &TextMarker), With<TextMarker>>,
 ) {
     for (mut text, counter) in texts.iter_mut() {
-        let value = match counter.kind {
-            TextKind::Moves => level.moves,
-            TextKind::Undos => level.undos,
+        match counter.kind {
+            TextKind::Moves => core::ui::update_dynamic_text(&mut text, level.moves.to_string()),
+            TextKind::Undos => core::ui::update_dynamic_text(&mut text, level.undos.to_string()),
+            TextKind::Stopwatch => {
+                let duration = level.stopwatch_elapsed();
+                let milliseconds = duration.subsec_millis();
+                let seconds = duration.as_secs() % 60;
+                let minutes = (duration.as_secs() / 60) % 60;
+                core::ui::update_dynamic_text(
+                    &mut text,
+                    format!("{:02}:{:02}:{:03}", minutes, seconds, milliseconds),
+                );
+            }
         };
-        core::ui::update_dynamic_text(&mut text, value.to_string());
     }
 }
 
@@ -204,13 +213,15 @@ fn update_map(
     }
 }
 
-fn check_level_state(time: Res<Time>, mut level: ResMut<Level>) {
+fn update_level_state(time: Res<Time>, mut level: ResMut<Level>) {
     if level.no_remaining_zones() {
         level.tick_timer(time.delta());
+    } else {
+        level.tick_stopwatch(time.delta());
     }
 }
 
-fn lever_timer_finished(level: Res<Level>, mut game_state: ResMut<State<GameState>>) {
+fn check_lever_timer_finished(level: Res<Level>, mut game_state: ResMut<State<GameState>>) {
     if level.timer_finished() {
         game_state.set(GameState::Win).unwrap();
     }

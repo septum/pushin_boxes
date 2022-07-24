@@ -53,7 +53,12 @@ impl Plugin for WinPlugin {
 }
 
 fn save_record(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    core::save_file::set_if_new_record(&mut save_file, &level.tag, level.moves);
+    core::save_file::set_if_new_record(
+        &mut save_file,
+        &level.tag,
+        level.moves,
+        level.stopwatch.elapsed().as_secs_f32(),
+    );
     core::save_file::stock::unlock(&mut save_file, &level);
     core::save_file::save(&save_file);
 }
@@ -85,7 +90,7 @@ fn setup(
                 ..TextureAtlasSprite::default()
             },
             texture_atlas: texture_atlas_handle,
-            transform: Transform::from_translation(Vec3::new(160.0, 0.0, 1.0)),
+            transform: Transform::from_translation(Vec3::new(164.0, 16.0, 1.0)),
             ..SpriteSheetBundle::default()
         })
         .insert(CharacterMarker);

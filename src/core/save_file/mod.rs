@@ -22,22 +22,22 @@ pub fn save(save_file: &SaveFile) {
 }
 
 #[must_use]
-pub fn get_record(save_file: &SaveFile, tag: &LevelTag) -> usize {
+pub fn get_record(save_file: &SaveFile, tag: &LevelTag) -> (usize, f32) {
     match tag {
         LevelTag::Stock(index) => save_file.get_stock_level_record(index),
     }
 }
 
-pub fn set_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize) {
+pub fn set_record(save_file: &mut SaveFile, tag: &LevelTag, record: (usize, f32)) {
     match tag {
-        LevelTag::Stock(index) => save_file.set_stock_level_record(index, moves),
+        LevelTag::Stock(index) => save_file.set_stock_level_record(index, record),
     };
 }
 
-pub fn set_if_new_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize) {
+pub fn set_if_new_record(save_file: &mut SaveFile, tag: &LevelTag, moves: usize, time: f32) {
     let record = get_record(save_file, tag);
-    if record == 0 || record > moves {
-        set_record(save_file, tag, moves);
+    if record.0 == 0 || record.0 > moves || record.1 > time {
+        set_record(save_file, tag, (moves, time));
     }
 }
 

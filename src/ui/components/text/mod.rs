@@ -21,6 +21,7 @@ pub struct TextMarker {
 pub enum TextKind {
     Moves,
     Undos,
+    Stopwatch,
 }
 
 impl TextMarker {
@@ -35,6 +36,13 @@ impl TextMarker {
     pub fn undos() -> TextMarker {
         TextMarker {
             kind: TextKind::Undos,
+        }
+    }
+
+    #[must_use]
+    pub fn stopwatch() -> TextMarker {
+        TextMarker {
+            kind: TextKind::Stopwatch,
         }
     }
 }

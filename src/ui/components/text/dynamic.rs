@@ -11,7 +11,7 @@ pub struct DynamicText {
 impl Default for DynamicText {
     fn default() -> DynamicText {
         let style = TextStyle {
-            font_size: 42.0,
+            font_size: 36.0,
             color: Colors::LIGHT,
             font: Handle::default(),
         };
@@ -43,10 +43,10 @@ impl DynamicText {
 
         dynamic.bundle.text.sections[0].value = static_value.into();
         dynamic.bundle.text.sections[0].style.font = font.clone();
-        dynamic.bundle.text.sections[0].style.font_size = 21.0;
+        dynamic.bundle.text.sections[0].style.font_size = 18.0;
 
         dynamic.bundle.text.sections[1].style.font = font.clone();
-        dynamic.bundle.text.sections[1].style.font_size = 21.0;
+        dynamic.bundle.text.sections[1].style.font_size = 18.0;
 
         dynamic
     }
@@ -66,10 +66,10 @@ impl DynamicText {
 
         dynamic.bundle.text.sections[0].value = static_value.into();
         dynamic.bundle.text.sections[0].style.font = font.clone();
-        dynamic.bundle.text.sections[0].style.font_size = 84.0;
+        dynamic.bundle.text.sections[0].style.font_size = 108.0;
 
         dynamic.bundle.text.sections[1].style.font = font.clone();
-        dynamic.bundle.text.sections[1].style.font_size = 84.0;
+        dynamic.bundle.text.sections[1].style.font_size = 108.0;
 
         dynamic
     }

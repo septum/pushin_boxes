@@ -8,7 +8,7 @@ pub mod prelude;
 
 use std::time::Duration;
 
-use bevy::core::Timer;
+use bevy::core::{Stopwatch, Timer};
 use map::{MAP_COLS, MAP_ROWS};
 use prelude::*;
 use snapshots::{LevelSnapshots, MAX_SNAPSHOTS};
@@ -23,25 +23,26 @@ pub struct LevelDone {
 pub struct Level {
     pub tag: LevelTag,
     pub state: LevelState,
-    pub record: usize,
+    pub record: (usize, f32),
     pub snapshots: LevelSnapshots,
     pub undos: usize,
     pub moves: usize,
     pub timer: Timer,
+    pub stopwatch: Stopwatch,
 }
 
 impl Default for Level {
     fn default() -> Level {
         let state = LevelState::default();
         let tag = LevelTag::Stock(0);
-        let record = 0;
+        let record = (0, 0.0);
         Level::new(tag, state, record)
     }
 }
 
 impl Level {
     #[must_use]
-    pub fn new(tag: LevelTag, state: LevelState, record: usize) -> Level {
+    pub fn new(tag: LevelTag, state: LevelState, record: (usize, f32)) -> Level {
         Level {
             tag,
             state,
@@ -50,6 +51,7 @@ impl Level {
             undos: 4,
             moves: 0,
             timer: Timer::from_seconds(0.25, false),
+            stopwatch: Stopwatch::new(),
         }
     }
 
@@ -131,12 +133,17 @@ impl Level {
 
     #[must_use]
     pub fn is_record_set(&self) -> bool {
-        self.record > 0
+        self.record.0 > 0
     }
 
     #[must_use]
-    pub fn is_new_record(&self) -> bool {
-        self.record == 0 || self.moves < self.record
+    pub fn new_record_moves(&self) -> bool {
+        self.record.0 == 0 || self.moves < self.record.0
+    }
+
+    #[must_use]
+    pub fn new_record_time(&self) -> bool {
+        self.record.1 == 0.0 || self.stopwatch.elapsed().as_secs_f32() < self.record.1
     }
 
     #[must_use]
@@ -173,6 +180,15 @@ impl Level {
 
     pub fn tick_timer(&mut self, delta: Duration) {
         self.timer.tick(delta);
+    }
+
+    pub fn tick_stopwatch(&mut self, delta: Duration) {
+        self.stopwatch.tick(delta);
+    }
+
+    #[must_use]
+    pub fn stopwatch_elapsed(&self) -> Duration {
+        self.stopwatch.elapsed()
     }
 
     #[must_use]

@@ -24,13 +24,11 @@ pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts) {
     let mut actions = Housing::percent(100.0, 60.0);
     let footer = Housing::percent(100.0, 30.0);
 
-    let mut title = EmbossedText::big("Pushin'\nBoxes", font);
+    let title = EmbossedText::big("Pushin'\nBoxes", font);
     let notice = SimpleText::small("By @septum (gh)\nand @andresweyman (ig)", font);
     let play = ActionButton::new("Play", font, button_size);
     let instructions = ActionButton::new("Instructions", font, button_size);
     let quit = ActionButton::new("Quit", font, button_size);
-
-    title.size(112.0);
 
     overlay.justify_content(JustifyContent::SpaceEvenly);
     bottom.justify_content(JustifyContent::SpaceBetween);

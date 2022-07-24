@@ -11,9 +11,9 @@ pub struct EmbossedText {
 
 impl Default for EmbossedText {
     fn default() -> EmbossedText {
-        let relief = 3.0;
+        let relief = 2.0;
         let style = TextStyle {
-            font_size: 42.0,
+            font_size: 36.0,
             color: Colors::PRIMARY,
             font: Handle::default(),
         };
@@ -60,13 +60,13 @@ impl EmbossedText {
 
         embossed.foreground.text.sections[0].value = string.clone();
         embossed.foreground.text.sections[0].style.font = font.clone();
-        embossed.foreground.text.sections[0].style.font_size = 21.0;
+        embossed.foreground.text.sections[0].style.font_size = 18.0;
 
         embossed.background.text.sections[0].value = string;
         embossed.background.text.sections[0].style.font = font.clone();
-        embossed.background.text.sections[0].style.font_size = 21.0;
-        embossed.background.style.position.top = Val::Px(2.0);
-        embossed.background.style.position.left = Val::Px(2.0);
+        embossed.background.text.sections[0].style.font_size = 18.0;
+        embossed.background.style.position.top = Val::Px(1.0);
+        embossed.background.style.position.left = Val::Px(1.0);
 
         embossed
     }
@@ -90,11 +90,11 @@ impl EmbossedText {
 
         embossed.foreground.text.sections[0].value = string.clone();
         embossed.foreground.text.sections[0].style.font = font.clone();
-        embossed.foreground.text.sections[0].style.font_size = 84.0;
+        embossed.foreground.text.sections[0].style.font_size = 108.0;
 
         embossed.background.text.sections[0].value = string;
         embossed.background.text.sections[0].style.font = font.clone();
-        embossed.background.text.sections[0].style.font_size = 84.0;
+        embossed.background.text.sections[0].style.font_size = 108.0;
         embossed.background.style.position.top = Val::Px(4.0);
         embossed.background.style.position.left = Val::Px(4.0);
 
