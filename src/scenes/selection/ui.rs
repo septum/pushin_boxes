@@ -26,7 +26,7 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
             let minutes = (duration.as_secs() / 60) % 60;
             let time = format!("{:02}:{:02}:{:03}", minutes, seconds, milliseconds);
             (
-                format!("Record: {}\nTime: {}", record.0, time),
+                format!("Record: {} moves\nin {}", record.0, time),
                 Colors::LIGHT,
             )
         } else {

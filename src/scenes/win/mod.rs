@@ -29,7 +29,7 @@ impl Plugin for WinPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CharacterAnimation {
             timer: Timer::from_seconds(0.125, true),
-            row: 0,
+            row: 6,
             index: 0,
         })
         .add_system_set(
@@ -78,7 +78,7 @@ fn setup(
         images.player.spritesheet.clone(),
         Vec2::new(64.0, 64.0),
         4,
-        6,
+        7,
         Vec2::new(4.0, 4.0),
     );
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
@@ -90,7 +90,7 @@ fn setup(
                 ..TextureAtlasSprite::default()
             },
             texture_atlas: texture_atlas_handle,
-            transform: Transform::from_translation(Vec3::new(164.0, 16.0, 1.0)),
+            transform: Transform::from_translation(Vec3::new(160.0, 16.0, 1.0)),
             ..SpriteSheetBundle::default()
         })
         .insert(CharacterMarker);

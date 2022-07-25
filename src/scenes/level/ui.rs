@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::{
@@ -17,7 +19,12 @@ fn spawn_ui_camera(commands: &mut Commands) {
 pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let font = &fonts.upheavtt;
     let record_new_level = if level.is_record_set() {
-        format!("Record: {}", level.record.0)
+        let duration = Duration::from_secs_f32(level.record.1);
+        let milliseconds = duration.subsec_millis();
+        let seconds = duration.as_secs() % 60;
+        let minutes = (duration.as_secs() / 60) % 60;
+        let time = format!("{:02}:{:02}:{:03}", minutes, seconds, milliseconds);
+        format!("{} moves in {}", level.record.0, time)
     } else {
         "New Level!".to_string()
     };
@@ -41,8 +48,8 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
     let mut undo_housing = Housing::percent(100.0, 50.0);
 
     let mut level_name = EmbossedText::medium(format!("Level {}", level.get_name()), font);
-    let mut stopwatch = DynamicText::small("", font);
     let mut record_new_level = EmbossedText::small(record_new_level, font);
+    let stopwatch = DynamicText::small("Time: ", font);
     let moves = DynamicText::medium("Moves: ", font);
     let undos_left = DynamicText::medium("Undos: ", font);
     let undo = EmbossedText::small("(B) - Undo Movement", font);
@@ -51,7 +58,6 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
 
     level_name.foreground_color(Colors::LIGHT).size(54.0);
     record_new_level.foreground_color(Colors::SECONDARY);
-    stopwatch.color(Colors::SECONDARY);
 
     overlay.justify_content(JustifyContent::SpaceBetween);
     top.flex_direction(FlexDirection::Row);
@@ -63,13 +69,14 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
         .align_items(AlignItems::FlexStart)
         .position_type(PositionType::Absolute)
         .top(-6.0);
-    stopwatch_housing
+    record_housing
         .align_items(AlignItems::FlexStart)
         .position_type(PositionType::Absolute)
         .top(44.0);
     moves_housing.align_items(AlignItems::FlexEnd);
-    record_housing
-        .align_items(AlignItems::FlexEnd)
+    stopwatch_housing
+        .width(Val::Px(152.0))
+        .align_items(AlignItems::FlexStart)
         .position_type(PositionType::Absolute)
         .top(44.0);
     undo_housing.align_items(AlignItems::FlexEnd);
@@ -92,16 +99,16 @@ pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
                     level_housing.spawn(parent, |parent| {
                         level_name.spawn(parent);
                     });
-                    stopwatch_housing.spawn(parent, |parent| {
-                        stopwatch.spawn(parent, TextMarker::stopwatch());
+                    record_housing.spawn(parent, |parent| {
+                        record_new_level.spawn(parent);
                     });
                 });
                 top_right.spawn(parent, |parent| {
                     moves_housing.spawn(parent, |parent| {
                         moves.spawn(parent, TextMarker::moves());
                     });
-                    record_housing.spawn(parent, |parent| {
-                        record_new_level.spawn(parent);
+                    stopwatch_housing.spawn(parent, |parent| {
+                        stopwatch.spawn(parent, TextMarker::stopwatch());
                     });
                 });
             });

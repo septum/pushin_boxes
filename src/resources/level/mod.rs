@@ -137,13 +137,10 @@ impl Level {
     }
 
     #[must_use]
-    pub fn new_record_moves(&self) -> bool {
-        self.record.0 == 0 || self.moves < self.record.0
-    }
-
-    #[must_use]
-    pub fn new_record_time(&self) -> bool {
-        self.record.1 == 0.0 || self.stopwatch.elapsed().as_secs_f32() < self.record.1
+    pub fn new_record(&self) -> bool {
+        self.record.0 == 0
+            || self.moves < self.record.0
+            || self.moves <= self.record.0 && self.stopwatch.elapsed().as_secs_f32() < self.record.1
     }
 
     #[must_use]

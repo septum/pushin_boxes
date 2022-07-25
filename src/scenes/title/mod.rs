@@ -72,7 +72,7 @@ fn setup(
         images.player.spritesheet.clone(),
         Vec2::new(64.0, 64.0),
         4,
-        6,
+        7,
         Vec2::new(4.0, 4.0),
     );
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
