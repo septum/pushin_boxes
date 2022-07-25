@@ -53,6 +53,7 @@ fn spawn_scene(
     mut commands: Commands,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut player_animation: ResMut<PlayerAnimation>,
+    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
     level: Res<Level>,
     images: Res<Images>,
     fonts: Res<Fonts>,
@@ -64,6 +65,7 @@ fn spawn_scene(
     player_animation.initial_index = level_sprite_index;
     core::level::spawn(&mut commands, &mut texture_atlases, &level, &images);
     spawn_ui(&mut commands, &level, &fonts);
+    ignore_input_counter.start();
 }
 
 fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
@@ -73,23 +75,28 @@ fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
 fn gather_input(
     mut arcade_input_events: EventReader<ArcadeInputEvent>,
     mut input_buffer: ResMut<GameInputBuffer>,
+    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
 ) {
-    for event in arcade_input_events.iter() {
-        if event.value > 0.0 {
-            let input = match event.arcade_input {
-                ArcadeInput::JoyUp => GameInput::up(),
-                ArcadeInput::JoyDown => GameInput::down(),
-                ArcadeInput::JoyLeft => GameInput::left(),
-                ArcadeInput::JoyRight => GameInput::right(),
-                ArcadeInput::ButtonTop1 => GameInput::undo(),
-                ArcadeInput::ButtonTop2 => GameInput::reload(),
-                ArcadeInput::ButtonTop3 => GameInput::selection(),
-                ArcadeInput::ButtonFront1 => GameInput::exit(),
-                ArcadeInput::ButtonFront2 => GameInput::volume(),
-                _ => return,
-            };
-            input_buffer.insert(input);
+    if ignore_input_counter.done() {
+        for event in arcade_input_events.iter() {
+            if event.value > 0.0 {
+                let input = match event.arcade_input {
+                    ArcadeInput::JoyUp => GameInput::up(),
+                    ArcadeInput::JoyDown => GameInput::down(),
+                    ArcadeInput::JoyLeft => GameInput::left(),
+                    ArcadeInput::JoyRight => GameInput::right(),
+                    ArcadeInput::ButtonTop1 => GameInput::undo(),
+                    ArcadeInput::ButtonTop2 => GameInput::reload(),
+                    ArcadeInput::ButtonTop3 => GameInput::selection(),
+                    ArcadeInput::ButtonFront1 => GameInput::exit(),
+                    ArcadeInput::ButtonFront2 => GameInput::volume(),
+                    _ => return,
+                };
+                input_buffer.insert(input);
+            }
         }
+    } else {
+        ignore_input_counter.tick();
     }
 }
 
