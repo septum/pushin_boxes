@@ -16,7 +16,7 @@ default = ['bevy/dynamic']
 
 [dependencies]
 bevy_asset_ron = "0.4.0"
-serde = "1.0.139"
+serde = "1.0.140"
 ron = "0.7.1"
 
 [dependencies.bevy-rust-arcade]
