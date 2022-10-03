@@ -1,7 +1,10 @@
 use bevy::reflect::TypeUuid;
 use serde::{Deserialize, Serialize};
 
-use super::map::{Map, MapEntity, MapPosition, MAP_COLS, MAP_ROWS};
+use super::{
+    map::{Map, MapEntity, MapPosition},
+    MAP_COLS, MAP_ROWS,
+};
 
 #[derive(TypeUuid, Serialize, Deserialize, Clone, Copy)]
 #[uuid = "d1e78377-22a5-49f7-a675-60d348abc837"]

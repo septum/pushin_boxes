@@ -30,10 +30,3 @@ pub fn update_player_translation(position: &MapPosition, translation: &mut Vec3)
     // put it above the map
     translation.z = (position.y + 1) as f32;
 }
-
-pub fn update_brush_translation(position: &MapPosition, translation: &mut Vec3) {
-    update_entity_translation(position, translation);
-
-    // put it above the level
-    translation.z = (position.y + 2) as f32;
-}

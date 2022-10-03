@@ -2,8 +2,18 @@ use bevy::prelude::*;
 
 use crate::resources::prelude::*;
 
+const EXTENDED_CONTAINER_PADDING: UiRect<Val> = UiRect {
+    top: Val::Px(19.0),
+    bottom: Val::Px(28.0),
+    left: Val::Px(30.0),
+    right: Val::Px(28.0),
+};
+
+#[derive(Component)]
+pub struct OverlayMarker;
+
 pub struct Overlay {
-    pub bundle: NodeBundle,
+    bundle: NodeBundle,
 }
 
 impl Default for Overlay {
@@ -15,50 +25,27 @@ impl Default for Overlay {
                     flex_direction: FlexDirection::ColumnReverse,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    ..Default::default()
+                    ..default()
                 },
                 color: Colors::TRANSPARENT.into(),
-                ..Default::default()
+                ..default()
             },
         }
     }
 }
 
 impl Overlay {
-    #[must_use]
-    pub fn new() -> Overlay {
-        Overlay::default()
+    pub fn extended() -> Overlay {
+        let mut extended = Overlay::default();
+        extended.bundle.style.justify_content = JustifyContent::SpaceBetween;
+        extended.bundle.style.padding = EXTENDED_CONTAINER_PADDING;
+        extended
     }
 
-    pub fn flex_direction(&mut self, flex_direction: FlexDirection) -> &mut Overlay {
-        self.bundle.style.flex_direction = flex_direction;
-        self
-    }
-
-    pub fn justify_content(&mut self, justify_content: JustifyContent) -> &mut Overlay {
-        self.bundle.style.justify_content = justify_content;
-        self
-    }
-
-    pub fn align_items(&mut self, align_items: AlignItems) -> &mut Overlay {
-        self.bundle.style.align_items = align_items;
-        self
-    }
-
-    pub fn padding(&mut self, padding: Rect<Val>) -> &mut Overlay {
-        self.bundle.style.padding = padding;
-        self
-    }
-
-    pub fn spawn(
-        self,
-        commands: &mut Commands,
-        children: impl FnOnce(&mut ChildBuilder),
-        marker: impl Component,
-    ) {
+    pub fn spawn(self, commands: &mut Commands, children: impl FnOnce(&mut ChildBuilder)) {
         commands
             .spawn_bundle(self.bundle)
             .with_children(children)
-            .insert(marker);
+            .insert(OverlayMarker);
     }
 }

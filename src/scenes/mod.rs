@@ -1,21 +1,19 @@
 mod instructions;
 mod level;
-mod loading;
 mod selection;
 mod title;
 mod win;
 
-use bevy::prelude::*;
+use bevy::{app::Plugin as BevyPlugin, prelude::*};
 
-pub struct ScenesPlugin;
+pub struct Plugin;
 
-impl Plugin for ScenesPlugin {
+impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(loading::LoadingPlugin)
-            .add_plugin(title::TitlePlugin)
-            .add_plugin(instructions::InstructionsPlugin)
-            .add_plugin(selection::SelectionPlugin)
-            .add_plugin(level::LevelPlugin)
-            .add_plugin(win::WinPlugin);
+        app.add_plugin(title::Plugin)
+            .add_plugin(instructions::Plugin)
+            .add_plugin(selection::Plugin)
+            .add_plugin(level::Plugin)
+            .add_plugin(win::Plugin);
     }
 }

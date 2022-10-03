@@ -1,9 +1,42 @@
 [package]
 name = "pushin_boxes"
-version = "0.9.3"
+version = "0.10.0"
 authors = ["Orlando Valverde <orlando.jesig.va@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
+exclude = ["assets"]
+
+[features]
+default = ['bevy/dynamic']
+
+[dependencies]
+ron = "0.8.0"
+serde = "1.0.145"
+
+[dependencies.bevy]
+version = "0.8.1"
+default-features = false
+features = ["bevy_winit", "bevy_core_pipeline", "bevy_render", "bevy_sprite", "bevy_text", "bevy_ui", "png", "x11"]
+
+[dependencies.bevy_common_assets]
+version = "0.3.0"
+default-features = false
+features = ["ron"]
+
+[dependencies.bevy_asset_loader]
+version = "0.12.1"
+default-features = false
+features = ["2d", "stageless"]
+
+[dependencies.bevy_kira_audio]
+version = "0.12.0"
+default-features = false
+features = ["wav"]
+
+[dependencies.iyes_loopless]
+version = "0.7.1"
+default-features = false
+features = ["states", "app"]
 
 [profile.dev.package."*"]
 opt-level = 3
@@ -11,24 +44,6 @@ opt-level = 3
 [profile.dev]
 opt-level = 1
 
-[features]
-default = ['bevy/dynamic']
-
-[dependencies]
-bevy_asset_ron = "0.4.0"
-serde = "1.0.140"
-ron = "0.7.1"
-
-[dependencies.bevy-rust-arcade]
-git = "https://github.com/rust-arcade/bevy-rust-arcade"
-
-[dependencies.bevy]
-version = "0.7.0"
-default-features = false
-features = ["bevy_winit", "render", "png", "x11"]
-
-[dependencies.bevy_kira_audio]
-version = "0.10.0"
-default-features = false
-features = ["wav"]
-
+[profile.release]
+lto = "thin"
+codegen-units = 1

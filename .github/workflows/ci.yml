@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -19,7 +19,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/cache@v2
         with:
           path: |
@@ -29,26 +28,20 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-build-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
-
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
         if: runner.os == 'linux'
-
       - name: Remove local cargo config
         run: rm .cargo/config.toml
         if: matrix.toolchain == 'stable'
+      - name: Test build
+        run: cargo test
 
-      - name: Check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-
-  build-wasm:
+  check-wasm:
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -56,7 +49,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/cache@v2
         with:
           path: |
@@ -66,28 +58,21 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-build-wasm-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
           target: wasm32-unknown-unknown
           override: true
-
       - name: Remove local cargo config
         run: rm .cargo/config.toml
         if: matrix.toolchain == 'stable'
-
       - name: Check wasm
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --target wasm32-unknown-unknown --no-default-features --features bevy/bevy_winit,bevy/x11,bevy/hdr,bevy/bevy_gltf
+        run: cargo check --target wasm32-unknown-unknown --no-default-features
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/cache@v2
         with:
           path: |
@@ -97,21 +82,16 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ubuntu-latest-cargo-build-stable-${{ hashFiles('**/Cargo.lock') }}
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           components: rustfmt, clippy
           override: true
-
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
-
       - name: Remove local cargo config
         run: rm .cargo/config.toml
-
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features
-
+        run: cargo clippy --workspace --all-targets --all-features
       - name: Check format
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check

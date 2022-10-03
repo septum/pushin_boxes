@@ -1,7 +1,13 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{MAP_COLS, MAP_ROWS};
+use crate::resources::{
+    level::{
+        BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, ENTITY_SURFACE_OFFSET, MAP_COLS,
+        MAP_HEIGHT, MAP_ROWS, MAP_WIDTH, SPRITE_OFFSET, SPRITE_SIZE,
+    },
+    prelude::{CharacterMarker, Direction},
+};
 
 #[derive(Component, Serialize, Deserialize, Clone, Copy)]
 pub struct MapPosition {
@@ -10,12 +16,10 @@ pub struct MapPosition {
 }
 
 impl MapPosition {
-    #[must_use]
     pub fn new(x: usize, y: usize) -> MapPosition {
         MapPosition { x, y }
     }
 
-    #[must_use]
     pub fn equals(&self, other: &MapPosition) -> bool {
         self.x == other.x && self.y == other.y
     }
@@ -42,5 +46,77 @@ impl MapPosition {
         if self.y > 0 {
             self.y = self.y.saturating_sub(1);
         }
+    }
+
+    pub fn update_entity_translation(&self, translation: &mut Vec3) {
+        // calculate coords with the correct sprite dimension
+        // and moving the origin/pivot from the center to the top-left
+        let x = ((self.x * SPRITE_SIZE) + SPRITE_OFFSET) as f32;
+        let y = (((MAP_ROWS - self.y) * ENTITY_SURFACE) - ENTITY_SURFACE_OFFSET) as f32;
+
+        // take into account the camera's default position (0, 0)
+        translation.x = x - (MAP_WIDTH / 2.0);
+        translation.y = y - (MAP_HEIGHT / 2.0);
+
+        // adaptation of depthness in a 2D plane
+        translation.z = self.y as f32;
+    }
+
+    pub fn update_player_translation(&self, translation: &mut Vec3) {
+        self.update_entity_translation(translation);
+
+        translation.y += ENTITY_ON_TOP_OFFSET as f32;
+
+        // put it above the map
+        translation.z = (self.y + 1) as f32;
+    }
+
+    pub fn update_position(&mut self, direction: &Direction) {
+        match direction {
+            Direction::Up => self.decrement_y(),
+            Direction::Left => self.decrement_x(),
+            Direction::Down => self.increment_y(),
+            Direction::Right => self.increment_x(),
+        };
+    }
+
+    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>, on_top: bool) {
+        let mut translation = Vec3::default();
+        self.update_entity_translation(&mut translation);
+
+        if on_top {
+            translation.y += BOX_ENTITY_OFFSET as f32;
+            translation.z += 1.0;
+        }
+
+        let transform = Transform::from_translation(translation);
+        let bundle = SpriteBundle {
+            transform,
+            texture,
+            ..default()
+        };
+        commands.spawn_bundle(bundle).insert(*self);
+    }
+
+    pub fn spawn_player(
+        &self,
+        commands: &mut Commands,
+        texture_atlas: Handle<TextureAtlas>,
+        index: usize,
+    ) {
+        let mut translation = Vec3::default();
+        self.update_entity_translation(&mut translation);
+
+        translation.y += BOX_ENTITY_OFFSET as f32;
+        translation.z += 1.0;
+
+        let transform = Transform::from_translation(translation);
+        let bundle = SpriteSheetBundle {
+            sprite: TextureAtlasSprite { index, ..default() },
+            texture_atlas,
+            transform,
+            ..default()
+        };
+        commands.spawn_bundle(bundle).insert(CharacterMarker);
     }
 }

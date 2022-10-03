@@ -1,90 +1,29 @@
 mod ui;
 
-use bevy::prelude::*;
-use bevy_kira_audio::AudioChannel;
-use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
+use bevy::{app::Plugin as BevyPlugin, prelude::*};
+use iyes_loopless::prelude::*;
 
-use crate::{
-    core::state::GameState,
-    resources::{input::Action, prelude::*},
-};
+use crate::{resources::prelude::*, ui::OverlayMarker};
 
-use ui::{spawn_ui, UiMarker};
-pub struct InstructionsPlugin;
+pub struct Plugin;
 
-impl Plugin for InstructionsPlugin {
+impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(GameState::Instructions)
-                .with_system(setup)
-                .with_system(start_audio),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::Instructions)
-                .with_system(gather_input)
-                .with_system(handle_input),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState::Instructions)
-                .with_system(cleanup)
-                .with_system(stop_audio),
-        );
-    }
-}
-
-fn setup(
-    mut commands: Commands,
-    fonts: Res<Fonts>,
-    images: Res<Images>,
-    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
-) {
-    spawn_ui(&mut commands, &fonts, &images);
-    ignore_input_counter.start();
-}
-
-fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
-    music.play_looped(sounds.music.title.clone());
-}
-fn gather_input(
-    mut arcade_input_events: EventReader<ArcadeInputEvent>,
-    mut input_buffer: ResMut<GameInputBuffer>,
-    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
-) {
-    if ignore_input_counter.done() {
-        for event in arcade_input_events.iter() {
-            if event.value > 0.0 {
-                match event.arcade_input {
-                    ArcadeInput::JoyUp
-                    | ArcadeInput::JoyDown
-                    | ArcadeInput::JoyLeft
-                    | ArcadeInput::JoyRight => return,
-                    _ => input_buffer.insert(GameInput::pick()),
-                }
-            }
-        }
-    } else {
-        ignore_input_counter.tick();
+        app.add_enter_system(GameState::Instructions, self::ui::spawn)
+            .add_system(handle_input.run_in_state(GameState::Instructions))
+            .add_exit_system(GameState::Instructions, cleanup::<OverlayMarker>);
     }
 }
 
 fn handle_input(
-    sfx: Res<AudioChannel<Sfx>>,
-    sounds: Res<Sounds>,
-    mut game_state: ResMut<State<GameState>>,
-    mut input: ResMut<GameInputBuffer>,
+    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut action_event_reader: EventReader<ActionEvent>,
 ) {
-    if let Some(GameInput::Action(Action::Pick)) = input.pop() {
-        sfx.play(sounds.sfx.set_zone.clone());
-        game_state.set(GameState::stock_selection()).unwrap();
+    for action_event in action_event_reader.iter() {
+        match action_event.value {
+            Action::Pick => game_state_event_writer.send(SceneTransitionEvent::selection()),
+            Action::Exit => game_state_event_writer.send(SceneTransitionEvent::title()),
+            _ => (),
+        }
     }
-}
-
-fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
-    for entity in entities.iter() {
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
-fn stop_audio(music: Res<AudioChannel<Music>>) {
-    music.stop();
 }

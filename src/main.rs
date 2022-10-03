@@ -1,27 +1,16 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::prelude::*;
 use bevy_kira_audio::AudioPlugin;
-use bevy_rust_arcade::RustArcadePlugin;
 
-use pushin_boxes::{
-    config::ConfigPlugin,
-    core::state::GameState,
-    resources::{prelude::*, ResourcesPlugin},
-    scenes::ScenesPlugin,
-};
+use pushin_boxes::{config, resources, scenes};
 
 fn main() {
     App::new()
-        .add_plugin(ConfigPlugin)
+        .add_plugin(config::Plugin)
         .add_plugins(DefaultPlugins)
-        .add_plugin(RustArcadePlugin)
         .add_plugin(AudioPlugin)
-        .add_plugin(ResourcesPlugin)
-        .add_plugin(ScenesPlugin)
-        .insert_resource(GameInputBuffer::new())
-        .insert_resource(IgnoreInputCounter::default())
-        .insert_resource(ClearColor(Colors::DARK))
-        .add_state(GameState::Startup)
+        .add_plugin(resources::Plugin)
+        .add_plugin(scenes::Plugin)
         .run();
 }

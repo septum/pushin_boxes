@@ -9,12 +9,6 @@ impl Colors {
         blue: 70.0 / u8::MAX as f32,
         alpha: 1.0,
     };
-    pub const PRIMARY_LIGHT: Color = Color::Rgba {
-        red: 255.0 / u8::MAX as f32,
-        green: 230.0 / u8::MAX as f32,
-        blue: 90.0 / u8::MAX as f32,
-        alpha: 1.0,
-    };
     pub const PRIMARY_DARK: Color = Color::Rgba {
         red: 225.0 / u8::MAX as f32,
         green: 190.0 / u8::MAX as f32,
@@ -26,12 +20,6 @@ impl Colors {
         green: 255.0 / u8::MAX as f32,
         blue: 91.0 / u8::MAX as f32,
         alpha: 1.0,
-    };
-    pub const SECONDARY_TRANSPARENT: Color = Color::Rgba {
-        red: 108.0 / u8::MAX as f32,
-        green: 255.0 / u8::MAX as f32,
-        blue: 91.0 / u8::MAX as f32,
-        alpha: 0.5,
     };
     pub const LIGHT: Color = Color::Rgba {
         red: 227.0 / u8::MAX as f32,

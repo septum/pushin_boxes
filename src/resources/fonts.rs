@@ -1,19 +1,14 @@
-use bevy::{asset::LoadState, prelude::*};
+use bevy::prelude::*;
+use bevy_asset_loader::prelude::*;
 
+#[derive(AssetCollection)]
 pub struct Fonts {
-    pub upheavtt: Handle<Font>,
+    #[asset(path = "fonts/upheaval/upheaval.ttf")]
+    upheaval: Handle<Font>,
 }
 
 impl Fonts {
-    #[must_use]
-    pub fn load(asset_server: &Res<AssetServer>) -> Fonts {
-        Fonts {
-            upheavtt: asset_server.load("fonts/upheavtt/upheavtt.ttf"),
-        }
-    }
-
-    #[must_use]
-    pub fn all_loaded(&self, asset_server: &Res<AssetServer>) -> bool {
-        asset_server.get_load_state(self.upheavtt.clone()) == LoadState::Loaded
+    pub fn primary(&self) -> &Handle<Font> {
+        &self.upheaval
     }
 }

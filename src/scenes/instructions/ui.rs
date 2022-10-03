@@ -2,46 +2,31 @@ use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{EmbossedText, Housing, Overlay, Picture},
+    ui::{Container, GameText, Overlay, Picture, SimpleText},
 };
 
-#[derive(Component)]
-pub struct UiMarker;
+pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, images: Res<Images>) {
+    let font = fonts.primary();
 
-fn spawn_ui_camera(commands: &mut Commands) {
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        .insert(UiMarker);
-}
+    let overlay = Overlay::extended();
+    let top = Container::auto();
+    let bottom = Container::auto();
 
-pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, images: &Images) {
-    let font = &fonts.upheavtt;
+    let mut how_to_play = SimpleText::medium("How to Play", font);
+    let mut press_button = SimpleText::small("Press space to continue", font);
 
-    let overlay = Overlay::new();
-    let mut housing_a = Housing::percent(100.0, 10.0);
-    let mut housing_b = Housing::percent(100.0, 10.0);
+    let instructions = Picture::new(336.0, 463.0, &images.instructions);
 
-    let how_to_play = EmbossedText::medium("How to Play", font);
-    let press_button = EmbossedText::small("Press (any button) to continue", font);
+    how_to_play.primary();
+    press_button.primary();
 
-    let instructions = Picture::px(1280.0, 1024.0, &images.instructions);
-
-    housing_a.top(-320.0);
-    housing_b.top(320.0);
-
-    overlay.spawn(
-        commands,
-        |parent| {
-            instructions.spawn(parent);
-            housing_a.spawn(parent, |parent| {
-                how_to_play.spawn(parent);
-            });
-            housing_b.spawn(parent, |parent| {
-                press_button.spawn(parent);
-            });
-        },
-        UiMarker,
-    );
-
-    spawn_ui_camera(commands);
+    overlay.spawn(&mut commands, |parent| {
+        top.spawn(parent, |parent| {
+            how_to_play.spawn(parent);
+        });
+        instructions.spawn(parent);
+        bottom.spawn(parent, |parent| {
+            press_button.spawn(parent);
+        });
+    });
 }

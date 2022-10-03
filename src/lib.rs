@@ -1,18 +1,14 @@
-#![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::needless_pass_by_value)]
-#![allow(clippy::module_name_repetitions)]
-#![allow(clippy::type_complexity)]
-#![allow(clippy::too_many_arguments)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
 #![allow(clippy::cast_precision_loss)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::too_many_lines)]
+#![allow(clippy::missing_panics_doc)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::must_use_candidate)]
+#![allow(clippy::needless_pass_by_value)]
 
 pub mod config;
 
 pub mod resources;
-
-pub mod core;
 
 pub mod ui;
 

@@ -1,221 +1,101 @@
 mod ui;
 
-use bevy::prelude::*;
-use bevy_kira_audio::AudioChannel;
-use bevy_rust_arcade::{ArcadeInput, ArcadeInputEvent};
+use bevy::{app::Plugin as BevyPlugin, prelude::*};
+use bevy_kira_audio::{AudioChannel, AudioControl};
+use iyes_loopless::prelude::*;
 
 use crate::{
-    core::{self, state::GameState},
-    resources::{
-        input::{Action, Direction},
-        prelude::*,
-    },
-    ui::{ButtonKind, ButtonMarker, LevelKind},
+    resources::prelude::{Direction, *},
+    ui::{GameButtonData, OverlayMarker},
 };
 
-use ui::{spawn_ui, UiMarker};
+pub struct Plugin;
 
-pub struct SelectionPlugin;
-
-impl Plugin for SelectionPlugin {
+impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        add_systems_lifecycle(app, GameState::stock_selection());
+        app.add_enter_system(GameState::Selection, self::ui::spawn)
+            .add_system_set(
+                ConditionSet::new()
+                    .run_in_state(GameState::Selection)
+                    .with_system(handle_action_input.run_on_event::<ActionEvent>())
+                    .with_system(handle_direction_input.run_on_event::<DirectionEvent>())
+                    .with_system(play_direction_sfx.run_on_event::<DirectionEvent>())
+                    .into(),
+            )
+            .add_exit_system(GameState::Selection, cleanup::<OverlayMarker>);
     }
 }
 
-fn add_systems_lifecycle(app: &mut App, state: GameState) {
-    app.add_system_set(
-        SystemSet::on_enter(state.clone())
-            .with_system(setup)
-            .with_system(start_audio),
-    )
-    .add_system_set(
-        SystemSet::on_update(state.clone())
-            .with_system(gather_input)
-            .with_system(handle_input),
-    )
-    .add_system_set(
-        SystemSet::on_exit(state)
-            .with_system(cleanup)
-            .with_system(stop_audio),
-    );
-}
-
-fn setup(
-    mut commands: Commands,
-    fonts: Res<Fonts>,
+fn handle_direction_input(
+    mut query: Query<(&mut GameButtonData, &mut UiColor)>,
+    mut direction_event_reader: EventReader<DirectionEvent>,
     save_file: Res<SaveFile>,
-    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
 ) {
-    spawn_ui(&mut commands, &fonts, &save_file);
-    ignore_input_counter.start();
-}
-
-fn start_audio(sounds: Res<Sounds>, music: Res<AudioChannel<Music>>) {
-    music.play_looped(sounds.music.selection.clone());
-}
-
-fn gather_input(
-    mut arcade_input_events: EventReader<ArcadeInputEvent>,
-    mut input_buffer: ResMut<GameInputBuffer>,
-    mut ignore_input_counter: ResMut<IgnoreInputCounter>,
-) {
-    if ignore_input_counter.done() {
-        for event in arcade_input_events.iter() {
-            if event.value > 0.0 {
-                let input = match event.arcade_input {
-                    ArcadeInput::JoyUp => GameInput::up(),
-                    ArcadeInput::JoyDown => GameInput::down(),
-                    ArcadeInput::JoyLeft => GameInput::left(),
-                    ArcadeInput::JoyRight => GameInput::right(),
-                    ArcadeInput::JoyButton => GameInput::pick(),
-                    ArcadeInput::ButtonFront1 => GameInput::exit(),
-                    ArcadeInput::ButtonFront2 => GameInput::volume(),
-                    _ => return,
+    for direction_event in direction_event_reader.iter() {
+        let mut selected_index: Option<usize> = None;
+        for (button, _) in query.iter() {
+            if button.selected {
+                let index = match direction_event.value {
+                    Direction::Up => button.id.saturating_sub(4),
+                    Direction::Down => button.id + 4,
+                    Direction::Left => button.id.saturating_sub(1),
+                    Direction::Right => button.id + 1,
                 };
-                input_buffer.insert(input);
-            }
-        }
-    } else {
-        ignore_input_counter.tick();
-    }
-}
 
-fn handle_input(
-    mut commands: Commands,
-    level_states_assets: Res<Assets<LevelState>>,
-    level_handles: Res<LevelHandles>,
-    save_file: Res<SaveFile>,
-    sfx: Res<AudioChannel<Sfx>>,
-    music: Res<AudioChannel<Music>>,
-    mut sounds: ResMut<Sounds>,
-    mut game_state: ResMut<State<GameState>>,
-    mut query: Query<(&mut ButtonMarker, &mut UiColor)>,
-    mut input: ResMut<GameInputBuffer>,
-) {
-    let mut selected_button = None;
-
-    if let Some(input) = input.pop() {
-        let mut button_clicked = false;
-        let mut direction = None;
-
-        match input {
-            GameInput::Direction(input_direction) => {
-                sfx.play(sounds.sfx.move_player.clone());
-                direction = Some(input_direction);
-            }
-            GameInput::Action(Action::Pick) => {
-                sfx.play(sounds.sfx.set_zone.clone());
-                button_clicked = true;
-            }
-            GameInput::Action(Action::Exit) => {
-                sfx.play(sounds.sfx.push_box.clone());
-                game_state.set(GameState::Title).unwrap();
-            }
-            GameInput::Action(Action::Volume) => {
-                if sounds.volume < 0.1 {
-                    sounds.volume = 1.0;
+                selected_index = Some(if index < save_file.stock_levels_len() {
+                    index
                 } else {
-                    sounds.volume -= 0.25;
-                }
+                    save_file.stock_levels_len() - 1
+                });
 
-                music.set_volume(sounds.volume / 2.0);
-                sfx.set_volume(sounds.volume);
-
-                sfx.play(sounds.sfx.toggle_volume.clone());
+                break;
             }
-            GameInput::Action(_) => (),
         }
 
-        for (button, _) in query.iter_mut() {
-            if let (ButtonKind::Level(LevelKind::Stock(index)), selected) =
-                (&button.kind, button.selected)
-            {
-                if selected {
-                    if button_clicked {
-                        core::level::stock::insert(
-                            &mut commands,
-                            *index,
-                            &save_file,
-                            &level_handles,
-                            &level_states_assets,
-                        );
-                        game_state.set(GameState::Level).unwrap();
-                    }
-                    if let Some(direction) = &direction {
-                        let index = index + 1;
-                        let value = match direction {
-                            Direction::Up => {
-                                if index.saturating_sub(4) >= 1 {
-                                    index.saturating_sub(4)
-                                } else {
-                                    index + 12
-                                }
-                            }
-                            Direction::Down => {
-                                if index + 4 <= 16 {
-                                    index + 4
-                                } else {
-                                    index.saturating_sub(12)
-                                }
-                            }
-                            Direction::Left => {
-                                if index.saturating_sub(1) >= 1 {
-                                    index.saturating_sub(1)
-                                } else {
-                                    index + 15
-                                }
-                            }
-                            Direction::Right => {
-                                if index < 16 {
-                                    index + 1
-                                } else {
-                                    index.saturating_sub(15)
-                                }
-                            }
-                        };
-                        let value = if value <= save_file.stock_levels_len() {
-                            value
-                        } else if index > 1 {
-                            1
-                        } else {
-                            save_file.stock_levels_len()
-                        };
-
-                        selected_button = Some(value.saturating_sub(1));
-                    } else {
-                        selected_button = None;
-                    }
-                }
-            };
-        }
-    }
-
-    for (mut button, mut color) in query.iter_mut() {
-        if let Some(selected_index) = selected_button {
-            if let ButtonKind::Level(LevelKind::Stock(index)) = button.kind {
-                if selected_index == index {
+        if let Some(selected_index) = selected_index {
+            for (mut button, mut color) in query.iter_mut() {
+                if selected_index == button.id {
                     button.selected = true;
+                    *color = Colors::PRIMARY_DARK.into();
                 } else {
                     button.selected = false;
+                    *color = Colors::TRANSPARENT.into();
                 }
             }
         }
+    }
+}
 
-        if button.selected {
-            *color = Colors::PRIMARY_DARK.into();
-        } else {
-            *color = Colors::TRANSPARENT.into();
+fn handle_action_input(
+    mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
+    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+    mut query: Query<&mut GameButtonData>,
+    mut action_event_reader: EventReader<ActionEvent>,
+) {
+    for action_event in action_event_reader.iter() {
+        match action_event.value {
+            Action::Pick => {
+                for button in query.iter_mut() {
+                    if button.selected {
+                        level_insertion_event_writer
+                            .send(LevelInsertionEvent::new(LevelTag::Stock(button.id)));
+                    }
+                }
+            }
+            Action::Exit => {
+                scene_transition_event_writer.send(SceneTransitionEvent::title());
+            }
+            _ => (),
         }
     }
 }
 
-fn cleanup(mut commands: Commands, entities: Query<Entity, With<UiMarker>>) {
-    for entity in entities.iter() {
-        commands.entity(entity).despawn_recursive();
+pub fn play_direction_sfx(
+    mut direction_event_reader: EventReader<DirectionEvent>,
+    sounds: Res<Sounds>,
+    sfx: Res<AudioChannel<Sfx>>,
+) {
+    for _ in direction_event_reader.iter() {
+        sfx.play(sounds.sfx_move_player.clone());
     }
-}
-
-fn stop_audio(music: Res<AudioChannel<Music>>) {
-    music.stop();
 }

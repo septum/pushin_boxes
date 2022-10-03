@@ -1,138 +1,81 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{DynamicText, EmbossedText, Housing, Overlay, TextMarker},
+    ui::{Container, DynamicText, GameText, Overlay, SimpleText},
 };
 
-#[derive(Component)]
-pub struct UiMarker;
+use super::{MOVES_COUNTER_NAME, STOPWATCH_COUNTER_NAME, UNDOS_COUNTER_NAME};
 
-fn spawn_ui_camera(commands: &mut Commands) {
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        .insert(UiMarker);
-}
-
-pub fn spawn_ui(commands: &mut Commands, level: &Level, fonts: &Fonts) {
-    let font = &fonts.upheavtt;
+pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
+    let font = fonts.primary();
     let record_new_level = if level.is_record_set() {
-        let duration = Duration::from_secs_f32(level.record.1);
-        let milliseconds = duration.subsec_millis();
-        let seconds = duration.as_secs() % 60;
-        let minutes = (duration.as_secs() / 60) % 60;
-        let time = format!("{:02}:{:02}:{:03}", minutes, seconds, milliseconds);
-        format!("{} moves in {}", level.record.0, time)
+        level.record.moves_in_time(" ")
     } else {
         "New Level!".to_string()
     };
 
-    let mut overlay = Overlay::new();
-    let mut top = Housing::percent(97.0, 7.0);
-    let mut bottom = Housing::percent(97.0, 7.0);
+    let overlay = Overlay::extended();
+    let mut top = Container::auto_height();
+    let mut bottom = Container::auto_height();
 
-    let mut top_left = Housing::percent(50.0, 100.0);
-    let mut top_right = Housing::percent(50.0, 100.0);
-    let bottom_left = Housing::percent(50.0, 100.0);
-    let bottom_right = Housing::percent(50.0, 100.0);
+    let mut top_left = Container::half();
+    let mut top_right = Container::half();
+    let mut bottom_left = Container::half();
+    let mut bottom_right = Container::half();
 
-    let mut level_housing = Housing::percent(100.0, 100.0);
-    let mut stopwatch_housing = Housing::percent(100.0, 50.0);
-    let mut moves_housing = Housing::percent(100.0, 50.0);
-    let mut record_housing = Housing::percent(100.0, 50.0);
-    let mut reload_housing = Housing::percent(100.0, 50.0);
-    let mut selection_housing = Housing::percent(100.0, 50.0);
-    let mut undos_left_housing = Housing::percent(100.0, 50.0);
-    let mut undo_housing = Housing::percent(100.0, 50.0);
+    let mut stopwatch_housing = Container::auto_height_with_width(152.0);
 
-    let mut level_name = EmbossedText::medium(format!("Level {}", level.get_name()), font);
-    let mut record_new_level = EmbossedText::small(record_new_level, font);
-    let stopwatch = DynamicText::small("Time: ", font);
-    let moves = DynamicText::medium("Moves: ", font);
-    let undos_left = DynamicText::medium("Undos: ", font);
-    let undo = EmbossedText::small("(B) - Undo Movement", font);
-    let reload = EmbossedText::small("(X) - Reload Level", font);
-    let selection = EmbossedText::small("(L3) - Level Selection", font);
+    let level_name = SimpleText::medium(format!("Level {}", level.name()), font);
+    let mut record_new_level = SimpleText::small(record_new_level, font);
+    let mut stopwatch = DynamicText::small("Time: ", font);
+    let mut moves = DynamicText::medium("Moves: ", font);
+    let mut undos_left = DynamicText::medium("Undos: ", font);
+    let mut undo = SimpleText::small("(U) - Undo Movement", font);
+    let mut reload = SimpleText::small("(R) - Reload Level", font);
+    let mut selection = SimpleText::small("(L) - Level Selection", font);
 
-    level_name.foreground_color(Colors::LIGHT).size(54.0);
-    record_new_level.foreground_color(Colors::SECONDARY);
+    top.row().justify_between();
+    bottom.row().justify_between();
 
-    overlay.justify_content(JustifyContent::SpaceBetween);
-    top.flex_direction(FlexDirection::Row);
-    bottom.flex_direction(FlexDirection::Row);
+    top_left.justify_start().align_start();
+    top_right.justify_start().align_end();
+    bottom_left.justify_end().align_start();
+    bottom_right.justify_end().align_end();
 
-    top_left.align_items(AlignItems::FlexStart);
-    top_right.align_items(AlignItems::FlexEnd);
-    level_housing
-        .align_items(AlignItems::FlexStart)
-        .position_type(PositionType::Absolute)
-        .top(-6.0);
-    record_housing
-        .align_items(AlignItems::FlexStart)
-        .position_type(PositionType::Absolute)
-        .top(44.0);
-    moves_housing.align_items(AlignItems::FlexEnd);
-    stopwatch_housing
-        .width(Val::Px(152.0))
-        .align_items(AlignItems::FlexStart)
-        .position_type(PositionType::Absolute)
-        .top(44.0);
-    undo_housing.align_items(AlignItems::FlexEnd);
-    reload_housing
-        .align_items(AlignItems::FlexStart)
-        .position_type(PositionType::Absolute)
-        .top(-2.0);
-    selection_housing.align_items(AlignItems::FlexStart);
-    undos_left_housing
-        .align_items(AlignItems::FlexEnd)
-        .position_type(PositionType::Absolute)
-        .top(-8.0);
-    undo_housing.align_items(AlignItems::FlexEnd);
+    stopwatch_housing.align_start();
 
-    overlay.spawn(
-        commands,
-        |parent| {
-            top.spawn(parent, |parent| {
-                top_left.spawn(parent, |parent| {
-                    level_housing.spawn(parent, |parent| {
-                        level_name.spawn(parent);
-                    });
-                    record_housing.spawn(parent, |parent| {
-                        record_new_level.spawn(parent);
-                    });
-                });
-                top_right.spawn(parent, |parent| {
-                    moves_housing.spawn(parent, |parent| {
-                        moves.spawn(parent, TextMarker::moves());
-                    });
-                    stopwatch_housing.spawn(parent, |parent| {
-                        stopwatch.spawn(parent, TextMarker::stopwatch());
-                    });
+    stopwatch.marker(STOPWATCH_COUNTER_NAME);
+    moves.marker(MOVES_COUNTER_NAME);
+    undos_left.marker(UNDOS_COUNTER_NAME);
+
+    undo.primary();
+    reload.primary();
+    selection.primary();
+    record_new_level.secondary();
+
+    overlay.spawn(&mut commands, |parent| {
+        top.spawn(parent, |parent| {
+            top_left.spawn(parent, |parent| {
+                level_name.spawn(parent);
+                record_new_level.spawn(parent);
+            });
+            top_right.spawn(parent, |parent| {
+                moves.spawn(parent);
+                stopwatch_housing.spawn(parent, |parent| {
+                    stopwatch.spawn(parent);
                 });
             });
-            bottom.spawn(parent, |parent| {
-                bottom_left.spawn(parent, |parent| {
-                    reload_housing.spawn(parent, |parent| {
-                        reload.spawn(parent);
-                    });
-                    selection_housing.spawn(parent, |parent| {
-                        selection.spawn(parent);
-                    });
-                });
-                bottom_right.spawn(parent, |parent| {
-                    undos_left_housing.spawn(parent, |parent| {
-                        undos_left.spawn(parent, TextMarker::undos());
-                    });
-                    undo_housing.spawn(parent, |parent| {
-                        undo.spawn(parent);
-                    });
-                });
+        });
+        bottom.spawn(parent, |parent| {
+            bottom_left.spawn(parent, |parent| {
+                reload.spawn(parent);
+                selection.spawn(parent);
             });
-        },
-        UiMarker,
-    );
-
-    spawn_ui_camera(commands);
+            bottom_right.spawn(parent, |parent| {
+                undos_left.spawn(parent);
+                undo.spawn(parent);
+            });
+        });
+    });
 }

@@ -1,84 +1,59 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{ActionButton, ButtonMarker, EmbossedText, Housing, Overlay, SimpleText},
+    ui::{Container, GameButton, GameText, Overlay, SimpleText},
 };
-
-#[derive(Component)]
-pub struct UiMarker;
-
-fn spawn_ui_camera(commands: &mut Commands) {
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        .insert(UiMarker);
-}
 
 fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
     let last_index = save_file.stock_levels_len();
     for (index, record) in save_file.stock.iter().enumerate() {
-        let (text, color) = if record.0 > 0 {
-            let duration = Duration::from_secs_f32(record.1);
-            let milliseconds = duration.subsec_millis();
-            let seconds = duration.as_secs() % 60;
-            let minutes = (duration.as_secs() / 60) % 60;
-            let time = format!("{:02}:{:02}:{:03}", minutes, seconds, milliseconds);
-            (
-                format!("Record: {} moves\nin {}", record.0, time),
-                Colors::LIGHT,
-            )
+        let housing = Container::size_percentage(25.0, 25.0);
+        let mut button = GameButton::square(format!("{}", index + 1), font);
+        let record_new_level = if record.is_set() {
+            SimpleText::small(format!("Record: {}", record.moves_in_time("\n")), font)
         } else {
-            ("New Level!\n ".to_string(), Colors::SECONDARY)
+            let mut simple_text = SimpleText::small("New Level!\n ".to_string(), font);
+            simple_text.secondary();
+            simple_text
         };
 
-        let housing = Housing::percent(25.0, 25.0);
-        let button = ActionButton::square(format!("{}", index + 1), font);
-        let marker = ButtonMarker::stock_level(index, last_index == index + 1);
-        let mut record_new_level = SimpleText::small(text, font);
+        button.id(index);
 
-        record_new_level.color(color);
+        if last_index == index + 1 {
+            button.selected();
+        }
 
         housing.spawn(parent, |parent| {
-            button.spawn(parent, marker);
+            button.spawn(parent);
             record_new_level.spawn(parent);
         });
     }
 }
 
-pub fn spawn_ui(commands: &mut Commands, fonts: &Fonts, save_file: &SaveFile) {
-    let font = &fonts.upheavtt;
-    let overlay = Overlay::new();
-    let mut top = Housing::percent(100.0, 10.0);
-    let mut bottom = Housing::percent(100.0, 90.0);
+pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, save_file: Res<SaveFile>) {
+    let font = fonts.primary();
 
-    let title = EmbossedText::medium("Select a Level", font);
+    let overlay = Overlay::extended();
+    let top = Container::auto_height();
+    let mut bottom = Container::default();
 
-    top.flex_direction(FlexDirection::Row)
-        .justify_content(JustifyContent::SpaceBetween)
-        .left_padding(Val::Px(43.0))
-        .right_padding(Val::Px(43.0));
+    let mut title = SimpleText::medium("Select a Level", font);
 
+    title.primary();
     bottom
-        .flex_wrap(FlexWrap::WrapReverse)
-        .flex_direction(FlexDirection::Row)
-        .justify_content(JustifyContent::FlexStart)
-        .align_items(AlignItems::FlexStart)
-        .align_content(AlignContent::FlexStart);
+        .row()
+        .wrap_reverse()
+        .justify_start()
+        .items_start()
+        .content_start();
 
-    overlay.spawn(
-        commands,
-        |parent| {
-            top.spawn(parent, |parent| {
-                title.spawn(parent);
-            });
-            bottom.spawn(parent, |parent| {
-                spawn_stock_buttons(parent, save_file, font);
-            });
-        },
-        UiMarker,
-    );
-
-    spawn_ui_camera(commands);
+    overlay.spawn(&mut commands, |parent| {
+        top.spawn(parent, |parent| {
+            title.spawn(parent);
+        });
+        bottom.spawn(parent, |parent| {
+            spawn_stock_buttons(parent, &save_file, font);
+        });
+    });
 }

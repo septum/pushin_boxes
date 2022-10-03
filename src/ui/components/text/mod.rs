@@ -2,47 +2,90 @@ mod dynamic;
 mod embossed;
 mod simple;
 
-use bevy::prelude::*;
-
-pub use dynamic::DynamicText;
+pub use dynamic::{DynamicText, DynamicTextMarker};
 pub use embossed::EmbossedText;
 pub use simple::SimpleText;
 
-const ALIGNMENT: TextAlignment = TextAlignment {
-    vertical: VerticalAlign::Center,
-    horizontal: HorizontalAlign::Center,
-};
+use std::default::Default;
 
-#[derive(Component)]
-pub struct TextMarker {
-    pub kind: TextKind,
-}
+use bevy::prelude::*;
 
-pub enum TextKind {
-    Moves,
-    Undos,
-    Stopwatch,
-}
+use crate::resources::prelude::Colors;
 
-impl TextMarker {
-    #[must_use]
-    pub fn moves() -> TextMarker {
-        TextMarker {
-            kind: TextKind::Moves,
-        }
+pub trait GameText: Default {
+    const SIZE_SMALL: f32 = 18.0;
+    const SIZE_MEDIUM: f32 = 36.0;
+    const SIZE_LARGE: f32 = 90.0;
+    const SIZE_EXTRA_LARGE: f32 = 108.0;
+
+    fn small<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> Self {
+        let mut game_text = Self::default();
+
+        game_text.for_each_section(|section| {
+            section.value = value.clone().into();
+            section.style.font = font.clone();
+            section.style.font_size = Self::SIZE_SMALL;
+        });
+
+        game_text
     }
 
-    #[must_use]
-    pub fn undos() -> TextMarker {
-        TextMarker {
-            kind: TextKind::Undos,
-        }
+    fn medium<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> Self {
+        let mut game_text = Self::default();
+
+        game_text.for_each_section(|section| {
+            section.value = value.clone().into();
+            section.style.font = font.clone();
+            section.style.font_size = Self::SIZE_MEDIUM;
+        });
+
+        game_text
     }
 
-    #[must_use]
-    pub fn stopwatch() -> TextMarker {
-        TextMarker {
-            kind: TextKind::Stopwatch,
-        }
+    fn large<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> Self {
+        let mut game_text = Self::default();
+
+        game_text.for_each_section(|section| {
+            section.value = value.clone().into();
+            section.style.font = font.clone();
+            section.style.font_size = Self::SIZE_LARGE;
+        });
+
+        game_text
     }
+
+    fn extra_large<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> Self {
+        let mut game_text = Self::default();
+
+        game_text.for_each_section(|section| {
+            section.value = value.clone().into();
+            section.style.font = font.clone();
+            section.style.font_size = Self::SIZE_EXTRA_LARGE;
+        });
+
+        game_text
+    }
+
+    fn for_each_section(&mut self, f: impl FnMut(&mut TextSection)) {
+        self.text_bundle().text.sections.iter_mut().for_each(f);
+    }
+
+    fn primary(&mut self) -> &mut Self {
+        self.for_each_section(|section| section.style.color = Colors::PRIMARY);
+        self
+    }
+
+    fn secondary(&mut self) -> &mut Self {
+        self.for_each_section(|section| section.style.color = Colors::SECONDARY);
+        self
+    }
+
+    fn light(&mut self) -> &mut Self {
+        self.for_each_section(|section| section.style.color = Colors::LIGHT);
+        self
+    }
+
+    fn text_bundle(&mut self) -> &mut TextBundle;
+
+    fn spawn(self, parent: &mut ChildBuilder);
 }
