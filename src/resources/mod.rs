@@ -65,7 +65,7 @@ impl BevyPlugin for Plugin {
                 ConditionSet::new()
                     .run_if_resource_added::<SaveFile>()
                     .with_system(camera::setup)
-                    .with_system(sounds::setup_volume)
+                    .with_system(sounds::setup)
                     .into(),
             );
     }

@@ -12,8 +12,7 @@ pub struct Music;
 
 #[derive(AssetCollection)]
 pub struct Sounds {
-    sfx_volume: f64,
-    music_volume: f64,
+    volume: f64,
     #[asset(path = "sounds/sfx/move_player.wav")]
     pub sfx_move_player: Handle<AudioSource>,
     #[asset(path = "sounds/sfx/push_box.wav")]
@@ -37,19 +36,27 @@ pub struct Sounds {
 }
 
 impl Sounds {
-    pub fn reset_volume(&mut self) {
-        self.music_volume = 1.0;
-        self.sfx_volume = 1.0;
+    fn reset_volume(&mut self) {
+        self.volume = 1.0;
     }
 
-    pub fn toggle_volume(&mut self) {
-        if self.music_volume > 0.0 {
-            self.music_volume -= 0.25;
-            self.sfx_volume -= 0.25;
+    fn toggle_volume(&mut self) {
+        if self.volume > 0.0 {
+            self.volume -= 0.25;
         } else {
             self.reset_volume();
         }
     }
+}
+
+pub fn setup(
+    mut sounds: ResMut<Sounds>,
+    sfx: ResMut<AudioChannel<Sfx>>,
+    music: ResMut<AudioChannel<Music>>,
+) {
+    sounds.reset_volume();
+    music.set_volume(sounds.volume);
+    sfx.set_volume(sounds.volume);
 }
 
 pub struct Plugin;
@@ -67,17 +74,7 @@ impl BevyPlugin for Plugin {
     }
 }
 
-pub fn setup_volume(
-    mut sounds: ResMut<Sounds>,
-    sfx: ResMut<AudioChannel<Sfx>>,
-    music: ResMut<AudioChannel<Music>>,
-) {
-    sounds.reset_volume();
-    music.set_volume(sounds.music_volume);
-    sfx.set_volume(sounds.sfx_volume);
-}
-
-pub fn handle_volume_input(
+fn handle_volume_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut sounds: ResMut<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
@@ -86,13 +83,13 @@ pub fn handle_volume_input(
     for action_event in action_event_reader.iter() {
         if matches!(action_event.value, ActionInput::Volume) {
             sounds.toggle_volume();
-            music.set_volume(sounds.music_volume);
-            sfx.set_volume(sounds.sfx_volume);
+            music.set_volume(sounds.volume);
+            sfx.set_volume(sounds.volume);
         }
     }
 }
 
-pub fn play_music(
+fn play_music(
     sounds: Res<Sounds>,
     music: Res<AudioChannel<Music>>,
     game_state: Res<CurrentState<GameState>>,
@@ -111,7 +108,7 @@ pub fn play_music(
     }
 }
 
-pub fn play_sfx(
+fn play_sfx(
     mut action_event_reader: EventReader<ActionInputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
