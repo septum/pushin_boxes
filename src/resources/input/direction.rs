@@ -1,36 +1,36 @@
-pub enum Direction {
+pub enum DirectionInput {
     Up,
     Down,
     Left,
     Right,
 }
 
-pub struct DirectionEvent {
-    pub value: Direction,
+pub struct DirectionInputEvent {
+    pub value: DirectionInput,
 }
 
-impl DirectionEvent {
-    pub fn up() -> DirectionEvent {
-        DirectionEvent {
-            value: Direction::Up,
+impl DirectionInputEvent {
+    pub fn up() -> DirectionInputEvent {
+        DirectionInputEvent {
+            value: DirectionInput::Up,
         }
     }
 
-    pub fn down() -> DirectionEvent {
-        DirectionEvent {
-            value: Direction::Down,
+    pub fn down() -> DirectionInputEvent {
+        DirectionInputEvent {
+            value: DirectionInput::Down,
         }
     }
 
-    pub fn left() -> DirectionEvent {
-        DirectionEvent {
-            value: Direction::Left,
+    pub fn left() -> DirectionInputEvent {
+        DirectionInputEvent {
+            value: DirectionInput::Left,
         }
     }
 
-    pub fn right() -> DirectionEvent {
-        DirectionEvent {
-            value: Direction::Right,
+    pub fn right() -> DirectionInputEvent {
+        DirectionInputEvent {
+            value: DirectionInput::Right,
         }
     }
 }

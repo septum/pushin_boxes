@@ -8,7 +8,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
 
 use crate::{
-    resources::prelude::{Direction, *},
+    resources::prelude::*,
     ui::{GameButtonData, OverlayMarker},
 };
 
@@ -30,9 +30,9 @@ impl BevyPlugin for Plugin {
             ConditionSet::new()
                 .run_in_state(GameState::Title)
                 .with_system(update_character_animation)
-                .with_system(handle_action_input.run_on_event::<ActionEvent>())
-                .with_system(handle_direction_input.run_on_event::<DirectionEvent>())
-                .with_system(play_direction_sfx.run_on_event::<DirectionEvent>())
+                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
+                .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
+                .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
                 .into(),
         )
         .add_exit_system_set(
@@ -46,11 +46,14 @@ impl BevyPlugin for Plugin {
 
 fn handle_direction_input(
     mut query: Query<(&mut GameButtonData, &mut UiColor)>,
-    mut direction_event_reader: EventReader<DirectionEvent>,
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
 ) {
     for direction_event in direction_event_reader.iter() {
-        if matches!(direction_event.value, Direction::Up | Direction::Down) {
-            let up = matches!(direction_event.value, Direction::Up);
+        if matches!(
+            direction_event.value,
+            DirectionInput::Up | DirectionInput::Down
+        ) {
+            let up = matches!(direction_event.value, DirectionInput::Up);
             let mut selected_id = None;
             for (button, _) in query.iter() {
                 if button.selected {
@@ -80,12 +83,12 @@ fn handle_direction_input(
 fn handle_action_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut query: Query<&mut GameButtonData>,
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            Action::Pick => {
+            ActionInput::Pick => {
                 for button in query.iter_mut() {
                     if button.selected {
                         match button.id {
@@ -103,14 +106,14 @@ fn handle_action_input(
                     }
                 }
             }
-            Action::Exit => exit.send(AppExit),
+            ActionInput::Exit => exit.send(AppExit),
             _ => (),
         }
     }
 }
 
 pub fn play_direction_sfx(
-    mut direction_event_reader: EventReader<DirectionEvent>,
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {

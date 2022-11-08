@@ -60,8 +60,8 @@ impl BevyPlugin for Plugin {
             ConditionSet::new()
                 .run_if_resource_exists::<Sounds>()
                 .with_system(play_music)
-                .with_system(handle_volume_input.run_on_event::<ActionEvent>())
-                .with_system(play_sfx.run_on_event::<ActionEvent>())
+                .with_system(handle_volume_input.run_on_event::<ActionInputEvent>())
+                .with_system(play_sfx.run_on_event::<ActionInputEvent>())
                 .into(),
         );
     }
@@ -78,13 +78,13 @@ pub fn setup_volume(
 }
 
 pub fn handle_volume_input(
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
     mut sounds: ResMut<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
     music: Res<AudioChannel<Music>>,
 ) {
     for action_event in action_event_reader.iter() {
-        if matches!(action_event.value, Action::Volume) {
+        if matches!(action_event.value, ActionInput::Volume) {
             sounds.toggle_volume();
             music.set_volume(sounds.music_volume);
             sfx.set_volume(sounds.sfx_volume);
@@ -112,19 +112,19 @@ pub fn play_music(
 }
 
 pub fn play_sfx(
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            Action::Selection | Action::Exit => {
+            ActionInput::Selection | ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
             }
-            Action::Volume => {
+            ActionInput::Volume => {
                 sfx.play(sounds.sfx_toggle_volume.clone());
             }
-            Action::Pick => {
+            ActionInput::Pick => {
                 sfx.play(sounds.sfx_set_zone.clone());
             }
             _ => (),

@@ -17,7 +17,7 @@ pub mod prelude {
     pub use super::colors::Colors;
     pub use super::fonts::Fonts;
     pub use super::images::Images;
-    pub use super::input::{Action, ActionEvent, Direction, DirectionEvent};
+    pub use super::input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent};
     pub use super::level::prelude::*;
     pub use super::save_file::{SaveFile, SaveFileHandle};
     pub use super::scene::SceneTransitionEvent;

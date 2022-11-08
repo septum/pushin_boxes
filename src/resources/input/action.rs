@@ -1,4 +1,4 @@
-pub enum Action {
+pub enum ActionInput {
     Undo,
     Reload,
     Selection,
@@ -7,44 +7,44 @@ pub enum Action {
     Exit,
 }
 
-pub struct ActionEvent {
-    pub value: Action,
+pub struct ActionInputEvent {
+    pub value: ActionInput,
 }
 
-impl ActionEvent {
-    pub fn undo() -> ActionEvent {
-        ActionEvent {
-            value: Action::Undo,
+impl ActionInputEvent {
+    pub fn undo() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Undo,
         }
     }
 
-    pub fn reload() -> ActionEvent {
-        ActionEvent {
-            value: Action::Reload,
+    pub fn reload() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Reload,
         }
     }
 
-    pub fn selection() -> ActionEvent {
-        ActionEvent {
-            value: Action::Selection,
+    pub fn selection() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Selection,
         }
     }
 
-    pub fn pick() -> ActionEvent {
-        ActionEvent {
-            value: Action::Pick,
+    pub fn pick() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Pick,
         }
     }
 
-    pub fn volume() -> ActionEvent {
-        ActionEvent {
-            value: Action::Volume,
+    pub fn volume() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Volume,
         }
     }
 
-    pub fn exit() -> ActionEvent {
-        ActionEvent {
-            value: Action::Exit,
+    pub fn exit() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Exit,
         }
     }
 }

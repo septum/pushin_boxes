@@ -26,8 +26,8 @@ impl BevyPlugin for Plugin {
         .add_system_set(
             ConditionSet::new()
                 .run_in_state(GameState::Level)
-                .with_system(handle_direction_input.run_on_event::<DirectionEvent>())
-                .with_system(handle_action_input.run_on_event::<ActionEvent>())
+                .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
+                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
                 .with_system(update_character_position)
                 .with_system(update_character_sprite)
                 .with_system(update_counters)
@@ -52,7 +52,7 @@ fn spawn_level(mut commands: Commands, mut level: ResMut<Level>, images: Res<Ima
 
 fn handle_action_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
     mut level: ResMut<Level>,
     levels: Res<LevelHandles>,
     level_states: Res<Assets<LevelState>>,
@@ -61,17 +61,17 @@ fn handle_action_input(
 ) {
     for action_event in action_event_reader.iter() {
         match &action_event.value {
-            Action::Undo => {
+            ActionInput::Undo => {
                 if level.undo() {
                     sfx.play(sounds.sfx_undo_move.clone());
                 }
             }
-            Action::Reload => {
+            ActionInput::Reload => {
                 if level.reload(&levels, &level_states) {
                     sfx.play(sounds.sfx_reload_level.clone());
                 }
             }
-            Action::Selection | Action::Exit => {
+            ActionInput::Selection | ActionInput::Exit => {
                 game_state_event_writer.send(SceneTransitionEvent::selection());
             }
             _ => (),
@@ -80,7 +80,7 @@ fn handle_action_input(
 }
 
 fn handle_direction_input(
-    mut direction_event_reader: EventReader<DirectionEvent>,
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
     mut level: ResMut<Level>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,

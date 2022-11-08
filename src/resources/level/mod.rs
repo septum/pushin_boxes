@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 
 use snapshots::{LevelSnapshots, MAX_SNAPSHOTS};
 
-use super::prelude::{Direction, *};
+use super::prelude::*;
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
 
@@ -267,12 +267,12 @@ impl Level {
     }
 
     // TODO: This is the sprite _row_
-    pub fn set_sprite_index_with(&mut self, direction: &Direction) {
+    pub fn set_sprite_index_with(&mut self, direction: &DirectionInput) {
         match direction {
-            Direction::Down => self.state.sprite_index = 0,
-            Direction::Up => self.state.sprite_index = 1,
-            Direction::Left => self.state.sprite_index = 2,
-            Direction::Right => self.state.sprite_index = 3,
+            DirectionInput::Down => self.state.sprite_index = 0,
+            DirectionInput::Up => self.state.sprite_index = 1,
+            DirectionInput::Left => self.state.sprite_index = 2,
+            DirectionInput::Right => self.state.sprite_index = 3,
         }
     }
 

@@ -6,7 +6,7 @@ use crate::resources::{
         BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, ENTITY_SURFACE_OFFSET, MAP_COLS,
         MAP_HEIGHT, MAP_ROWS, MAP_WIDTH, SPRITE_OFFSET, SPRITE_SIZE,
     },
-    prelude::{CharacterMarker, Direction},
+    prelude::*,
 };
 
 #[derive(Component, Serialize, Deserialize, Clone, Copy)]
@@ -71,12 +71,12 @@ impl MapPosition {
         translation.z = (self.y + 1) as f32;
     }
 
-    pub fn update_position(&mut self, direction: &Direction) {
+    pub fn update_position(&mut self, direction: &DirectionInput) {
         match direction {
-            Direction::Up => self.decrement_y(),
-            Direction::Left => self.decrement_x(),
-            Direction::Down => self.increment_y(),
-            Direction::Right => self.increment_x(),
+            DirectionInput::Up => self.decrement_y(),
+            DirectionInput::Left => self.decrement_x(),
+            DirectionInput::Down => self.increment_y(),
+            DirectionInput::Right => self.increment_x(),
         };
     }
 

@@ -19,7 +19,7 @@ impl BevyPlugin for Plugin {
         .add_system_set(
             ConditionSet::new()
                 .run_in_state(GameState::Win)
-                .with_system(handle_action_input.run_on_event::<ActionEvent>())
+                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
                 .with_system(update_character_animation)
                 .into(),
         )
@@ -37,12 +37,12 @@ fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
 fn handle_action_input(
     mut level_instertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
     level: Res<Level>,
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            Action::Pick => {
+            ActionInput::Pick => {
                 match &level.tag {
                     LevelTag::Stock(index) => {
                         if level.is_last() {
@@ -54,7 +54,7 @@ fn handle_action_input(
                     }
                 };
             }
-            Action::Exit => {
+            ActionInput::Exit => {
                 game_state_event_writer.send(SceneTransitionEvent::title());
             }
             _ => {}

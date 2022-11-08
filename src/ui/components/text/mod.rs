@@ -10,7 +10,7 @@ use std::default::Default;
 
 use bevy::prelude::*;
 
-use crate::resources::prelude::Colors;
+use crate::resources::prelude::*;
 
 pub trait GameText: Default {
     const SIZE_SMALL: f32 = 18.0;

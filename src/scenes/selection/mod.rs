@@ -5,7 +5,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
 
 use crate::{
-    resources::prelude::{Direction, *},
+    resources::prelude::*,
     ui::{GameButtonData, OverlayMarker},
 };
 
@@ -17,9 +17,9 @@ impl BevyPlugin for Plugin {
             .add_system_set(
                 ConditionSet::new()
                     .run_in_state(GameState::Selection)
-                    .with_system(handle_action_input.run_on_event::<ActionEvent>())
-                    .with_system(handle_direction_input.run_on_event::<DirectionEvent>())
-                    .with_system(play_direction_sfx.run_on_event::<DirectionEvent>())
+                    .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
+                    .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
+                    .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
                     .into(),
             )
             .add_exit_system(GameState::Selection, cleanup::<OverlayMarker>);
@@ -28,7 +28,7 @@ impl BevyPlugin for Plugin {
 
 fn handle_direction_input(
     mut query: Query<(&mut GameButtonData, &mut UiColor)>,
-    mut direction_event_reader: EventReader<DirectionEvent>,
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
     save_file: Res<SaveFile>,
 ) {
     for direction_event in direction_event_reader.iter() {
@@ -36,10 +36,10 @@ fn handle_direction_input(
         for (button, _) in query.iter() {
             if button.selected {
                 let index = match direction_event.value {
-                    Direction::Up => button.id.saturating_sub(4),
-                    Direction::Down => button.id + 4,
-                    Direction::Left => button.id.saturating_sub(1),
-                    Direction::Right => button.id + 1,
+                    DirectionInput::Up => button.id.saturating_sub(4),
+                    DirectionInput::Down => button.id + 4,
+                    DirectionInput::Left => button.id.saturating_sub(1),
+                    DirectionInput::Right => button.id + 1,
                 };
 
                 selected_index = Some(if index < save_file.stock_levels_len() {
@@ -70,11 +70,11 @@ fn handle_action_input(
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
     mut query: Query<&mut GameButtonData>,
-    mut action_event_reader: EventReader<ActionEvent>,
+    mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            Action::Pick => {
+            ActionInput::Pick => {
                 for button in query.iter_mut() {
                     if button.selected {
                         level_insertion_event_writer
@@ -82,7 +82,7 @@ fn handle_action_input(
                     }
                 }
             }
-            Action::Exit => {
+            ActionInput::Exit => {
                 scene_transition_event_writer.send(SceneTransitionEvent::title());
             }
             _ => (),
@@ -91,7 +91,7 @@ fn handle_action_input(
 }
 
 pub fn play_direction_sfx(
-    mut direction_event_reader: EventReader<DirectionEvent>,
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {

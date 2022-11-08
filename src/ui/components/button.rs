@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::resources::prelude::Colors;
+use crate::resources::prelude::*;
 
 use super::text::{EmbossedText, GameText};
 

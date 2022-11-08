@@ -18,8 +18,8 @@ impl BevyPlugin for Plugin {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Colors::DARK))
         .add_loopless_state(GameState::Loading)
-        .add_event::<ActionEvent>()
-        .add_event::<DirectionEvent>()
+        .add_event::<ActionInputEvent>()
+        .add_event::<DirectionInputEvent>()
         .add_event::<SceneTransitionEvent>()
         .add_event::<LevelInsertionEvent>();
     }
