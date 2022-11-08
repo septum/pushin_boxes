@@ -42,10 +42,10 @@ fn handle_direction_input(
                     DirectionInput::Right => button.id + 1,
                 };
 
-                selected_index = Some(if index < save_file.stock_levels_len() {
+                selected_index = Some(if index < save_file.unlocked_levels() {
                     index
                 } else {
-                    save_file.stock_levels_len() - 1
+                    save_file.unlocked_levels() - 1
                 });
 
                 break;

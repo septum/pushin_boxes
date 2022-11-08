@@ -18,7 +18,7 @@ impl BevyPlugin for Plugin {
     }
 }
 
-pub fn gather_input(
+fn gather_input(
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut action_event_writer: EventWriter<ActionInputEvent>,
     mut direction_event_writer: EventWriter<DirectionInputEvent>,
@@ -44,7 +44,7 @@ pub fn gather_input(
     }
 }
 
-pub fn clear_input(
+fn clear_input(
     mut action_events: ResMut<Events<ActionInputEvent>>,
     mut direction_events: ResMut<Events<DirectionInputEvent>>,
 ) {

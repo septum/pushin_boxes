@@ -29,8 +29,8 @@ impl BevyPlugin for Plugin {
 }
 
 fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    save_file.set_if_new_record(&level);
-    save_file.unlock_if_new_level(&level);
+    save_file.set_new_record(&level);
+    save_file.unlock_new_level(&level);
     save_file.save();
 }
 

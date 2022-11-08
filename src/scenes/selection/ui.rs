@@ -6,8 +6,8 @@ use crate::{
 };
 
 fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
-    let last_index = save_file.stock_levels_len();
-    for (index, record) in save_file.stock.iter().enumerate() {
+    let last_unlocked_index = save_file.unlocked_levels() - 1;
+    for (index, record) in save_file.enumerated_stock_records() {
         let housing = Container::size_percentage(25.0, 25.0);
         let mut button = GameButton::square(format!("{}", index + 1), font);
         let record_new_level = if record.is_set() {
@@ -20,7 +20,7 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
 
         button.id(index);
 
-        if last_index == index + 1 {
+        if last_unlocked_index == index {
             button.selected();
         }
 

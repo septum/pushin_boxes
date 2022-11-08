@@ -66,7 +66,7 @@ pub fn insert_level(
         let state = *level_states_assets
             .get(&level_handles.stock[*index])
             .unwrap();
-        let record = save_file.get_stock_level_record(index);
+        let record = save_file.get_record(&level_insertion_event.tag);
         let level = Level::new(level_insertion_event.tag.clone(), state, record);
 
         commands.insert_resource(level);
@@ -122,7 +122,7 @@ impl LevelRecord {
         format!("{moves} moves{separator}in {time}")
     }
 
-    pub fn is_new_record(&self, other: &LevelRecord) -> bool {
+    pub fn is_better_than(&self, other: &LevelRecord) -> bool {
         self.moves == 0
             || self.moves > other.moves
             || self.moves >= other.moves && self.time > other.time
