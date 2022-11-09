@@ -17,8 +17,8 @@ pub struct Images {
         padding_x = 4.,
         padding_y = 4.
     ))]
-    #[asset(path = "images/player/spritesheet.png")]
-    pub player_atlas: Handle<TextureAtlas>,
+    #[asset(path = "images/character/spritesheet.png")]
+    pub character_atlas: Handle<TextureAtlas>,
     #[asset(path = "images/instructions.png")]
     pub instructions: Handle<Image>,
 }

@@ -5,7 +5,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
 
 use crate::{
-    resources::{level::BOX_ENTITY_OFFSET, prelude::*},
+    resources::prelude::*,
     ui::{DynamicTextMarker, OverlayMarker},
 };
 
@@ -21,7 +21,8 @@ impl BevyPlugin for Plugin {
             GameState::Level,
             SystemSet::new()
                 .with_system(self::ui::spawn)
-                .with_system(spawn_level),
+                .with_system(spawn_level)
+                .with_system(CharacterAnimation::insert_level_character_animation),
         )
         .add_system_set(
             ConditionSet::new()
@@ -33,7 +34,7 @@ impl BevyPlugin for Plugin {
                 .with_system(update_counters)
                 .with_system(update_map)
                 .with_system(update_level_state)
-                .with_system(check_lever_timer_finished)
+                .with_system(check_lever_timer_just_finished)
                 .into(),
         )
         .add_exit_system_set(
@@ -54,8 +55,8 @@ fn handle_action_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut level: ResMut<Level>,
-    levels: Res<LevelHandles>,
-    level_states: Res<Assets<LevelState>>,
+    level_handles: Res<LevelHandles>,
+    level_states_assets: Res<Assets<LevelState>>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
@@ -67,7 +68,7 @@ fn handle_action_input(
                 }
             }
             ActionInput::Reload => {
-                if level.reload(&levels, &level_states) {
+                if level.reload(&level_handles, &level_states_assets) {
                     sfx.play(sounds.sfx_reload_level.clone());
                 }
             }
@@ -87,9 +88,9 @@ fn handle_direction_input(
 ) {
     for direction_event in direction_event_reader.iter() {
         let direction = &direction_event.value;
-        level.set_sprite_index_with(direction);
+        level.set_animation_row_with(direction);
 
-        let mut next_position = level.state.player_position;
+        let mut next_position = level.character_position();
         next_position.update_position(direction);
 
         let next_entity = level.get_entity(&next_position);
@@ -104,13 +105,13 @@ fn handle_direction_input(
                 let adjacent_entity = level.get_entity(&adjacent_position);
                 match adjacent_entity {
                     MapEntity::F => {
-                        sfx.play(sounds.sfx_move_player.clone());
+                        sfx.play(sounds.sfx_move_character.clone());
                         sfx.play(sounds.sfx_push_box.clone());
 
                         level.save_snapshot();
                         level.set_entity(&next_position, updated_next_entity);
                         level.set_entity(&adjacent_position, MapEntity::B);
-                        level.move_player(next_position);
+                        level.move_character(next_position);
                         level.increment_moves();
 
                         if in_zone {
@@ -118,14 +119,14 @@ fn handle_direction_input(
                         }
                     }
                     MapEntity::Z => {
-                        sfx.play(sounds.sfx_move_player.clone());
+                        sfx.play(sounds.sfx_move_character.clone());
                         sfx.play(sounds.sfx_push_box.clone());
                         sfx.play(sounds.sfx_set_zone.clone());
 
                         level.save_snapshot();
                         level.set_entity(&next_position, updated_next_entity);
                         level.set_entity(&adjacent_position, MapEntity::P);
-                        level.move_player(next_position);
+                        level.move_character(next_position);
                         level.increment_moves();
 
                         if !in_zone {
@@ -138,9 +139,9 @@ fn handle_direction_input(
             MapEntity::W => {}
             _ => {
                 level.save_snapshot();
-                level.move_player(next_position);
+                level.move_character(next_position);
                 level.increment_moves();
-                sfx.play(sounds.sfx_move_player.clone());
+                sfx.play(sounds.sfx_move_character.clone());
             }
         }
     }
@@ -152,21 +153,50 @@ fn update_character_position(
 ) {
     let mut transform = query.single_mut();
     level
-        .state
-        .player_position
-        .update_player_translation(&mut transform.translation);
+        .character_position()
+        .update_character_translation(&mut transform.translation);
 }
 
 fn update_character_sprite(
     time: Res<Time>,
-    mut level: ResMut<Level>,
+    level: Res<Level>,
+    mut character_animation: ResMut<CharacterAnimation>,
     mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
 ) {
     let mut sprite = query.single_mut();
-    let level_sprite_index = level.get_sprite_index();
-    sprite.index = level
-        .animation
-        .update_sprite_index(time.delta(), level_sprite_index);
+    let level_animation_row = level.get_animation_row();
+
+    character_animation.tick(time.delta());
+
+    if level_animation_row == 0 {
+        if character_animation.secondary_timer_just_finished() {
+            character_animation.set_blink_row();
+            character_animation.reset_primary_timer();
+        }
+
+        if character_animation.tertiary_timer_just_finished() {
+            character_animation.set_sleep_row();
+            character_animation.reset_primary_timer();
+        }
+    } else {
+        character_animation.reset_secondary_timer();
+        character_animation.reset_tertiary_timer();
+    }
+
+    if !character_animation.row_is(level_animation_row)
+        && !character_animation.secondary_timer_finished()
+        && !character_animation.tertiary_timer_finished()
+    {
+        character_animation.reset_primary_timer();
+        character_animation.reset_index();
+        character_animation.set_row(level_animation_row);
+    }
+
+    if character_animation.primary_timer_just_finished() {
+        character_animation.next_index();
+    }
+
+    sprite.index = character_animation.sprite_index();
 }
 
 fn update_counters(
@@ -175,8 +205,8 @@ fn update_counters(
 ) {
     for (mut text, marker) in texts.iter_mut() {
         text.sections[1].value = match marker.name.as_str() {
-            MOVES_COUNTER_NAME => level.moves.to_string(),
-            UNDOS_COUNTER_NAME => level.undos.to_string(),
+            MOVES_COUNTER_NAME => level.moves_string(),
+            UNDOS_COUNTER_NAME => level.undos_string(),
             STOPWATCH_COUNTER_NAME => level.stopwatch_string(),
             _ => unreachable!("The marker name does not exists"),
         };
@@ -190,17 +220,13 @@ fn update_map(
 ) {
     for (mut image, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
+        let is_box = matches!(map_entity, MapEntity::B | MapEntity::P);
 
         if let Some(entity_image) = map_entity.to_image(&images) {
             *image = entity_image;
         }
 
-        position.update_entity_translation(&mut transform.translation);
-
-        if matches!(map_entity, MapEntity::B | MapEntity::P) {
-            transform.translation.y += BOX_ENTITY_OFFSET as f32;
-            transform.translation.z += 1.0;
-        }
+        position.update_entity_translation(&mut transform.translation, is_box);
     }
 }
 
@@ -213,11 +239,11 @@ fn update_level_state(time: Res<Time>, mut level: ResMut<Level>) {
     }
 }
 
-fn check_lever_timer_finished(
+fn check_lever_timer_just_finished(
     mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
     level: Res<Level>,
 ) {
-    if level.timer_finished() {
+    if level.timer_just_finished() {
         scene_transition_event_writer.send(SceneTransitionEvent::win());
     }
 }

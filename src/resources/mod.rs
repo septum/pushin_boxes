@@ -13,7 +13,7 @@ mod systems;
 pub mod level;
 
 pub mod prelude {
-    pub use super::animations::{CharacterAnimation, BLINK_ROW_LAST_FRAME_INDEX};
+    pub use super::animations::{CharacterAnimation, CharacterMarker, BLINK_ROW_LAST_FRAME_INDEX};
     pub use super::colors::Colors;
     pub use super::fonts::Fonts;
     pub use super::images::Images;

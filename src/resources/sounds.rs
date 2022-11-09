@@ -13,8 +13,8 @@ pub struct Music;
 #[derive(AssetCollection)]
 pub struct Sounds {
     volume: f64,
-    #[asset(path = "sounds/sfx/move_player.wav")]
-    pub sfx_move_player: Handle<AudioSource>,
+    #[asset(path = "sounds/sfx/move_character.wav")]
+    pub sfx_move_character: Handle<AudioSource>,
     #[asset(path = "sounds/sfx/push_box.wav")]
     pub sfx_push_box: Handle<AudioSource>,
     #[asset(path = "sounds/sfx/set_zone.wav")]

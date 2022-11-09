@@ -1,15 +1,22 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::resources::{
-    level::{
-        BOX_ENTITY_OFFSET, ENTITY_ON_TOP_OFFSET, ENTITY_SURFACE, ENTITY_SURFACE_OFFSET, MAP_COLS,
-        MAP_HEIGHT, MAP_ROWS, MAP_WIDTH, SPRITE_OFFSET, SPRITE_SIZE,
-    },
-    prelude::*,
-};
+use crate::resources::prelude::*;
 
-#[derive(Component, Serialize, Deserialize, Clone, Copy)]
+use super::{MAP_COLS, MAP_ROWS};
+
+pub const SPRITE_SIZE: usize = 64;
+pub const SPRITE_OFFSET: usize = 32;
+
+pub const ENTITY_SURFACE: usize = 36;
+pub const ENTITY_SURFACE_OFFSET: usize = 18;
+pub const CHARACTER_ON_TOP_OFFSET: usize = 28;
+pub const BOX_ENTITY_OFFSET: usize = 14;
+
+pub const MAP_WIDTH: f32 = 640.0;
+pub const MAP_HEIGHT: f32 = 388.0;
+
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Default)]
 pub struct MapPosition {
     pub x: usize,
     pub y: usize,
@@ -48,7 +55,7 @@ impl MapPosition {
         }
     }
 
-    pub fn update_entity_translation(&self, translation: &mut Vec3) {
+    fn update_translation(&self, translation: &mut Vec3) {
         // calculate coords with the correct sprite dimension
         // and moving the origin/pivot from the center to the top-left
         let x = ((self.x * SPRITE_SIZE) + SPRITE_OFFSET) as f32;
@@ -62,12 +69,17 @@ impl MapPosition {
         translation.z = self.y as f32;
     }
 
-    pub fn update_player_translation(&self, translation: &mut Vec3) {
-        self.update_entity_translation(translation);
+    pub fn update_entity_translation(&self, translation: &mut Vec3, is_box: bool) {
+        self.update_translation(translation);
+        if is_box {
+            translation.y += BOX_ENTITY_OFFSET as f32;
+            translation.z = (self.y + 1) as f32;
+        }
+    }
 
-        translation.y += ENTITY_ON_TOP_OFFSET as f32;
-
-        // put it above the map
+    pub fn update_character_translation(&self, translation: &mut Vec3) {
+        self.update_translation(translation);
+        translation.y += CHARACTER_ON_TOP_OFFSET as f32;
         translation.z = (self.y + 1) as f32;
     }
 
@@ -80,14 +92,9 @@ impl MapPosition {
         };
     }
 
-    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>, on_top: bool) {
+    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>, is_box: bool) {
         let mut translation = Vec3::default();
-        self.update_entity_translation(&mut translation);
-
-        if on_top {
-            translation.y += BOX_ENTITY_OFFSET as f32;
-            translation.z += 1.0;
-        }
+        self.update_entity_translation(&mut translation, is_box);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteBundle {
@@ -98,17 +105,14 @@ impl MapPosition {
         commands.spawn_bundle(bundle).insert(*self);
     }
 
-    pub fn spawn_player(
+    pub fn spawn_character(
         &self,
         commands: &mut Commands,
         texture_atlas: Handle<TextureAtlas>,
         index: usize,
     ) {
         let mut translation = Vec3::default();
-        self.update_entity_translation(&mut translation);
-
-        translation.y += BOX_ENTITY_OFFSET as f32;
-        translation.z += 1.0;
+        self.update_character_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteSheetBundle {

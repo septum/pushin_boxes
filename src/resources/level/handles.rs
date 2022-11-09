@@ -26,5 +26,11 @@ pub struct LevelHandles {
         ),
         collection(typed)
     )]
-    pub stock: Vec<Handle<LevelState>>,
+    stock: Vec<Handle<LevelState>>,
+}
+
+impl LevelHandles {
+    pub fn get(&self, index: &usize) -> &Handle<LevelState> {
+        &self.stock[*index]
+    }
 }

@@ -8,10 +8,7 @@ use serde::{Deserialize, Serialize};
 
 pub use self::handle::SaveFileHandle;
 
-use super::{
-    level::{LevelRecord, TOTAL_STOCK_LEVELS},
-    prelude::*,
-};
+use super::prelude::*;
 
 #[derive(TypeUuid, Serialize, Deserialize, Clone)]
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
@@ -65,7 +62,7 @@ impl SaveFile {
     }
 
     pub fn set_new_record(&mut self, level: &Level) {
-        let new_record = level.get_record_set();
+        let new_record = level.get_set_record();
         let current_record = self.get_record(&level.tag);
         if new_record.is_better_than(&current_record) {
             match level.tag {

@@ -9,8 +9,9 @@ use super::{MOVES_COUNTER_NAME, STOPWATCH_COUNTER_NAME, UNDOS_COUNTER_NAME};
 
 pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
     let font = fonts.primary();
-    let record_new_level = if level.is_record_set() {
-        level.record.moves_in_time(" ")
+    let level_record = level.get_current_record();
+    let record_new_level = if level_record.is_set() {
+        level_record.moves_in_time(" ")
     } else {
         "New Level!".to_string()
     };

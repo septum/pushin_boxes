@@ -118,7 +118,7 @@ pub fn play_direction_sfx(
     sfx: Res<AudioChannel<Sfx>>,
 ) {
     for _ in direction_event_reader.iter() {
-        sfx.play(sounds.sfx_move_player.clone());
+        sfx.play(sounds.sfx_move_character.clone());
     }
 }
 
@@ -131,13 +131,17 @@ pub fn update_character_animation(
 
     character_animation.tick(time.delta());
 
-    if character_animation.secondary_timer_finished() {
-        character_animation.reset_with_blink_row();
+    if character_animation.secondary_timer_just_finished() {
+        character_animation.set_blink_row();
+        character_animation.reset_primary_timer();
+        character_animation.reset_secondary_timer();
     }
 
-    if character_animation.primary_timer_finished() {
+    if character_animation.primary_timer_just_finished() {
         if sprite.index == BLINK_ROW_LAST_FRAME_INDEX {
-            character_animation.reset_with_front_row();
+            character_animation.set_front_row();
+            character_animation.reset_primary_timer();
+            character_animation.reset_secondary_timer();
         } else {
             character_animation.next_index();
         }

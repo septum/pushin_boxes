@@ -11,7 +11,7 @@
         (W,Z,Z,Z,W,W,F,F,F,W,),
         (W,W,W,W,W,W,W,W,W,W,),
     ),
-    player_position: (x: 8, y: 1),
-    sprite_index: 2,
+    character_position: (x: 8, y: 1),
+    animation_row: 2,
     remaining_zones: 5,
 )

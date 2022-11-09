@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::resources::prelude::Images;
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
 pub enum MapEntity {
+    #[default]
     /// Wall
     W,
     /// Floor

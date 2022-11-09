@@ -67,8 +67,10 @@ fn update_character_animation(
     mut character_animation: ResMut<CharacterAnimation>,
     mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
 ) {
-    if character_animation.tick_primary(time.delta()) {
+    character_animation.tick(time.delta());
+    if character_animation.primary_timer_just_finished() {
         let mut sprite = query.single_mut();
-        sprite.index = character_animation.next_sprite_index();
+        character_animation.next_index();
+        sprite.index = character_animation.sprite_index();
     }
 }

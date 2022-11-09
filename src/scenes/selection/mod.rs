@@ -96,6 +96,6 @@ pub fn play_direction_sfx(
     sfx: Res<AudioChannel<Sfx>>,
 ) {
     for _ in direction_event_reader.iter() {
-        sfx.play(sounds.sfx_move_player.clone());
+        sfx.play(sounds.sfx_move_character.clone());
     }
 }
