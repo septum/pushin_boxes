@@ -2,7 +2,7 @@ mod dynamic;
 mod embossed;
 mod simple;
 
-pub use dynamic::{DynamicText, DynamicTextMarker};
+pub use dynamic::{DynamicText, DynamicTextData};
 pub use embossed::EmbossedText;
 pub use simple::SimpleText;
 

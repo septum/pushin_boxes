@@ -11,7 +11,7 @@ pub struct EmbossedText {
 impl Default for EmbossedText {
     fn default() -> EmbossedText {
         let style = TextStyle {
-            font: default(),
+            font: Handle::default(),
             font_size: EmbossedText::SIZE_MEDIUM,
             color: Colors::LIGHT,
         };

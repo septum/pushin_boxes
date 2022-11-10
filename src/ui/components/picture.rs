@@ -7,7 +7,7 @@ pub struct Picture {
 impl Default for Picture {
     fn default() -> Picture {
         Picture {
-            bundle: NodeBundle { ..default() },
+            bundle: NodeBundle::default(),
         }
     }
 }

@@ -16,6 +16,7 @@ pub const BLINK_ROW_LAST_FRAME_INDEX: usize = 19;
 const TITLE_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(0.0, 24.0, 1.0));
 const WIN_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(220.0, 24.0, 1.0));
 
+#[derive(Default)]
 pub struct CharacterAnimation {
     primary_timer: Timer,
     secondary_timer: Timer,
@@ -34,9 +35,7 @@ impl CharacterAnimation {
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.25, true),
             secondary_timer: Timer::from_seconds(3.0, false),
-            tertiary_timer: Timer::default(),
-            row: 0,
-            index: 0,
+            ..default()
         };
         commands.insert_resource(character_animation);
         commands.spawn_bundle(bundle).insert(CharacterMarker);
@@ -50,10 +49,8 @@ impl CharacterAnimation {
         };
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.125, true),
-            secondary_timer: Timer::default(),
-            tertiary_timer: Timer::default(),
             row: 6,
-            index: 0,
+            ..default()
         };
         commands.insert_resource(character_animation);
         commands.spawn_bundle(bundle).insert(CharacterMarker);
