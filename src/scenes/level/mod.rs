@@ -6,12 +6,12 @@ use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
-    ui::{DynamicTextMarker, OverlayMarker},
+    ui::{DynamicTextData, OverlayMarker},
 };
 
-const STOPWATCH_COUNTER_NAME: &str = "stopwatch";
-const MOVES_COUNTER_NAME: &str = "moves";
-const UNDOS_COUNTER_NAME: &str = "undos";
+const STOPWATCH_COUNTER_ID: usize = 0;
+const MOVES_COUNTER_ID: usize = 1;
+const UNDOS_COUNTER_ID: usize = 2;
 
 pub struct Plugin;
 
@@ -199,16 +199,13 @@ fn update_character_sprite(
     sprite.index = character_animation.sprite_index();
 }
 
-fn update_counters(
-    level: Res<Level>,
-    mut texts: Query<(&mut Text, &DynamicTextMarker), With<DynamicTextMarker>>,
-) {
-    for (mut text, marker) in texts.iter_mut() {
-        text.sections[1].value = match marker.name.as_str() {
-            MOVES_COUNTER_NAME => level.moves_string(),
-            UNDOS_COUNTER_NAME => level.undos_string(),
-            STOPWATCH_COUNTER_NAME => level.stopwatch_string(),
-            _ => unreachable!("The marker name does not exists"),
+fn update_counters(level: Res<Level>, mut texts: Query<(&mut Text, &DynamicTextData)>) {
+    for (mut text, data) in texts.iter_mut() {
+        text.sections[1].value = match data.id {
+            MOVES_COUNTER_ID => level.moves_string(),
+            UNDOS_COUNTER_ID => level.undos_string(),
+            STOPWATCH_COUNTER_ID => level.stopwatch_string(),
+            _ => unreachable!("The counter id does not exists"),
         };
     }
 }

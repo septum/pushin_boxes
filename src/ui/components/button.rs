@@ -31,8 +31,8 @@ impl Default for GameButton {
                 style,
                 ..default()
             },
-            data: default(),
-            child: default(),
+            child: EmbossedText::default(),
+            data: GameButtonData::default(),
         }
     }
 }

@@ -5,7 +5,7 @@ use crate::{
     ui::{Container, DynamicText, GameText, Overlay, SimpleText},
 };
 
-use super::{MOVES_COUNTER_NAME, STOPWATCH_COUNTER_NAME, UNDOS_COUNTER_NAME};
+use super::{MOVES_COUNTER_ID, STOPWATCH_COUNTER_ID, UNDOS_COUNTER_ID};
 
 pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
     let font = fonts.primary();
@@ -46,9 +46,9 @@ pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
 
     stopwatch_housing.align_start();
 
-    stopwatch.marker(STOPWATCH_COUNTER_NAME);
-    moves.marker(MOVES_COUNTER_NAME);
-    undos_left.marker(UNDOS_COUNTER_NAME);
+    stopwatch.id(STOPWATCH_COUNTER_ID);
+    moves.id(MOVES_COUNTER_ID);
+    undos_left.id(UNDOS_COUNTER_ID);
 
     undo.primary();
     reload.primary();
