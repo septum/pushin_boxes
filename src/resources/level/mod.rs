@@ -51,13 +51,29 @@ fn insert_level(
     level_states_assets: Res<Assets<LevelState>>,
 ) {
     if let Some(level_insertion_event) = level_insertion_event_reader.iter().next() {
-        let LevelTag::Stock(index) = &level_insertion_event.tag;
-        let state = *level_states_assets.get(level_handles.get(index)).unwrap();
-        let record = save_file.get_record(&level_insertion_event.tag);
-        let level = Level::new(level_insertion_event.tag.clone(), state, record);
+        match &level_insertion_event.tag {
+            LevelTag::Stock(index) => {
+                let state = *level_states_assets.get(level_handles.get(index)).unwrap();
+                let record = save_file.get_record(&level_insertion_event.tag);
+                let level = Level::new(level_insertion_event.tag.clone(), state, record);
 
-        commands.insert_resource(level);
-        scene_transition_event_writer.send(SceneTransitionEvent::level());
+                commands.insert_resource(level);
+                scene_transition_event_writer.send(SceneTransitionEvent::level());
+            }
+            LevelTag::Playtest(state) => {
+                let level = Level::new(
+                    level_insertion_event.tag.clone(),
+                    state.clone(),
+                    LevelRecord::default(),
+                );
+
+                commands.insert_resource(level);
+                scene_transition_event_writer.send(SceneTransitionEvent::level());
+            }
+            LevelTag::Editable => {
+                unreachable!("An editable should not be inserted with this event")
+            }
+        }
     }
 }
 
@@ -94,6 +110,17 @@ impl Level {
                 value: false,
             },
         }
+    }
+
+    pub fn editable() -> Level {
+        let state = LevelState::editor();
+        let tag = LevelTag::Editable;
+        let record = LevelRecord::default();
+        Level::new(tag, state, record)
+    }
+
+    pub fn clone_state(&self) -> LevelState {
+        self.state.clone()
     }
 
     pub fn new_record(&self) -> bool {
@@ -192,6 +219,8 @@ impl Level {
     pub fn name(&self) -> String {
         match self.tag {
             LevelTag::Stock(index) => (index + 1).to_string(),
+            LevelTag::Playtest(_) => "Playtest".to_string(),
+            LevelTag::Editable => unreachable!("An editable level does not have a name"),
         }
     }
 
@@ -267,6 +296,12 @@ impl Level {
                 LevelTag::Stock(index) => {
                     self.set_state(*level_states_assets.get(level_handles.get(index)).unwrap());
                 }
+                LevelTag::Playtest(state) => {
+                    self.set_state(state.clone());
+                }
+                LevelTag::Editable => {
+                    unreachable!("An editable level can't be reloaded")
+                }
             }
             true
         } else {
@@ -285,16 +320,16 @@ impl Level {
         );
 
         self.loop_over_entity_and_position(|entity, position| {
-            if let Some(texture) = entity.to_image(images) {
-                let on_top = matches!(entity, &MapEntity::B | &MapEntity::P);
-                position.spawn_entity(commands, texture, on_top);
-            }
+            let texture = entity.to_image(images);
+            let on_top = matches!(entity, &MapEntity::B | &MapEntity::P);
+            position.spawn_entity(commands, texture, on_top);
         });
     }
 
     pub fn is_last(&self) -> bool {
         match self.tag {
             LevelTag::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
+            _ => unreachable!("There is no last level in other level tags"),
         }
     }
 }

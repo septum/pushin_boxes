@@ -58,6 +58,8 @@ impl SaveFile {
     pub fn get_record(&self, tag: &LevelTag) -> LevelRecord {
         match tag {
             LevelTag::Stock(index) => self.stock_records[*index],
+            LevelTag::Playtest(_) => LevelRecord::default(),
+            LevelTag::Editable => unreachable!("An editable level does not have a record"),
         }
     }
 
@@ -69,15 +71,25 @@ impl SaveFile {
                 LevelTag::Stock(index) => {
                     self.stock_records[index] = new_record;
                 }
+                LevelTag::Playtest(_) => unreachable!("Cannot set a record for an playtest level"),
+                LevelTag::Editable => {
+                    unreachable!("Cannot set a record for an editable level")
+                }
             };
         }
     }
 
     pub fn unlock_new_level(&mut self, level: &Level) {
-        let LevelTag::Stock(index) = level.tag;
-        let unlocked_levels = self.unlocked_levels();
-        if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
-            self.stock_records.push(LevelRecord::default());
+        match level.tag {
+            LevelTag::Stock(index) => {
+                let unlocked_levels = self.unlocked_levels();
+                if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
+                    self.stock_records.push(LevelRecord::default());
+                }
+            }
+            _ => {
+                unreachable!("Cannot unlock a level for a non-stock level")
+            }
         }
     }
 

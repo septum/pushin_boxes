@@ -1,19 +1,20 @@
 mod animations;
+mod brush;
 mod camera;
 mod colors;
 mod fonts;
 mod images;
 mod input;
+mod level;
 mod save_file;
 mod scene;
 mod sounds;
 mod state;
 mod systems;
 
-pub mod level;
-
 pub mod prelude {
     pub use super::animations::{CharacterAnimation, CharacterMarker, BLINK_ROW_LAST_FRAME_INDEX};
+    pub use super::brush::{Brush, BrushEntity, BrushSprite};
     pub use super::colors::Colors;
     pub use super::fonts::Fonts;
     pub use super::images::Images;

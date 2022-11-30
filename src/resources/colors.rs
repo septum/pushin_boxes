@@ -22,9 +22,9 @@ impl Colors {
         alpha: 1.0,
     };
     pub const LIGHT: Color = Color::Rgba {
-        red: 227.0 / u8::MAX as f32,
-        green: 227.0 / u8::MAX as f32,
-        blue: 227.0 / u8::MAX as f32,
+        red: 255.0 / u8::MAX as f32,
+        green: 255.0 / u8::MAX as f32,
+        blue: 255.0 / u8::MAX as f32,
         alpha: 1.0,
     };
     pub const DARK: Color = Color::Rgba {

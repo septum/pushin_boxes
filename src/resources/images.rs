@@ -5,13 +5,25 @@ use bevy_asset_loader::prelude::*;
 pub struct Images {
     #[asset(path = "images/entities/box.png")]
     pub entity_box: Handle<Image>,
+    #[asset(path = "images/entities/void.png")]
+    pub entity_void: Handle<Image>,
     #[asset(path = "images/entities/floor.png")]
     pub entity_floor: Handle<Image>,
     #[asset(path = "images/entities/zone.png")]
     pub entity_zone: Handle<Image>,
+    #[asset(path = "images/brushes/box.png")]
+    pub brush_box: Handle<Image>,
+    #[asset(path = "images/brushes/void.png")]
+    pub brush_void: Handle<Image>,
+    #[asset(path = "images/brushes/floor.png")]
+    pub brush_floor: Handle<Image>,
+    #[asset(path = "images/brushes/zone.png")]
+    pub brush_zone: Handle<Image>,
+    #[asset(path = "images/brushes/character.png")]
+    pub brush_character: Handle<Image>,
     #[asset(texture_atlas(
         tile_size_x = 64.0,
-        tile_size_y = 64.0,
+        tile_size_y = 96.0,
         columns = 4,
         rows = 7,
         padding_x = 4.,

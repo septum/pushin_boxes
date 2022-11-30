@@ -136,7 +136,7 @@ fn handle_direction_input(
                     _ => (),
                 }
             }
-            MapEntity::W => {}
+            MapEntity::V => {}
             _ => {
                 level.save_snapshot();
                 level.move_character(next_position);
@@ -154,7 +154,7 @@ fn update_character_position(
     let mut transform = query.single_mut();
     level
         .character_position()
-        .update_character_translation(&mut transform.translation);
+        .update_translation(&mut transform.translation, true);
 }
 
 fn update_character_sprite(
@@ -219,11 +219,9 @@ fn update_map(
         let map_entity = level.get_entity(position);
         let is_box = matches!(map_entity, MapEntity::B | MapEntity::P);
 
-        if let Some(entity_image) = map_entity.to_image(&images) {
-            *image = entity_image;
-        }
+        *image = map_entity.to_image(&images);
 
-        position.update_entity_translation(&mut transform.translation, is_box);
+        position.update_translation(&mut transform.translation, is_box);
     }
 }
 

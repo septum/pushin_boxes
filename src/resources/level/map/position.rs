@@ -10,13 +10,11 @@ pub const SPRITE_OFFSET: usize = 32;
 
 pub const ENTITY_SURFACE: usize = 36;
 pub const ENTITY_SURFACE_OFFSET: usize = 18;
-pub const CHARACTER_ON_TOP_OFFSET: usize = 28;
-pub const BOX_ENTITY_OFFSET: usize = 14;
 
 pub const MAP_WIDTH: f32 = 640.0;
 pub const MAP_HEIGHT: f32 = 388.0;
 
-#[derive(Component, Serialize, Deserialize, Clone, Copy, Default)]
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Default, PartialEq)]
 pub struct MapPosition {
     pub x: usize,
     pub y: usize,
@@ -55,7 +53,7 @@ impl MapPosition {
         }
     }
 
-    fn update_translation(&self, translation: &mut Vec3) {
+    pub fn update_translation(&self, translation: &mut Vec3, on_top: bool) {
         // calculate coords with the correct sprite dimension
         // and moving the origin/pivot from the center to the top-left
         let x = ((self.x * SPRITE_SIZE) + SPRITE_OFFSET) as f32;
@@ -66,21 +64,7 @@ impl MapPosition {
         translation.y = y - (MAP_HEIGHT / 2.0);
 
         // adaptation of depthness in a 2D plane
-        translation.z = self.y as f32;
-    }
-
-    pub fn update_entity_translation(&self, translation: &mut Vec3, is_box: bool) {
-        self.update_translation(translation);
-        if is_box {
-            translation.y += BOX_ENTITY_OFFSET as f32;
-            translation.z = (self.y + 1) as f32;
-        }
-    }
-
-    pub fn update_character_translation(&self, translation: &mut Vec3) {
-        self.update_translation(translation);
-        translation.y += CHARACTER_ON_TOP_OFFSET as f32;
-        translation.z = (self.y + 1) as f32;
+        translation.z = if on_top { self.y + 1 } else { self.y } as f32;
     }
 
     pub fn update_position(&mut self, direction: &DirectionInput) {
@@ -94,7 +78,7 @@ impl MapPosition {
 
     pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>, is_box: bool) {
         let mut translation = Vec3::default();
-        self.update_entity_translation(&mut translation, is_box);
+        self.update_translation(&mut translation, is_box);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteBundle {
@@ -112,7 +96,7 @@ impl MapPosition {
         index: usize,
     ) {
         let mut translation = Vec3::default();
-        self.update_character_translation(&mut translation);
+        self.update_translation(&mut translation, true);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteSheetBundle {

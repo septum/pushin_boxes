@@ -4,6 +4,7 @@ pub enum ActionInput {
     Selection,
     Pick,
     Volume,
+    Playtest,
     Exit,
 }
 
@@ -39,6 +40,12 @@ impl ActionInputEvent {
     pub fn volume() -> ActionInputEvent {
         ActionInputEvent {
             value: ActionInput::Volume,
+        }
+    }
+
+    pub fn playtest() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Playtest,
         }
     }
 

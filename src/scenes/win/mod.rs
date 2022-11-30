@@ -29,9 +29,11 @@ impl BevyPlugin for Plugin {
 }
 
 fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    save_file.set_new_record(&level);
-    save_file.unlock_new_level(&level);
-    save_file.save();
+    if matches!(level.tag, LevelTag::Stock(_)) {
+        save_file.set_new_record(&level);
+        save_file.unlock_new_level(&level);
+        save_file.save();
+    }
 }
 
 fn handle_action_input(
@@ -51,6 +53,12 @@ fn handle_action_input(
                             level_instertion_event_writer
                                 .send(LevelInsertionEvent::new(LevelTag::Stock(index + 1)));
                         }
+                    }
+                    LevelTag::Playtest(_) => {
+                        todo!("Save custom level and switch scene to custom level selection")
+                    }
+                    LevelTag::Editable => {
+                        unreachable!("An editable level cannot be won");
                     }
                 };
             }

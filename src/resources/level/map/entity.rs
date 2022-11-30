@@ -6,8 +6,8 @@ use crate::resources::prelude::Images;
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
 pub enum MapEntity {
     #[default]
-    /// Wall
-    W,
+    /// Void
+    V,
     /// Floor
     F,
     /// Zone
@@ -19,12 +19,12 @@ pub enum MapEntity {
 }
 
 impl MapEntity {
-    pub fn to_image(&self, images: &Images) -> Option<Handle<Image>> {
+    pub fn to_image(&self, images: &Images) -> Handle<Image> {
         match self {
-            MapEntity::W => None,
-            MapEntity::F => Some(images.entity_floor.clone()),
-            MapEntity::Z => Some(images.entity_zone.clone()),
-            MapEntity::B | MapEntity::P => Some(images.entity_box.clone()),
+            MapEntity::V => images.entity_void.clone(),
+            MapEntity::F => images.entity_floor.clone(),
+            MapEntity::Z => images.entity_zone.clone(),
+            MapEntity::B | MapEntity::P => images.entity_box.clone(),
         }
     }
 }
