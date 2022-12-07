@@ -22,13 +22,12 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let title = SimpleText::medium("Editor", font);
     let mut subtitle = SimpleText::small("Custom Level Creation", font);
     let mut valid = DynamicText::medium("Valid: ", font);
-    let mut switch = SimpleText::small("(SPACE) - Switch Entity", font);
-    let mut set = SimpleText::small("(ENTER) - Playtest Level", font);
-    let mut playtest = SimpleText::small("(ENTER) - Playtest Level", font);
     let instructions = SimpleText::small(
-        "A valid level has a player, at least one box and a zone per box",
+        "A valid level has at least one box and a zone per box",
         font,
     );
+    let mut toggle = SimpleText::small("(SPACE) - Toggle Entity", font);
+    let mut playtest = SimpleText::small("(ENTER) - Playtest Level", font);
 
     top.row().justify_between();
     bottom.row().justify_between();
@@ -40,8 +39,7 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
 
     valid.id(VALID_ID);
 
-    switch.primary();
-    set.primary();
+    toggle.primary();
     playtest.primary();
     subtitle.secondary();
 
@@ -53,16 +51,15 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
             });
             top_right.spawn(parent, |parent| {
                 valid.spawn(parent);
+                instructions.spawn(parent);
             });
         });
         bottom.spawn(parent, |parent| {
             bottom_left.spawn(parent, |parent| {
-                switch.spawn(parent);
-                set.spawn(parent);
+                toggle.spawn(parent);
             });
             bottom_right.spawn(parent, |parent| {
                 playtest.spawn(parent);
-                instructions.spawn(parent);
             });
         });
     });

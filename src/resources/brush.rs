@@ -3,6 +3,12 @@ use bevy::prelude::*;
 use super::prelude::*;
 
 #[derive(Default)]
+pub struct LevelValidity {
+    pub zones: usize,
+    pub boxes: usize,
+}
+
+#[derive(Default)]
 pub enum BrushEntity {
     #[default]
     Floor,

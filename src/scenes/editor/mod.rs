@@ -3,7 +3,10 @@ mod ui;
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use iyes_loopless::prelude::*;
 
-use crate::{resources::prelude::*, ui::OverlayMarker};
+use crate::{
+    resources::prelude::*,
+    ui::{DynamicTextData, OverlayMarker},
+};
 
 const VALID_ID: usize = 0;
 
@@ -11,33 +14,35 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameState::Editor,
-            SystemSet::new()
-                .with_system(self::ui::spawn)
-                .with_system(Brush::insert)
-                .with_system(setup_level),
-        )
-        .add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameState::Editor)
-                .with_system(handle_action_input)
-                .with_system(handle_direction_input)
-                .with_system(blink_tile)
-                .with_system(apply_brush_to_level)
-                .with_system(update_character_position)
-                .with_system(update_map)
-                .with_system(update_brush_sprite)
-                .into(),
-        )
-        .add_exit_system_set(
-            GameState::Editor,
-            SystemSet::new()
-                .with_system(cleanup::<OverlayMarker>)
-                .with_system(cleanup::<CharacterMarker>)
-                .with_system(cleanup::<MapPosition>)
-                .with_system(cleanup::<BrushSprite>),
-        );
+        app.insert_resource(LevelValidity::default())
+            .add_enter_system_set(
+                GameState::Editor,
+                SystemSet::new()
+                    .with_system(self::ui::spawn)
+                    .with_system(Brush::insert)
+                    .with_system(setup_level),
+            )
+            .add_system_set(
+                ConditionSet::new()
+                    .run_in_state(GameState::Editor)
+                    .with_system(handle_action_input)
+                    .with_system(handle_direction_input)
+                    .with_system(blink_tile)
+                    .with_system(apply_brush_to_level)
+                    .with_system(update_character_position)
+                    .with_system(update_map)
+                    .with_system(update_brush_sprite)
+                    .with_system(check_validity)
+                    .into(),
+            )
+            .add_exit_system_set(
+                GameState::Editor,
+                SystemSet::new()
+                    .with_system(cleanup::<OverlayMarker>)
+                    .with_system(cleanup::<CharacterMarker>)
+                    .with_system(cleanup::<MapPosition>)
+                    .with_system(cleanup::<BrushSprite>),
+            );
     }
 }
 
@@ -63,6 +68,7 @@ fn handle_direction_input(
 
 fn handle_action_input(
     level: Res<Level>,
+    level_validity: Res<LevelValidity>,
     mut brush: ResMut<Brush>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
@@ -71,9 +77,13 @@ fn handle_action_input(
     for action_event in action_event_reader.iter() {
         match action_event.value {
             ActionInput::Pick => brush.cycle(),
-            ActionInput::Playtest => level_insertion_event_writer.send(LevelInsertionEvent::new(
-                LevelTag::Playtest(level.clone_state()),
-            )),
+            ActionInput::Playtest => {
+                if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
+                    level_insertion_event_writer.send(LevelInsertionEvent::new(
+                        LevelTag::Playtest(level.clone_state()),
+                    ));
+                }
+            }
             ActionInput::Exit => game_state_event_writer.send(SceneTransitionEvent::title()),
             _ => (),
         }
@@ -102,63 +112,87 @@ fn blink_tile(
     }
 }
 
-fn apply_brush_to_level(brush: Res<Brush>, mut level: ResMut<Level>) {
+fn apply_brush_to_level(
+    brush: Res<Brush>,
+    mut level: ResMut<Level>,
+    mut level_validity: ResMut<LevelValidity>,
+) {
     if matches!(brush.entity, BrushEntity::Character) {
         if matches!(
             level.get_entity(&brush.position),
             MapEntity::F | MapEntity::Z
         ) {
-            level.move_character(brush.position.clone());
+            level.move_character(brush.position);
+        }
+    } else if level.character_position() == brush.position {
+        level.set_entity(
+            &brush.position,
+            match brush.entity {
+                BrushEntity::Floor => MapEntity::F,
+                BrushEntity::Zone => MapEntity::Z,
+                _ => return,
+            },
+        );
+
+        if matches!(level.get_entity(&brush.position), MapEntity::Z)
+            && matches!(brush.entity, BrushEntity::Floor)
+        {
+            level_validity.zones -= 1;
+            level.decrement_remaining_zones();
+        } else if matches!(level.get_entity(&brush.position), MapEntity::F)
+            && matches!(brush.entity, BrushEntity::Zone)
+        {
+            level_validity.zones += 1;
+            level.increment_remaining_zones();
         }
     } else {
-        if level.character_position() == brush.position {
-            level.set_entity(
-                &brush.position,
-                match brush.entity {
-                    BrushEntity::Floor => MapEntity::F,
-                    BrushEntity::Zone => MapEntity::Z,
-                    _ => return,
-                },
-            );
-
-            if matches!(level.get_entity(&brush.position), MapEntity::Z)
-                && matches!(brush.entity, BrushEntity::Floor)
-            {
-                level.decrement_remaining_zones();
-            } else if matches!(level.get_entity(&brush.position), MapEntity::F)
-                && matches!(brush.entity, BrushEntity::Zone)
-            {
-                level.increment_remaining_zones();
-            }
-        } else {
-            if matches!(
-                level.get_entity(&brush.position),
-                MapEntity::Z | MapEntity::P
-            ) && matches!(
-                brush.entity,
-                BrushEntity::Floor | BrushEntity::Void | BrushEntity::BoxInFloor
-            ) {
-                level.decrement_remaining_zones();
-            } else if matches!(
-                level.get_entity(&brush.position),
-                MapEntity::F | MapEntity::V | MapEntity::B
-            ) && matches!(brush.entity, BrushEntity::Zone | BrushEntity::BoxInZone)
-            {
-                level.increment_remaining_zones();
-            }
-
-            level.set_entity(
-                &brush.position,
-                match brush.entity {
-                    BrushEntity::Floor => MapEntity::F,
-                    BrushEntity::Void => MapEntity::V,
-                    BrushEntity::Zone => MapEntity::Z,
-                    BrushEntity::BoxInFloor => MapEntity::B,
-                    BrushEntity::BoxInZone => MapEntity::P,
-                    _ => return,
-                },
-            );
+        if matches!(
+            level.get_entity(&brush.position),
+            MapEntity::Z | MapEntity::P
+        ) && matches!(
+            brush.entity,
+            BrushEntity::Floor | BrushEntity::Void | BrushEntity::BoxInFloor
+        ) {
+            level_validity.zones -= 1;
+            level.decrement_remaining_zones();
+        } else if matches!(
+            level.get_entity(&brush.position),
+            MapEntity::F | MapEntity::V | MapEntity::B
+        ) && matches!(brush.entity, BrushEntity::Zone | BrushEntity::BoxInZone)
+        {
+            level_validity.zones += 1;
+            level.increment_remaining_zones();
         }
+
+        if matches!(
+            level.get_entity(&brush.position),
+            MapEntity::B | MapEntity::P
+        ) && !matches!(
+            brush.entity,
+            BrushEntity::BoxInFloor | BrushEntity::BoxInZone
+        ) {
+            level_validity.boxes -= 1;
+        } else if !matches!(
+            level.get_entity(&brush.position),
+            MapEntity::B | MapEntity::P
+        ) && matches!(
+            brush.entity,
+            BrushEntity::BoxInFloor | BrushEntity::BoxInZone
+        ) {
+            level_validity.boxes += 1;
+        }
+
+        level.set_entity(
+            &brush.position,
+            match brush.entity {
+                BrushEntity::Floor => MapEntity::F,
+                BrushEntity::Void => MapEntity::V,
+                BrushEntity::Zone => MapEntity::Z,
+                BrushEntity::BoxInFloor => MapEntity::B,
+                BrushEntity::BoxInZone => MapEntity::P,
+                BrushEntity::Character => return,
+            },
+        );
     }
 }
 
@@ -191,6 +225,25 @@ fn update_brush_sprite(
         BrushEntity::BoxInFloor | BrushEntity::BoxInZone => images.brush_box.clone(),
         BrushEntity::Character => images.brush_character.clone(),
     };
+}
+
+fn check_validity(
+    level_validity: Res<LevelValidity>,
+    mut texts: Query<(&mut Text, &DynamicTextData)>,
+) {
+    if level_validity.is_changed() {
+        let (mut text, data) = texts.single_mut();
+        text.sections[1].value = match data.id {
+            VALID_ID => {
+                if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
+                    "YES".to_string()
+                } else {
+                    "NO".to_string()
+                }
+            }
+            _ => unreachable!("The text id does not exists"),
+        };
+    }
 }
 
 fn update_map(

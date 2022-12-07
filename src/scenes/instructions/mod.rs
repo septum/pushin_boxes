@@ -21,7 +21,9 @@ fn handle_input(
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Pick => game_state_event_writer.send(SceneTransitionEvent::selection()),
+            ActionInput::Pick => {
+                game_state_event_writer.send(SceneTransitionEvent::selection(false));
+            }
             ActionInput::Exit => game_state_event_writer.send(SceneTransitionEvent::title()),
             _ => (),
         }

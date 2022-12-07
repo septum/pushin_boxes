@@ -3,6 +3,7 @@ mod handle;
 use std::{env, fs::File, io::Write, iter::Enumerate, path::PathBuf, slice::Iter};
 
 use bevy::{asset::LoadState, prelude::*, reflect::TypeUuid};
+use hashbrown::{hash_map, HashMap};
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
 
@@ -14,12 +15,14 @@ use super::prelude::*;
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
     stock_records: Vec<LevelRecord>,
+    custom_records: HashMap<String, LevelRecord>,
 }
 
 impl Default for SaveFile {
     fn default() -> SaveFile {
         SaveFile {
             stock_records: vec![LevelRecord::default()],
+            custom_records: HashMap::default(),
         }
     }
 }
@@ -59,6 +62,10 @@ impl SaveFile {
         match tag {
             LevelTag::Stock(index) => self.stock_records[*index],
             LevelTag::Playtest(_) => LevelRecord::default(),
+            LevelTag::Custom(payload) => *self
+                .custom_records
+                .get(payload)
+                .expect("Cannot get custom record"),
             LevelTag::Editable => unreachable!("An editable level does not have a record"),
         }
     }
@@ -67,9 +74,12 @@ impl SaveFile {
         let new_record = level.get_set_record();
         let current_record = self.get_record(&level.tag);
         if new_record.is_better_than(&current_record) {
-            match level.tag {
+            match &level.tag {
                 LevelTag::Stock(index) => {
-                    self.stock_records[index] = new_record;
+                    self.stock_records[*index] = new_record;
+                }
+                LevelTag::Custom(payload) => {
+                    self.custom_records.insert(payload.clone(), new_record);
                 }
                 LevelTag::Playtest(_) => unreachable!("Cannot set a record for an playtest level"),
                 LevelTag::Editable => {
@@ -77,6 +87,10 @@ impl SaveFile {
                 }
             };
         }
+    }
+
+    pub fn insert_custom_level_record(&mut self, key: String, level_record: LevelRecord) {
+        self.custom_records.insert(key, level_record);
     }
 
     pub fn unlock_new_level(&mut self, level: &Level) {
@@ -97,7 +111,15 @@ impl SaveFile {
         self.stock_records.len()
     }
 
+    pub fn total_custom_levels(&self) -> usize {
+        self.custom_records.len()
+    }
+
     pub fn enumerated_stock_records(&self) -> Enumerate<Iter<LevelRecord>> {
         self.stock_records.iter().enumerate()
+    }
+
+    pub fn enumerated_custom_records(&self) -> Enumerate<hash_map::Iter<String, LevelRecord>> {
+        self.custom_records.iter().enumerate()
     }
 }

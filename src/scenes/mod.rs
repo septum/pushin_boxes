@@ -1,6 +1,7 @@
 mod editor;
 mod instructions;
 mod level;
+mod passed;
 mod selection;
 mod title;
 mod win;
@@ -14,6 +15,7 @@ impl BevyPlugin for Plugin {
         app.add_plugin(title::Plugin)
             .add_plugin(instructions::Plugin)
             .add_plugin(editor::Plugin)
+            .add_plugin(passed::Plugin)
             .add_plugin(selection::Plugin)
             .add_plugin(level::Plugin)
             .add_plugin(win::Plugin);

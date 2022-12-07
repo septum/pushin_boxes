@@ -1,15 +1,8 @@
 use bevy::prelude::*;
 
+#[derive(Default)]
 pub struct Picture {
     bundle: NodeBundle,
-}
-
-impl Default for Picture {
-    fn default() -> Picture {
-        Picture {
-            bundle: NodeBundle::default(),
-        }
-    }
 }
 
 impl Picture {

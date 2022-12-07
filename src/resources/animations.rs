@@ -26,7 +26,7 @@ pub struct CharacterAnimation {
 }
 
 impl CharacterAnimation {
-    pub fn insert_title_character_animation(mut commands: Commands, images: Res<Images>) {
+    pub fn insert_blinking_character_animation(mut commands: Commands, images: Res<Images>) {
         let bundle = SpriteSheetBundle {
             texture_atlas: images.character_atlas.clone(),
             transform: TITLE_CHARACTER_TRANSFORM,
@@ -41,7 +41,7 @@ impl CharacterAnimation {
         commands.spawn_bundle(bundle).insert(CharacterMarker);
     }
 
-    pub fn insert_win_character_animation(mut commands: Commands, images: Res<Images>) {
+    pub fn insert_happy_character_animation(mut commands: Commands, images: Res<Images>) {
         let bundle = SpriteSheetBundle {
             texture_atlas: images.character_atlas.clone(),
             transform: WIN_CHARACTER_TRANSFORM,

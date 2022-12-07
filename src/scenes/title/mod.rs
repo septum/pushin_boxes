@@ -25,7 +25,7 @@ impl BevyPlugin for Plugin {
             GameState::Title,
             SystemSet::new()
                 .with_system(self::ui::spawn)
-                .with_system(CharacterAnimation::insert_title_character_animation),
+                .with_system(CharacterAnimation::insert_blinking_character_animation),
         )
         .add_system_set(
             ConditionSet::new()
@@ -95,7 +95,8 @@ fn handle_action_input(
                     if button.selected {
                         match button.id {
                             PLAY_ID => {
-                                game_state_event_writer.send(SceneTransitionEvent::selection());
+                                game_state_event_writer
+                                    .send(SceneTransitionEvent::selection(false));
                             }
                             INSTRUCTIONS_ID => {
                                 game_state_event_writer.send(SceneTransitionEvent::instructions());

@@ -14,7 +14,7 @@ impl BevyPlugin for Plugin {
             SystemSet::new()
                 .with_system(save)
                 .with_system(self::ui::spawn)
-                .with_system(CharacterAnimation::insert_win_character_animation),
+                .with_system(CharacterAnimation::insert_happy_character_animation),
         )
         .add_system_set(
             ConditionSet::new()
@@ -48,11 +48,14 @@ fn handle_action_input(
                 match &level.tag {
                     LevelTag::Stock(index) => {
                         if level.is_last() {
-                            game_state_event_writer.send(SceneTransitionEvent::selection());
+                            game_state_event_writer.send(SceneTransitionEvent::selection(false));
                         } else {
                             level_instertion_event_writer
                                 .send(LevelInsertionEvent::new(LevelTag::Stock(index + 1)));
                         }
+                    }
+                    LevelTag::Custom(_) => {
+                        game_state_event_writer.send(SceneTransitionEvent::selection(true));
                     }
                     LevelTag::Playtest(_) => {
                         todo!("Save custom level and switch scene to custom level selection")

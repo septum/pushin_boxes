@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use hashbrown::HashMap;
+use uuid::Uuid;
 
 use super::state::LevelState;
 
@@ -27,10 +29,19 @@ pub struct LevelHandles {
         collection(typed)
     )]
     stock: Vec<Handle<LevelState>>,
+    custom: HashMap<Uuid, Handle<LevelState>>,
 }
 
 impl LevelHandles {
-    pub fn get(&self, index: &usize) -> &Handle<LevelState> {
+    pub fn get_stock(&self, index: &usize) -> &Handle<LevelState> {
         &self.stock[*index]
+    }
+
+    pub fn get_custom(&self, uuid: &Uuid) -> &Handle<LevelState> {
+        self.custom.get(uuid).expect("Cannot get custom level")
+    }
+
+    pub fn insert_custom(&mut self, uuid: Uuid, handle: Handle<LevelState>) {
+        self.custom.insert(uuid, handle);
     }
 }

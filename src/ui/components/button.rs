@@ -8,6 +8,7 @@ use super::text::{EmbossedText, GameText};
 pub struct GameButtonData {
     pub id: usize,
     pub selected: bool,
+    pub payload: Option<String>,
 }
 
 pub struct GameButton {
@@ -61,6 +62,11 @@ impl GameButton {
     pub fn selected(&mut self) -> &mut GameButton {
         self.data.selected = true;
         self.bundle.color = Colors::PRIMARY_DARK.into();
+        self
+    }
+
+    pub fn payload(&mut self, payload: String) -> &mut GameButton {
+        self.data.payload = Some(payload);
         self
     }
 

@@ -29,9 +29,15 @@ impl SceneTransitionEvent {
         }
     }
 
-    pub fn selection() -> Self {
+    pub fn passed() -> Self {
         Self {
-            state: GameState::Selection,
+            state: GameState::Passed,
+        }
+    }
+
+    pub fn selection(custom: bool) -> Self {
+        Self {
+            state: GameState::Selection(custom),
         }
     }
 

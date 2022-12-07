@@ -24,6 +24,7 @@ use bevy::{
     time::{Stopwatch, Timer},
 };
 use iyes_loopless::prelude::*;
+use uuid::Uuid;
 
 use self::{
     map::{MAP_COLS, MAP_ROWS},
@@ -42,6 +43,19 @@ impl BevyPlugin for Plugin {
     }
 }
 
+pub fn insert_custom_level_handles(
+    save_file: Res<SaveFile>,
+    mut level_handles: ResMut<LevelHandles>,
+    asset_server: Res<AssetServer>,
+) {
+    for (_, (key, _)) in save_file.enumerated_custom_records() {
+        let split_key: Vec<&str> = key.split('$').collect();
+        let uuid = Uuid::parse_str(split_key[1]).expect("Cannot parse uuid");
+        let path = format!("levels/custom/{}.lvl", &split_key[1]);
+        level_handles.insert_custom(uuid, asset_server.load(&path));
+    }
+}
+
 fn insert_level(
     mut commands: Commands,
     mut level_insertion_event_reader: EventReader<LevelInsertionEvent>,
@@ -53,7 +67,21 @@ fn insert_level(
     if let Some(level_insertion_event) = level_insertion_event_reader.iter().next() {
         match &level_insertion_event.tag {
             LevelTag::Stock(index) => {
-                let state = *level_states_assets.get(level_handles.get(index)).unwrap();
+                let state = *level_states_assets
+                    .get(level_handles.get_stock(index))
+                    .unwrap();
+                let record = save_file.get_record(&level_insertion_event.tag);
+                let level = Level::new(level_insertion_event.tag.clone(), state, record);
+
+                commands.insert_resource(level);
+                scene_transition_event_writer.send(SceneTransitionEvent::level());
+            }
+            LevelTag::Custom(payload) => {
+                let parsed_payload: Vec<&str> = payload.split('$').collect();
+                let uuid = Uuid::parse_str(parsed_payload[1]).expect("Cannot parse uuid");
+                let state = *level_states_assets
+                    .get(level_handles.get_custom(&uuid))
+                    .unwrap();
                 let record = save_file.get_record(&level_insertion_event.tag);
                 let level = Level::new(level_insertion_event.tag.clone(), state, record);
 
@@ -63,7 +91,7 @@ fn insert_level(
             LevelTag::Playtest(state) => {
                 let level = Level::new(
                     level_insertion_event.tag.clone(),
-                    state.clone(),
+                    *state,
                     LevelRecord::default(),
                 );
 
@@ -120,7 +148,7 @@ impl Level {
     }
 
     pub fn clone_state(&self) -> LevelState {
-        self.state.clone()
+        self.state
     }
 
     pub fn new_record(&self) -> bool {
@@ -217,8 +245,12 @@ impl Level {
     }
 
     pub fn name(&self) -> String {
-        match self.tag {
+        match &self.tag {
             LevelTag::Stock(index) => (index + 1).to_string(),
+            LevelTag::Custom(key) => {
+                let parsed_key: Vec<&str> = key.split('$').collect();
+                parsed_key[0].to_string()
+            }
             LevelTag::Playtest(_) => "Playtest".to_string(),
             LevelTag::Editable => unreachable!("An editable level does not have a name"),
         }
@@ -294,10 +326,23 @@ impl Level {
         if self.moves != 0 || self.undos < 4 {
             match &self.tag {
                 LevelTag::Stock(index) => {
-                    self.set_state(*level_states_assets.get(level_handles.get(index)).unwrap());
+                    self.set_state(
+                        *level_states_assets
+                            .get(level_handles.get_stock(index))
+                            .unwrap(),
+                    );
+                }
+                LevelTag::Custom(key) => {
+                    let parsed_key: Vec<&str> = key.split('$').collect();
+                    let uuid = Uuid::parse_str(parsed_key[1]).expect("Cannot parse uuid");
+                    self.set_state(
+                        *level_states_assets
+                            .get(level_handles.get_custom(&uuid))
+                            .unwrap(),
+                    );
                 }
                 LevelTag::Playtest(state) => {
-                    self.set_state(state.clone());
+                    self.set_state(*state);
                 }
                 LevelTag::Editable => {
                     unreachable!("An editable level can't be reloaded")

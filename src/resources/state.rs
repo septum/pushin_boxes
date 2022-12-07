@@ -9,7 +9,8 @@ pub enum GameState {
     Title,
     Instructions,
     Editor,
-    Selection,
+    Passed,
+    Selection(bool),
     Level,
     Win,
 }

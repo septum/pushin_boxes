@@ -14,7 +14,7 @@ mod systems;
 
 pub mod prelude {
     pub use super::animations::{CharacterAnimation, CharacterMarker, BLINK_ROW_LAST_FRAME_INDEX};
-    pub use super::brush::{Brush, BrushEntity, BrushSprite};
+    pub use super::brush::{Brush, BrushEntity, BrushSprite, LevelValidity};
     pub use super::colors::Colors;
     pub use super::fonts::Fonts;
     pub use super::images::Images;
@@ -67,6 +67,7 @@ impl BevyPlugin for Plugin {
                     .run_if_resource_added::<SaveFile>()
                     .with_system(camera::setup)
                     .with_system(sounds::setup)
+                    .with_system(level::insert_custom_level_handles)
                     .into(),
             );
     }
