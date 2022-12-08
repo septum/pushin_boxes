@@ -34,9 +34,7 @@ fn handle_direction_input(
     game_state: Res<CurrentState<GameState>>,
     save_file: Res<SaveFile>,
 ) {
-    let is_custom_selection = if let GameState::Selection(custom) = game_state.0 {
-        custom
-    } else {
+    let GameState::Selection(is_custom_selection) = game_state.0 else {
         unreachable!("The current game state is invalid, it should be Selection");
     };
 
@@ -88,9 +86,7 @@ fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     game_state: Res<CurrentState<GameState>>,
 ) {
-    let is_custom_selection = if let GameState::Selection(custom) = game_state.0 {
-        custom
-    } else {
+    let GameState::Selection(is_custom_selection) = game_state.0 else {
         unreachable!("The current game state is invalid, it should be Selection");
     };
 

@@ -11,7 +11,7 @@ default = ['bevy/dynamic']
 
 [dependencies]
 ron = "0.8.0"
-serde = "1.0.147"
+serde = "1.0.149"
 regex = "1.7.0"
 
 [dependencies.bevy]

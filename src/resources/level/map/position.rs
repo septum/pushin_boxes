@@ -14,7 +14,7 @@ pub const ENTITY_SURFACE_OFFSET: usize = 18;
 pub const MAP_WIDTH: f32 = 640.0;
 pub const MAP_HEIGHT: f32 = 388.0;
 
-#[derive(Component, Serialize, Deserialize, Clone, Copy, Default, PartialEq)]
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Default, PartialEq, Eq)]
 pub struct MapPosition {
     pub x: usize,
     pub y: usize,

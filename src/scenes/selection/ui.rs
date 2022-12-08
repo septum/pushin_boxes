@@ -65,9 +65,7 @@ pub fn spawn(
     fonts: Res<Fonts>,
     save_file: Res<SaveFile>,
 ) {
-    let is_custom_selection = if let GameState::Selection(custom) = game_state.0 {
-        custom
-    } else {
+    let GameState::Selection(is_custom_selection) = game_state.0 else {
         unreachable!("The current game state is invalid, it should be Selection");
     };
 
