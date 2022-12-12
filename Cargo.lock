@@ -2220,7 +2220,7 @@ checksum = "2f61dcf0b917cd75d4521d7343d1ffff3d1583054133c9b5cbea3375c703c40d"
 
 [[package]]
 name = "pushin_boxes"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
