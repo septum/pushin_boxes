@@ -15,7 +15,8 @@ use crate::{
 const PLAY_ID: usize = 0;
 const INSTRUCTIONS_ID: usize = 1;
 const EDITOR_ID: usize = 2;
-const QUIT_ID: usize = 3;
+const OPTIONS_ID: usize = 3;
+const QUIT_ID: usize = 4;
 
 pub struct Plugin;
 
@@ -61,8 +62,9 @@ fn handle_direction_input(
                     selected_id = match button.id {
                         PLAY_ID => Some(if up { QUIT_ID } else { INSTRUCTIONS_ID }),
                         INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { EDITOR_ID }),
-                        EDITOR_ID => Some(if up { INSTRUCTIONS_ID } else { QUIT_ID }),
-                        QUIT_ID => Some(if up { EDITOR_ID } else { PLAY_ID }),
+                        EDITOR_ID => Some(if up { INSTRUCTIONS_ID } else { OPTIONS_ID }),
+                        OPTIONS_ID => Some(if up { EDITOR_ID } else { QUIT_ID }),
+                        QUIT_ID => Some(if up { OPTIONS_ID } else { PLAY_ID }),
                         _ => unreachable!("The button id was not declared"),
                     };
                 }
@@ -103,6 +105,9 @@ fn handle_action_input(
                             }
                             EDITOR_ID => {
                                 game_state_event_writer.send(SceneTransitionEvent::editor());
+                            }
+                            OPTIONS_ID => {
+                                game_state_event_writer.send(SceneTransitionEvent::options());
                             }
                             QUIT_ID => {
                                 exit.send(AppExit);

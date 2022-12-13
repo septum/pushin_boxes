@@ -29,6 +29,12 @@ impl SceneTransitionEvent {
         }
     }
 
+    pub fn options() -> Self {
+        Self {
+            state: GameState::Options,
+        }
+    }
+
     pub fn passed() -> Self {
         Self {
             state: GameState::Passed,

@@ -31,7 +31,6 @@ fn gather_input(
                     KeyCode::Down => direction_event_writer.send(DirectionInputEvent::down()),
                     KeyCode::Left => direction_event_writer.send(DirectionInputEvent::left()),
                     KeyCode::Right => direction_event_writer.send(DirectionInputEvent::right()),
-                    KeyCode::V => action_event_writer.send(ActionInputEvent::volume()),
                     KeyCode::U => action_event_writer.send(ActionInputEvent::undo()),
                     KeyCode::R => action_event_writer.send(ActionInputEvent::reload()),
                     KeyCode::S => action_event_writer.send(ActionInputEvent::selection()),

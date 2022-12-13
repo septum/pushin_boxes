@@ -14,6 +14,7 @@ use super::prelude::*;
 #[derive(TypeUuid, Serialize, Deserialize, Clone)]
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
+    volume: f64,
     stock_records: Vec<LevelRecord>,
     custom_records: HashMap<String, LevelRecord>,
 }
@@ -21,6 +22,7 @@ pub struct SaveFile {
 impl Default for SaveFile {
     fn default() -> SaveFile {
         SaveFile {
+            volume: INITIAL_VOLUME,
             stock_records: vec![LevelRecord::default()],
             custom_records: HashMap::default(),
         }
@@ -105,6 +107,14 @@ impl SaveFile {
                 unreachable!("Cannot unlock a level for a non-stock level")
             }
         }
+    }
+
+    pub fn set_volume(&mut self, volume: f64) {
+        self.volume = volume;
+    }
+
+    pub fn get_volume(&self) -> f64 {
+        self.volume
     }
 
     pub fn unlocked_levels(&self) -> usize {

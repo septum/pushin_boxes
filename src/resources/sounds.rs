@@ -6,6 +6,8 @@ use iyes_loopless::state::CurrentState;
 
 use super::prelude::*;
 
+pub const INITIAL_VOLUME: f64 = 0.5;
+
 pub struct Sfx;
 
 pub struct Music;
@@ -36,27 +38,36 @@ pub struct Sounds {
 }
 
 impl Sounds {
-    fn reset_volume(&mut self) {
-        self.volume = 1.0;
+    pub fn get_volume(&self) -> f64 {
+        self.volume
     }
 
-    fn toggle_volume(&mut self) {
+    pub fn decrease_volume(&mut self) {
         if self.volume > 0.0 {
             self.volume -= 0.25;
         } else {
-            self.reset_volume();
+            self.volume = 1.0;
+        }
+    }
+
+    pub fn increase_volume(&mut self) {
+        if self.volume < 1.0 {
+            self.volume += 0.25;
+        } else {
+            self.volume = 0.0;
         }
     }
 }
 
 pub fn setup(
     mut sounds: ResMut<Sounds>,
+    save_file: Res<SaveFile>,
     sfx: ResMut<AudioChannel<Sfx>>,
     music: ResMut<AudioChannel<Music>>,
 ) {
-    sounds.reset_volume();
-    music.set_volume(sounds.volume);
-    sfx.set_volume(sounds.volume);
+    sounds.volume = save_file.get_volume();
+    music.set_volume(sounds.get_volume());
+    sfx.set_volume(sounds.get_volume());
 }
 
 pub struct Plugin;
@@ -66,26 +77,22 @@ impl BevyPlugin for Plugin {
         app.add_system_set(
             ConditionSet::new()
                 .run_if_resource_exists::<Sounds>()
+                .with_system(handle_volume_change)
                 .with_system(play_music)
-                .with_system(handle_volume_input.run_on_event::<ActionInputEvent>())
                 .with_system(play_sfx.run_on_event::<ActionInputEvent>())
                 .into(),
         );
     }
 }
 
-fn handle_volume_input(
-    mut action_event_reader: EventReader<ActionInputEvent>,
-    mut sounds: ResMut<Sounds>,
+fn handle_volume_change(
+    sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
     music: Res<AudioChannel<Music>>,
 ) {
-    for action_event in action_event_reader.iter() {
-        if matches!(action_event.value, ActionInput::Volume) {
-            sounds.toggle_volume();
-            music.set_volume(sounds.volume);
-            sfx.set_volume(sounds.volume);
-        }
+    if sounds.is_changed() {
+        music.set_volume(sounds.volume);
+        sfx.set_volume(sounds.volume);
     }
 }
 
@@ -99,7 +106,7 @@ fn play_music(
         music
             .play(match game_state.0 {
                 GameState::Title | GameState::Instructions => sounds.music_title.clone(),
-                GameState::Selection(_) => sounds.music_selection.clone(),
+                GameState::Selection(_) | GameState::Options => sounds.music_selection.clone(),
                 GameState::Level | GameState::Editor => sounds.music_level.clone(),
                 GameState::Win | GameState::Passed => sounds.music_win.clone(),
                 GameState::Loading => return,
@@ -117,9 +124,6 @@ fn play_sfx(
         match action_event.value {
             ActionInput::Selection | ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
-            }
-            ActionInput::Volume => {
-                sfx.play(sounds.sfx_toggle_volume.clone());
             }
             ActionInput::Pick => {
                 sfx.play(sounds.sfx_set_zone.clone());
