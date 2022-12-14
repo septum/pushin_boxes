@@ -31,12 +31,11 @@ fn gather_input(
                     KeyCode::Down => direction_event_writer.send(DirectionInputEvent::down()),
                     KeyCode::Left => direction_event_writer.send(DirectionInputEvent::left()),
                     KeyCode::Right => direction_event_writer.send(DirectionInputEvent::right()),
-                    KeyCode::U => action_event_writer.send(ActionInputEvent::undo()),
-                    KeyCode::R => action_event_writer.send(ActionInputEvent::reload()),
-                    KeyCode::S => action_event_writer.send(ActionInputEvent::selection()),
+                    KeyCode::Z => action_event_writer.send(ActionInputEvent::undo()),
+                    KeyCode::F5 => action_event_writer.send(ActionInputEvent::reload()),
                     KeyCode::Escape => action_event_writer.send(ActionInputEvent::exit()),
-                    KeyCode::Space => action_event_writer.send(ActionInputEvent::pick()),
-                    KeyCode::Return => action_event_writer.send(ActionInputEvent::playtest()),
+                    KeyCode::Space => action_event_writer.send(ActionInputEvent::select()),
+                    KeyCode::Return => action_event_writer.send(ActionInputEvent::toggle()),
                     _ => (),
                 };
             }

@@ -17,7 +17,7 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
 
     let mut how_to_play = SimpleText::medium("Options", font);
     let mut volume = DynamicText::medium("Volume: ", font);
-    let mut press_button = SimpleText::small("Press ESC to save and return to the title", font);
+    let mut press_button = SimpleText::small("Press ESC to return to the title screen", font);
 
     how_to_play.primary();
     volume.id(VOLUME_ID).secondary();

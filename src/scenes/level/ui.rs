@@ -32,9 +32,9 @@ pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
     let mut stopwatch = DynamicText::small("Time: ", font);
     let mut moves = DynamicText::medium("Moves: ", font);
     let mut undos_left = DynamicText::medium("Undos: ", font);
-    let mut undo = SimpleText::small("(U) - Undo Movement", font);
-    let mut reload = SimpleText::small("(R) - Reload Level", font);
-    let mut selection = SimpleText::small("(L) - Level Selection", font);
+    let mut undo = SimpleText::small("(Z) - Undo Movement", font);
+    let mut reload = SimpleText::small("(F5) - Reload Level", font);
+    let mut selection = SimpleText::small("(ESC) - Level Selection", font);
 
     top.row().justify_between();
     bottom.row().justify_between();

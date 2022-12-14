@@ -92,7 +92,7 @@ fn handle_action_input(
 
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Pick => {
+            ActionInput::Select => {
                 for button in query.iter_mut() {
                     if button.selected {
                         let tag = if is_custom_selection {
@@ -110,7 +110,7 @@ fn handle_action_input(
                     }
                 }
             }
-            ActionInput::Selection => {
+            ActionInput::Toggle => {
                 scene_transition_event_writer
                     .send(SceneTransitionEvent::selection(!is_custom_selection));
             }

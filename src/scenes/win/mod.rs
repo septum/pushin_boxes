@@ -44,7 +44,7 @@ fn handle_action_input(
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Pick => {
+            ActionInput::Select => {
                 match &level.tag {
                     LevelTag::Stock(index) => {
                         if level.is_last() {

@@ -1,9 +1,8 @@
 pub enum ActionInput {
     Undo,
     Reload,
-    Selection,
-    Pick,
-    Playtest,
+    Select,
+    Toggle,
     Exit,
 }
 
@@ -24,21 +23,15 @@ impl ActionInputEvent {
         }
     }
 
-    pub fn selection() -> ActionInputEvent {
+    pub fn select() -> ActionInputEvent {
         ActionInputEvent {
-            value: ActionInput::Selection,
+            value: ActionInput::Select,
         }
     }
 
-    pub fn pick() -> ActionInputEvent {
+    pub fn toggle() -> ActionInputEvent {
         ActionInputEvent {
-            value: ActionInput::Pick,
-        }
-    }
-
-    pub fn playtest() -> ActionInputEvent {
-        ActionInputEvent {
-            value: ActionInput::Playtest,
+            value: ActionInput::Toggle,
         }
     }
 

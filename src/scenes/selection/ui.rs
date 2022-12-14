@@ -73,17 +73,27 @@ pub fn spawn(
 
     let overlay = Overlay::extended();
     let top = Container::auto_height();
-    let mut bottom = Container::default();
+    let mut middle = Container::default();
+    let bottom = Container::auto_height();
 
     let selection_kind = if is_custom_selection {
         "Custom"
     } else {
         "Stock"
     };
+    let next_selection_kind = if is_custom_selection {
+        "stock"
+    } else {
+        "custom"
+    };
     let mut title = SimpleText::medium(format!("Select a {selection_kind} Level"), font);
+    let press_button = SimpleText::small(
+        format!("Press ENTER to switch to {next_selection_kind} selection"),
+        font,
+    );
 
     title.primary();
-    bottom
+    middle
         .row()
         .wrap_reverse()
         .justify_start()
@@ -94,12 +104,15 @@ pub fn spawn(
         top.spawn(parent, |parent| {
             title.spawn(parent);
         });
-        bottom.spawn(parent, |parent| {
+        middle.spawn(parent, |parent| {
             if is_custom_selection {
                 spawn_custom_buttons(parent, &save_file, font);
             } else {
                 spawn_stock_buttons(parent, &save_file, font);
             }
         });
+        bottom.spawn(parent, |parent| {
+            press_button.spawn(parent);
+        })
     });
 }

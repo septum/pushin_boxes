@@ -15,9 +15,14 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_enter_system(GameState::Options, self::ui::spawn)
-            .add_system(handle_action_input.run_in_state(GameState::Options))
-            .add_system(handle_direction_input.run_in_state(GameState::Options))
-            .add_system(update_dynamic_text.run_in_state(GameState::Options))
+            .add_system_set(
+                ConditionSet::new()
+                    .run_in_state(GameState::Options)
+                    .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
+                    .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
+                    .with_system(update_dynamic_text)
+                    .into(),
+            )
             .add_exit_system(GameState::Options, cleanup::<OverlayMarker>);
     }
 }

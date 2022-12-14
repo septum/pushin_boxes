@@ -20,12 +20,8 @@ fn handle_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
     for action_event in action_event_reader.iter() {
-        match action_event.value {
-            ActionInput::Pick => {
-                game_state_event_writer.send(SceneTransitionEvent::selection(false));
-            }
-            ActionInput::Exit => game_state_event_writer.send(SceneTransitionEvent::title()),
-            _ => (),
+        if matches!(action_event.value, ActionInput::Exit) {
+            game_state_event_writer.send(SceneTransitionEvent::title())
         }
     }
 }

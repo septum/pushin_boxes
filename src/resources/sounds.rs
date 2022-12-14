@@ -122,10 +122,10 @@ fn play_sfx(
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Selection | ActionInput::Exit => {
+            ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
             }
-            ActionInput::Pick => {
+            ActionInput::Select => {
                 sfx.play(sounds.sfx_set_zone.clone());
             }
             _ => (),

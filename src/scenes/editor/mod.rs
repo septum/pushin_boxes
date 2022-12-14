@@ -76,8 +76,8 @@ fn handle_action_input(
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Pick => brush.cycle(),
-            ActionInput::Playtest => {
+            ActionInput::Toggle => brush.cycle(),
+            ActionInput::Select => {
                 if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
                     level_insertion_event_writer.send(LevelInsertionEvent::new(
                         LevelTag::Playtest(level.clone_state()),
@@ -231,19 +231,17 @@ fn check_validity(
     level_validity: Res<LevelValidity>,
     mut texts: Query<(&mut Text, &DynamicTextData)>,
 ) {
-    if level_validity.is_changed() {
-        let (mut text, data) = texts.single_mut();
-        text.sections[1].value = match data.id {
-            VALID_ID => {
-                if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
-                    "YES".to_string()
-                } else {
-                    "NO".to_string()
-                }
+    let (mut text, data) = texts.single_mut();
+    text.sections[1].value = match data.id {
+        VALID_ID => {
+            if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
+                "YES".to_string()
+            } else {
+                "NO".to_string()
             }
-            _ => unreachable!("The text id does not exists"),
-        };
-    }
+        }
+        _ => unreachable!("The text id does not exists"),
+    };
 }
 
 fn update_map(

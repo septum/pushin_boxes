@@ -72,8 +72,7 @@ fn handle_action_input(
                     sfx.play(sounds.sfx_reload_level.clone());
                 }
             }
-            ActionInput::Selection | ActionInput::Exit => {
-                // TODO: Check the LevelTag
+            ActionInput::Select | ActionInput::Exit => {
                 game_state_event_writer.send(SceneTransitionEvent::selection(false));
             }
             _ => (),
