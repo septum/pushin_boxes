@@ -113,6 +113,6 @@ pub fn spawn(
         });
         bottom.spawn(parent, |parent| {
             press_button.spawn(parent);
-        })
+        });
     });
 }

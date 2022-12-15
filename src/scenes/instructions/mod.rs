@@ -21,7 +21,7 @@ fn handle_input(
 ) {
     for action_event in action_event_reader.iter() {
         if matches!(action_event.value, ActionInput::Exit) {
-            game_state_event_writer.send(SceneTransitionEvent::title())
+            game_state_event_writer.send(SceneTransitionEvent::title());
         }
     }
 }

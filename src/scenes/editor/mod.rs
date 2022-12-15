@@ -46,10 +46,15 @@ impl BevyPlugin for Plugin {
     }
 }
 
-fn setup_level(mut commands: Commands, images: Res<Images>) {
+fn setup_level(
+    mut commands: Commands,
+    images: Res<Images>,
+    mut level_validity: ResMut<LevelValidity>,
+) {
     let mut level = Level::editable();
     level.spawn(&mut commands, &images);
     commands.insert_resource(level);
+    level_validity.reset();
 }
 
 fn handle_direction_input(

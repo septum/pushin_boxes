@@ -19,7 +19,7 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, level: Res<Level>) {
 
     let mut record = SimpleText::medium(record, font);
     let mut title = SimpleText::large("You Win!   ", font);
-    let press_button = SimpleText::small("Press space to continue", font);
+    let press_button = SimpleText::small("Press SPACE to continue", font);
 
     center.margin_bottom(100.0).justify_between();
     record.secondary();

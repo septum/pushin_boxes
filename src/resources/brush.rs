@@ -8,6 +8,13 @@ pub struct LevelValidity {
     pub boxes: usize,
 }
 
+impl LevelValidity {
+    pub fn reset(&mut self) {
+        self.zones = 0;
+        self.boxes = 0;
+    }
+}
+
 #[derive(Default)]
 pub enum BrushEntity {
     #[default]

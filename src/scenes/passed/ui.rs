@@ -14,10 +14,10 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let mut center = Container::size(600.0, 300.0);
     let level_name = Container::auto();
 
-    let mut title = SimpleText::large("Passed!", font);
+    let mut title = SimpleText::large("Level Passed!", font);
     let level_name_title = SimpleText::medium("Give this level a name:", font);
     let mut level_name_input = DynamicText::medium("", font);
-    let press_button = SimpleText::small("Press enter to continue", font);
+    let press_button = SimpleText::small("Press ENTER to continue", font);
 
     center.justify_between();
 
