@@ -1,6 +1,7 @@
 mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
+use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
 
 use crate::{
@@ -33,6 +34,8 @@ impl BevyPlugin for Plugin {
                     .with_system(update_map)
                     .with_system(update_brush_sprite)
                     .with_system(check_validity)
+                    .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
+                    .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
                     .into(),
             )
             .add_exit_system_set(
@@ -261,5 +264,36 @@ fn update_map(
         *image = map_entity.to_image(&images);
 
         position.update_translation(&mut transform.translation, is_box);
+    }
+}
+
+fn play_action_sfx(
+    mut action_event_reader: EventReader<ActionInputEvent>,
+    sounds: Res<Sounds>,
+    sfx: Res<AudioChannel<Sfx>>,
+) {
+    for action_event in action_event_reader.iter() {
+        match action_event.value {
+            ActionInput::Exit => {
+                sfx.play(sounds.sfx_push_box.clone());
+            }
+            ActionInput::Toggle => {
+                sfx.play(sounds.sfx_toggle_volume.clone());
+            }
+            ActionInput::Select => {
+                sfx.play(sounds.sfx_set_zone.clone());
+            }
+            _ => (),
+        }
+    }
+}
+
+pub fn play_direction_sfx(
+    mut direction_event_reader: EventReader<DirectionInputEvent>,
+    sounds: Res<Sounds>,
+    sfx: Res<AudioChannel<Sfx>>,
+) {
+    for _ in direction_event_reader.iter() {
+        sfx.play(sounds.sfx_move_character.clone());
     }
 }

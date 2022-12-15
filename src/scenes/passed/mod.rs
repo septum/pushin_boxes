@@ -8,6 +8,7 @@ use std::{
 };
 
 use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*};
+use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
 use regex::Regex;
 use uuid::Uuid;
@@ -72,19 +73,21 @@ pub fn handle_text_input(
     mut character_event_reader: EventReader<ReceivedCharacter>,
     mut query: Query<(&mut Text, &DynamicTextData)>,
     mut level_name: Local<String>,
+    sounds: Res<Sounds>,
+    sfx: Res<AudioChannel<Sfx>>,
 ) {
-    // TODO: Maybe store this in a resource
-    let level_name_regex = Regex::new(r"^[a-zA-Z ]$").unwrap();
-
-    for character_event in character_event_reader.iter() {
-        if level_name_regex.is_match(&character_event.char.to_string()) {
-            level_name.push(character_event.char);
-        }
-    }
-
     let (mut text, data) = query.single_mut();
+    if level_name.len() < 16 {
+        // TODO: Maybe store this in a resource
+        let level_name_regex = Regex::new(r"^[a-zA-Z ]$").unwrap();
 
-    if level_name.len() <= 16 {
+        for character_event in character_event_reader.iter() {
+            if level_name_regex.is_match(&character_event.char.to_string()) {
+                sfx.play(sounds.sfx_move_character.clone());
+                level_name.push(character_event.char);
+            }
+        }
+
         text.sections[0].value = match data.id {
             LEVEL_NAME_ID => level_name.to_string(),
             _ => unreachable!("The text id does not exists"),
@@ -109,10 +112,12 @@ pub fn handle_text_input(
             if let Some(key_code) = event.key_code {
                 match key_code {
                     KeyCode::Back => {
+                        sfx.play(sounds.sfx_undo_move.clone());
                         level_name.pop();
                     }
                     KeyCode::Return => {
                         if level_name.len() > 0 {
+                            sfx.play(sounds.sfx_set_zone.clone());
                             let uuid = Uuid::new_v4();
                             let serialized_string =
                                 ron::ser::to_string(&level.tag.get_playtest_state()).unwrap();

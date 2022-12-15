@@ -34,6 +34,7 @@ impl BevyPlugin for Plugin {
                 .with_system(update_character_animation)
                 .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
                 .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
+                .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
                 .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
                 .into(),
         )
@@ -118,6 +119,24 @@ fn handle_action_input(
                 }
             }
             ActionInput::Exit => exit.send(AppExit),
+            _ => (),
+        }
+    }
+}
+
+fn play_action_sfx(
+    mut action_event_reader: EventReader<ActionInputEvent>,
+    sounds: Res<Sounds>,
+    sfx: Res<AudioChannel<Sfx>>,
+) {
+    for action_event in action_event_reader.iter() {
+        match action_event.value {
+            ActionInput::Exit => {
+                sfx.play(sounds.sfx_push_box.clone());
+            }
+            ActionInput::Select => {
+                sfx.play(sounds.sfx_set_zone.clone());
+            }
             _ => (),
         }
     }

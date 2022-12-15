@@ -79,7 +79,6 @@ impl BevyPlugin for Plugin {
                 .run_if_resource_exists::<Sounds>()
                 .with_system(handle_volume_change)
                 .with_system(play_music)
-                .with_system(play_sfx.run_on_event::<ActionInputEvent>())
                 .into(),
         );
     }
@@ -112,23 +111,5 @@ fn play_music(
                 GameState::Loading => return,
             })
             .looped();
-    }
-}
-
-fn play_sfx(
-    mut action_event_reader: EventReader<ActionInputEvent>,
-    sounds: Res<Sounds>,
-    sfx: Res<AudioChannel<Sfx>>,
-) {
-    for action_event in action_event_reader.iter() {
-        match action_event.value {
-            ActionInput::Exit => {
-                sfx.play(sounds.sfx_push_box.clone());
-            }
-            ActionInput::Select => {
-                sfx.play(sounds.sfx_set_zone.clone());
-            }
-            _ => (),
-        }
     }
 }

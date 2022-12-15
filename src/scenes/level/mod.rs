@@ -72,10 +72,11 @@ fn handle_action_input(
                     sfx.play(sounds.sfx_reload_level.clone());
                 }
             }
-            ActionInput::Select | ActionInput::Exit => {
+            ActionInput::Exit => {
+                sfx.play(sounds.sfx_push_box.clone());
                 game_state_event_writer.send(SceneTransitionEvent::selection(false));
             }
-            ActionInput::Toggle => (),
+            _ => (),
         }
     }
 }
