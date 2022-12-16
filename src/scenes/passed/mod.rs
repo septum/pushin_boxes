@@ -120,7 +120,7 @@ pub fn handle_text_input(
                             sfx.play(sounds.sfx_set_zone.clone());
                             let uuid = Uuid::new_v4();
                             let serialized_string =
-                                ron::ser::to_string(&level.tag.get_playtest_state()).unwrap();
+                                ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
                             let levels_path = format!("levels/custom/{}.lvl", &uuid);
                             let assets_path = format!("assets/{}", &levels_path);
                             let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {

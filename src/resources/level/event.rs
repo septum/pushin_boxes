@@ -1,11 +1,11 @@
-use super::tag::LevelTag;
+use super::kind::LevelKind;
 
 pub struct LevelInsertionEvent {
-    pub tag: LevelTag,
+    pub kind: LevelKind,
 }
 
 impl LevelInsertionEvent {
-    pub fn new(tag: LevelTag) -> LevelInsertionEvent {
-        LevelInsertionEvent { tag }
+    pub fn new(kind: LevelKind) -> LevelInsertionEvent {
+        LevelInsertionEvent { kind }
     }
 }

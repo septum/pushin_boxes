@@ -240,14 +240,14 @@ fn check_lever_timer_just_finished(
     level: Res<Level>,
 ) {
     if level.timer_just_finished() {
-        match level.tag {
-            LevelTag::Stock(_) | LevelTag::Custom(_) => {
+        match level.kind {
+            LevelKind::Stock(_) | LevelKind::Custom(_) => {
                 scene_transition_event_writer.send(SceneTransitionEvent::win());
             }
-            LevelTag::Playtest(_) => {
+            LevelKind::Playtest(_) => {
                 scene_transition_event_writer.send(SceneTransitionEvent::passed());
             }
-            LevelTag::Editable => unreachable!("An editable level cannot trigger the level timer"),
+            LevelKind::Editable => unreachable!("An editable level cannot trigger the level timer"),
         }
     }
 }

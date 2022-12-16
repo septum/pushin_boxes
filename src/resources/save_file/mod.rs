@@ -60,31 +60,31 @@ impl SaveFile {
         }
     }
 
-    pub fn get_record(&self, tag: &LevelTag) -> LevelRecord {
-        match tag {
-            LevelTag::Stock(index) => self.stock_records[*index],
-            LevelTag::Playtest(_) => LevelRecord::default(),
-            LevelTag::Custom(payload) => *self
+    pub fn get_record(&self, kind: &LevelKind) -> LevelRecord {
+        match kind {
+            LevelKind::Stock(index) => self.stock_records[*index],
+            LevelKind::Playtest(_) => LevelRecord::default(),
+            LevelKind::Custom(payload) => *self
                 .custom_records
                 .get(payload)
                 .expect("Cannot get custom record"),
-            LevelTag::Editable => unreachable!("An editable level does not have a record"),
+            LevelKind::Editable => unreachable!("An editable level does not have a record"),
         }
     }
 
     pub fn set_new_record(&mut self, level: &Level) {
         let new_record = level.get_set_record();
-        let current_record = self.get_record(&level.tag);
+        let current_record = self.get_record(&level.kind);
         if new_record.is_better_than(&current_record) {
-            match &level.tag {
-                LevelTag::Stock(index) => {
+            match &level.kind {
+                LevelKind::Stock(index) => {
                     self.stock_records[*index] = new_record;
                 }
-                LevelTag::Custom(payload) => {
+                LevelKind::Custom(payload) => {
                     self.custom_records.insert(payload.clone(), new_record);
                 }
-                LevelTag::Playtest(_) => unreachable!("Cannot set a record for an playtest level"),
-                LevelTag::Editable => {
+                LevelKind::Playtest(_) => unreachable!("Cannot set a record for an playtest level"),
+                LevelKind::Editable => {
                     unreachable!("Cannot set a record for an editable level")
                 }
             };
@@ -96,8 +96,8 @@ impl SaveFile {
     }
 
     pub fn unlock_new_level(&mut self, level: &Level) {
-        match level.tag {
-            LevelTag::Stock(index) => {
+        match level.kind {
+            LevelKind::Stock(index) => {
                 let unlocked_levels = self.unlocked_levels();
                 if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
                     self.stock_records.push(LevelRecord::default());

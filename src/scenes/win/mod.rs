@@ -29,7 +29,7 @@ impl BevyPlugin for Plugin {
 }
 
 fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    if matches!(level.tag, LevelTag::Stock(_)) {
+    if matches!(level.kind, LevelKind::Stock(_)) {
         save_file.set_new_record(&level);
         save_file.unlock_new_level(&level);
         save_file.save();
@@ -45,22 +45,22 @@ fn handle_action_input(
     for action_event in action_event_reader.iter() {
         match action_event.value {
             ActionInput::Select => {
-                match &level.tag {
-                    LevelTag::Stock(index) => {
+                match &level.kind {
+                    LevelKind::Stock(index) => {
                         if level.is_last() {
                             game_state_event_writer.send(SceneTransitionEvent::selection(false));
                         } else {
                             level_instertion_event_writer
-                                .send(LevelInsertionEvent::new(LevelTag::Stock(index + 1)));
+                                .send(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
                         }
                     }
-                    LevelTag::Custom(_) => {
+                    LevelKind::Custom(_) => {
                         game_state_event_writer.send(SceneTransitionEvent::selection(true));
                     }
-                    LevelTag::Playtest(_) => {
+                    LevelKind::Playtest(_) => {
                         todo!("Save custom level and switch scene to custom level selection")
                     }
-                    LevelTag::Editable => {
+                    LevelKind::Editable => {
                         unreachable!("An editable level cannot be won");
                     }
                 };

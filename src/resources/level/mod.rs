@@ -1,18 +1,18 @@
 mod event;
 mod handles;
+mod kind;
 mod map;
 mod record;
 mod snapshots;
 mod state;
-mod tag;
 
 pub mod prelude {
     pub use super::event::LevelInsertionEvent;
     pub use super::handles::LevelHandles;
+    pub use super::kind::LevelKind;
     pub use super::map::{MapEntity, MapPosition};
     pub use super::record::LevelRecord;
     pub use super::state::LevelState;
-    pub use super::tag::LevelTag;
     pub use super::{Level, TOTAL_STOCK_LEVELS};
 }
 
@@ -65,32 +65,32 @@ fn insert_level(
     level_states_assets: Res<Assets<LevelState>>,
 ) {
     if let Some(level_insertion_event) = level_insertion_event_reader.iter().next() {
-        match &level_insertion_event.tag {
-            LevelTag::Stock(index) => {
+        match &level_insertion_event.kind {
+            LevelKind::Stock(index) => {
                 let state = *level_states_assets
                     .get(level_handles.get_stock(index))
                     .unwrap();
-                let record = save_file.get_record(&level_insertion_event.tag);
-                let level = Level::new(level_insertion_event.tag.clone(), state, record);
+                let record = save_file.get_record(&level_insertion_event.kind);
+                let level = Level::new(level_insertion_event.kind.clone(), state, record);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.send(SceneTransitionEvent::level());
             }
-            LevelTag::Custom(payload) => {
+            LevelKind::Custom(payload) => {
                 let parsed_payload: Vec<&str> = payload.split('$').collect();
                 let uuid = Uuid::parse_str(parsed_payload[1]).expect("Cannot parse uuid");
                 let state = *level_states_assets
                     .get(level_handles.get_custom(&uuid))
                     .unwrap();
-                let record = save_file.get_record(&level_insertion_event.tag);
-                let level = Level::new(level_insertion_event.tag.clone(), state, record);
+                let record = save_file.get_record(&level_insertion_event.kind);
+                let level = Level::new(level_insertion_event.kind.clone(), state, record);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.send(SceneTransitionEvent::level());
             }
-            LevelTag::Playtest(state) => {
+            LevelKind::Playtest(state) => {
                 let level = Level::new(
-                    level_insertion_event.tag.clone(),
+                    level_insertion_event.kind.clone(),
                     *state,
                     LevelRecord::default(),
                 );
@@ -98,7 +98,7 @@ fn insert_level(
                 commands.insert_resource(level);
                 scene_transition_event_writer.send(SceneTransitionEvent::level());
             }
-            LevelTag::Editable => {
+            LevelKind::Editable => {
                 unreachable!("An editable should not be inserted with this event")
             }
         }
@@ -113,7 +113,7 @@ pub struct LevelDone {
 
 #[derive(Default)]
 pub struct Level {
-    pub tag: LevelTag,
+    pub kind: LevelKind,
     state: LevelState,
     record: LevelRecord,
     snapshots: LevelSnapshots,
@@ -124,9 +124,9 @@ pub struct Level {
 }
 
 impl Level {
-    pub fn new(tag: LevelTag, state: LevelState, record: LevelRecord) -> Level {
+    pub fn new(kind: LevelKind, state: LevelState, record: LevelRecord) -> Level {
         Level {
-            tag,
+            kind,
             state,
             record,
             snapshots: [None; MAX_SNAPSHOTS],
@@ -142,9 +142,9 @@ impl Level {
 
     pub fn editable() -> Level {
         let state = LevelState::editor();
-        let tag = LevelTag::Editable;
+        let kind = LevelKind::Editable;
         let record = LevelRecord::default();
-        Level::new(tag, state, record)
+        Level::new(kind, state, record)
     }
 
     pub fn clone_state(&self) -> LevelState {
@@ -241,18 +241,18 @@ impl Level {
     }
 
     pub fn is_stock(&self) -> bool {
-        matches!(self.tag, LevelTag::Stock(_))
+        matches!(self.kind, LevelKind::Stock(_))
     }
 
     pub fn name(&self) -> String {
-        match &self.tag {
-            LevelTag::Stock(index) => (index + 1).to_string(),
-            LevelTag::Custom(key) => {
+        match &self.kind {
+            LevelKind::Stock(index) => (index + 1).to_string(),
+            LevelKind::Custom(key) => {
                 let parsed_key: Vec<&str> = key.split('$').collect();
                 parsed_key[0].to_string()
             }
-            LevelTag::Playtest(_) => "Playtest".to_string(),
-            LevelTag::Editable => unreachable!("An editable level does not have a name"),
+            LevelKind::Playtest(_) => "Playtest".to_string(),
+            LevelKind::Editable => unreachable!("An editable level does not have a name"),
         }
     }
 
@@ -324,15 +324,15 @@ impl Level {
         level_states_assets: &Assets<LevelState>,
     ) -> bool {
         if self.moves != 0 || self.undos < 4 {
-            match &self.tag {
-                LevelTag::Stock(index) => {
+            match &self.kind {
+                LevelKind::Stock(index) => {
                     self.set_state(
                         *level_states_assets
                             .get(level_handles.get_stock(index))
                             .unwrap(),
                     );
                 }
-                LevelTag::Custom(key) => {
+                LevelKind::Custom(key) => {
                     let parsed_key: Vec<&str> = key.split('$').collect();
                     let uuid = Uuid::parse_str(parsed_key[1]).expect("Cannot parse uuid");
                     self.set_state(
@@ -341,10 +341,10 @@ impl Level {
                             .unwrap(),
                     );
                 }
-                LevelTag::Playtest(state) => {
+                LevelKind::Playtest(state) => {
                     self.set_state(*state);
                 }
-                LevelTag::Editable => {
+                LevelKind::Editable => {
                     unreachable!("An editable level can't be reloaded")
                 }
             }
@@ -372,9 +372,9 @@ impl Level {
     }
 
     pub fn is_last(&self) -> bool {
-        match self.tag {
-            LevelTag::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
-            _ => unreachable!("There is no last level in other level tags"),
+        match self.kind {
+            LevelKind::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
+            _ => unreachable!("There is no last level in other level kinds"),
         }
     }
 }

@@ -96,18 +96,18 @@ fn handle_action_input(
             ActionInput::Select => {
                 for button in query.iter_mut() {
                     if button.selected {
-                        let tag = if is_custom_selection {
-                            LevelTag::Custom(
+                        let kind = if is_custom_selection {
+                            LevelKind::Custom(
                                 button
                                     .payload
                                     .clone()
                                     .expect("The button payload was empty"),
                             )
                         } else {
-                            LevelTag::Stock(button.id)
+                            LevelKind::Stock(button.id)
                         };
 
-                        level_insertion_event_writer.send(LevelInsertionEvent::new(tag));
+                        level_insertion_event_writer.send(LevelInsertionEvent::new(kind));
                     }
                 }
             }
