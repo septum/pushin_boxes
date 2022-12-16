@@ -18,6 +18,10 @@ use crate::{
     ui::{DynamicTextData, OverlayMarker},
 };
 
+pub struct LevelNameRegex {
+    pub value: Regex,
+}
+
 pub struct TextCursor {
     pub blink_timer: Timer,
     pub blink_toggle: bool,
@@ -29,7 +33,10 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(TextCursor {
+        app.insert_resource(LevelNameRegex {
+            value: Regex::new(r"^[a-zA-Z ]$").unwrap(),
+        })
+        .insert_resource(TextCursor {
             blink_timer: Timer::from_seconds(0.5, true),
             blink_toggle: true,
         })
@@ -64,6 +71,7 @@ fn handle_action_input(
 pub fn handle_text_input(
     time: Res<Time>,
     level: Res<Level>,
+    level_name_regex: Res<LevelNameRegex>,
     asset_server: Res<AssetServer>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut save_file: ResMut<SaveFile>,
@@ -78,11 +86,11 @@ pub fn handle_text_input(
 ) {
     let (mut text, data) = query.single_mut();
     if level_name.len() < 16 {
-        // TODO: Maybe store this in a resource
-        let level_name_regex = Regex::new(r"^[a-zA-Z ]$").unwrap();
-
         for character_event in character_event_reader.iter() {
-            if level_name_regex.is_match(&character_event.char.to_string()) {
+            if level_name_regex
+                .value
+                .is_match(&character_event.char.to_string())
+            {
                 sfx.play(sounds.sfx_move_character.clone());
                 level_name.push(character_event.char);
             }
@@ -97,9 +105,6 @@ pub fn handle_text_input(
     if text_cursor.blink_timer.tick(time.delta()).just_finished() {
         text_cursor.blink_toggle = !text_cursor.blink_toggle;
     }
-
-    // TODO: Initialize `DynamicText` with this value
-    text.sections[1].value = "_".to_string();
 
     if text_cursor.blink_toggle {
         text.sections[1].style.color = Colors::TRANSPARENT;

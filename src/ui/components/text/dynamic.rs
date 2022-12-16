@@ -47,4 +47,9 @@ impl DynamicText {
         self.data.id = id;
         self
     }
+
+    pub fn dynamic_text_value<S: Into<String> + Clone>(&mut self, text: S) -> &mut DynamicText {
+        self.bundle.text.sections[1].value = text.into();
+        self
+    }
 }

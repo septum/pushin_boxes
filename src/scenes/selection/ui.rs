@@ -76,6 +76,7 @@ pub fn spawn(
     let mut middle = Container::default();
     let bottom = Container::auto_height();
 
+    // TODO: Change this
     let selection_kind = if is_custom_selection {
         "Custom"
     } else {

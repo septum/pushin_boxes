@@ -22,7 +22,10 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     center.justify_between();
 
     title.primary();
-    level_name_input.id(LEVEL_NAME_ID).secondary();
+    level_name_input
+        .id(LEVEL_NAME_ID)
+        .secondary()
+        .dynamic_text_value("_");
 
     overlay.spawn(&mut commands, |parent| {
         center.spawn(parent, |parent| {

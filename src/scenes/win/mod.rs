@@ -58,7 +58,7 @@ fn handle_action_input(
                         game_state_event_writer.send(SceneTransitionEvent::selection(true));
                     }
                     LevelKind::Playtest(_) => {
-                        todo!("Save custom level and switch scene to custom level selection")
+                        unreachable!("A playtest level cannot be won");
                     }
                     LevelKind::Editable => {
                         unreachable!("An editable level cannot be won");
