@@ -21,7 +21,6 @@ impl BevyPlugin for Plugin {
                 })
                 .set(ImagePlugin {
                     default_sampler: ImageSampler::nearest_descriptor(),
-                    ..default()
                 }),
         )
         .insert_resource(Msaa { samples: 1 })
