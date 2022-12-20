@@ -96,14 +96,11 @@ impl SaveFile {
     }
 
     pub fn unlock_new_level(&mut self, level: &Level) {
-        match level.kind {
-            LevelKind::Stock(index) => {
-                let unlocked_levels = self.unlocked_levels();
-                if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
-                    self.stock_records.push(LevelRecord::default());
-                }
+        if let LevelKind::Stock(index) = level.kind {
+            let unlocked_levels = self.unlocked_levels();
+            if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
+                self.stock_records.push(LevelRecord::default());
             }
-            _ => {}
         }
     }
 
