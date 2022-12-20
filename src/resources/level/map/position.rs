@@ -53,7 +53,7 @@ impl MapPosition {
         }
     }
 
-    pub fn update_translation(&self, translation: &mut Vec3, on_top: bool) {
+    pub fn update_translation(&self, translation: &mut Vec3) {
         // calculate coords with the correct sprite dimension
         // and moving the origin/pivot from the center to the top-left
         let x = ((self.x * SPRITE_SIZE) + SPRITE_OFFSET) as f32;
@@ -64,7 +64,7 @@ impl MapPosition {
         translation.y = y - (MAP_HEIGHT / 2.0);
 
         // adaptation of depthness in a 2D plane
-        translation.z = if on_top { self.y + 1 } else { self.y } as f32;
+        translation.z = self.y as f32;
     }
 
     pub fn update_position(&mut self, direction: &DirectionInput) {
@@ -76,9 +76,9 @@ impl MapPosition {
         };
     }
 
-    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>, is_box: bool) {
+    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>) {
         let mut translation = Vec3::default();
-        self.update_translation(&mut translation, is_box);
+        self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteBundle {
@@ -96,7 +96,7 @@ impl MapPosition {
         index: usize,
     ) {
         let mut translation = Vec3::default();
-        self.update_translation(&mut translation, true);
+        self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteSheetBundle {

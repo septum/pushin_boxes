@@ -24,7 +24,8 @@ impl MapEntity {
             MapEntity::V => images.entity_void.clone(),
             MapEntity::F => images.entity_floor.clone(),
             MapEntity::Z => images.entity_zone.clone(),
-            MapEntity::B | MapEntity::P => images.entity_box.clone(),
+            MapEntity::B => images.entity_box.clone(),
+            MapEntity::P => images.entity_placed_box.clone(),
         }
     }
 }

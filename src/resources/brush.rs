@@ -50,7 +50,7 @@ impl Brush {
         let brush = Brush::default();
 
         let mut translation = Vec3::default();
-        brush.position.update_translation(&mut translation, true);
+        brush.position.update_translation(&mut translation);
 
         translation.y += 20.0;
         translation.z = 20.0;

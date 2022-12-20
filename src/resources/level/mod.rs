@@ -366,8 +366,7 @@ impl Level {
 
         self.loop_over_entity_and_position(|entity, position| {
             let texture = entity.to_image(images);
-            let on_top = matches!(entity, &MapEntity::B | &MapEntity::P);
-            position.spawn_entity(commands, texture, on_top);
+            position.spawn_entity(commands, texture);
         });
     }
 

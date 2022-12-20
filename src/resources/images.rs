@@ -5,6 +5,8 @@ use bevy_asset_loader::prelude::*;
 pub struct Images {
     #[asset(path = "images/entities/box.png")]
     pub entity_box: Handle<Image>,
+    #[asset(path = "images/entities/placed_box.png")]
+    pub entity_placed_box: Handle<Image>,
     #[asset(path = "images/entities/void.png")]
     pub entity_void: Handle<Image>,
     #[asset(path = "images/entities/floor.png")]
@@ -13,6 +15,8 @@ pub struct Images {
     pub entity_zone: Handle<Image>,
     #[asset(path = "images/brushes/box.png")]
     pub brush_box: Handle<Image>,
+    #[asset(path = "images/brushes/placed_box.png")]
+    pub brush_placed_box: Handle<Image>,
     #[asset(path = "images/brushes/void.png")]
     pub brush_void: Handle<Image>,
     #[asset(path = "images/brushes/floor.png")]

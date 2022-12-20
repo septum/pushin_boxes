@@ -103,9 +103,7 @@ impl SaveFile {
                     self.stock_records.push(LevelRecord::default());
                 }
             }
-            _ => {
-                unreachable!("Cannot unlock a level for a non-stock level")
-            }
+            _ => {}
         }
     }
 

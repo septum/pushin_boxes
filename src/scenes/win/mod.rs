@@ -29,11 +29,9 @@ impl BevyPlugin for Plugin {
 }
 
 fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
-    if matches!(level.kind, LevelKind::Stock(_)) {
-        save_file.set_new_record(&level);
-        save_file.unlock_new_level(&level);
-        save_file.save();
-    }
+    save_file.set_new_record(&level);
+    save_file.unlock_new_level(&level);
+    save_file.save();
 }
 
 fn handle_action_input(

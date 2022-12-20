@@ -36,8 +36,8 @@ impl LevelRecord {
     }
 
     pub fn is_better_than(&self, other: &LevelRecord) -> bool {
-        self.moves == 0
-            || self.moves > other.moves
-            || self.moves >= other.moves && self.time > other.time
+        !other.is_set()
+            || self.moves < other.moves
+            || self.moves <= other.moves && self.time < other.time
     }
 }

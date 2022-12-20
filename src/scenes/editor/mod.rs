@@ -142,51 +142,42 @@ fn apply_brush_to_level(
             },
         );
 
-        if matches!(level.get_entity(&brush.position), MapEntity::Z)
-            && matches!(brush.entity, BrushEntity::Floor)
+        if matches!(brush.entity, BrushEntity::Floor)
+            && matches!(level.get_entity(&brush.position), MapEntity::Z)
         {
             level_validity.zones -= 1;
             level.decrement_remaining_zones();
-        } else if matches!(level.get_entity(&brush.position), MapEntity::F)
-            && matches!(brush.entity, BrushEntity::Zone)
+        } else if matches!(brush.entity, BrushEntity::Zone)
+            && matches!(level.get_entity(&brush.position), MapEntity::F)
         {
             level_validity.zones += 1;
             level.increment_remaining_zones();
         }
     } else {
         if matches!(
-            level.get_entity(&brush.position),
-            MapEntity::Z | MapEntity::P
-        ) && matches!(
             brush.entity,
             BrushEntity::Floor | BrushEntity::Void | BrushEntity::BoxInFloor
-        ) {
+        ) && matches!(level.get_entity(&brush.position), MapEntity::Z)
+        {
             level_validity.zones -= 1;
             level.decrement_remaining_zones();
-        } else if matches!(
-            level.get_entity(&brush.position),
-            MapEntity::F | MapEntity::V | MapEntity::B
-        ) && matches!(brush.entity, BrushEntity::Zone | BrushEntity::BoxInZone)
+        } else if matches!(brush.entity, BrushEntity::Zone)
+            && matches!(
+                level.get_entity(&brush.position),
+                MapEntity::F | MapEntity::V | MapEntity::B
+            )
         {
             level_validity.zones += 1;
             level.increment_remaining_zones();
         }
 
-        if matches!(
-            level.get_entity(&brush.position),
-            MapEntity::B | MapEntity::P
-        ) && !matches!(
-            brush.entity,
-            BrushEntity::BoxInFloor | BrushEntity::BoxInZone
-        ) {
+        if !matches!(brush.entity, BrushEntity::BoxInFloor)
+            && matches!(level.get_entity(&brush.position), MapEntity::B)
+        {
             level_validity.boxes -= 1;
-        } else if !matches!(
-            level.get_entity(&brush.position),
-            MapEntity::B | MapEntity::P
-        ) && matches!(
-            brush.entity,
-            BrushEntity::BoxInFloor | BrushEntity::BoxInZone
-        ) {
+        } else if matches!(brush.entity, BrushEntity::BoxInFloor)
+            && !matches!(level.get_entity(&brush.position), MapEntity::B)
+        {
             level_validity.boxes += 1;
         }
 
@@ -211,7 +202,7 @@ fn update_character_position(
     let mut transform = query.single_mut();
     level
         .character_position()
-        .update_translation(&mut transform.translation, true);
+        .update_translation(&mut transform.translation);
 }
 
 fn update_brush_sprite(
@@ -222,7 +213,7 @@ fn update_brush_sprite(
     let (mut image, mut transform) = query.single_mut();
     brush
         .position
-        .update_translation(&mut transform.translation, true);
+        .update_translation(&mut transform.translation);
     transform.translation.y += 20.0;
     transform.translation.z = 20.0;
 
@@ -230,7 +221,8 @@ fn update_brush_sprite(
         BrushEntity::Floor => images.brush_floor.clone(),
         BrushEntity::Void => images.brush_void.clone(),
         BrushEntity::Zone => images.brush_zone.clone(),
-        BrushEntity::BoxInFloor | BrushEntity::BoxInZone => images.brush_box.clone(),
+        BrushEntity::BoxInFloor => images.brush_box.clone(),
+        BrushEntity::BoxInZone => images.brush_placed_box.clone(),
         BrushEntity::Character => images.brush_character.clone(),
     };
 }
@@ -259,11 +251,8 @@ fn update_map(
 ) {
     for (mut image, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
-        let is_box = matches!(map_entity, MapEntity::B | MapEntity::P);
-
         *image = map_entity.to_image(&images);
-
-        position.update_translation(&mut transform.translation, is_box);
+        position.update_translation(&mut transform.translation);
     }
 }
 

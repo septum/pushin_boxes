@@ -74,7 +74,7 @@ fn handle_action_input(
             }
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
-                game_state_event_writer.send(SceneTransitionEvent::selection(false));
+                game_state_event_writer.send(SceneTransitionEvent::selection(!level.is_stock()));
             }
             _ => (),
         }
@@ -155,7 +155,7 @@ fn update_character_position(
     let mut transform = query.single_mut();
     level
         .character_position()
-        .update_translation(&mut transform.translation, true);
+        .update_translation(&mut transform.translation);
 }
 
 fn update_character_sprite(
@@ -218,11 +218,8 @@ fn update_map(
 ) {
     for (mut image, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
-        let is_box = matches!(map_entity, MapEntity::B | MapEntity::P);
-
         *image = map_entity.to_image(&images);
-
-        position.update_translation(&mut transform.translation, is_box);
+        position.update_translation(&mut transform.translation);
     }
 }
 
