@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::resources::prelude::*;
 
-const EXTENDED_CONTAINER_PADDING: UiRect<Val> = UiRect {
+const EXTENDED_CONTAINER_PADDING: UiRect = UiRect {
     top: Val::Px(19.0),
     bottom: Val::Px(28.0),
     left: Val::Px(30.0),
@@ -22,12 +22,12 @@ impl Default for Overlay {
             bundle: NodeBundle {
                 style: Style {
                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    flex_direction: FlexDirection::ColumnReverse,
+                    flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                color: Colors::TRANSPARENT.into(),
+                background_color: Colors::TRANSPARENT.into(),
                 ..default()
             },
         }
@@ -44,7 +44,7 @@ impl Overlay {
 
     pub fn spawn(self, commands: &mut Commands, children: impl FnOnce(&mut ChildBuilder)) {
         commands
-            .spawn_bundle(self.bundle)
+            .spawn(self.bundle)
             .with_children(children)
             .insert(OverlayMarker);
     }

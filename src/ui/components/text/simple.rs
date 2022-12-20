@@ -28,6 +28,6 @@ impl GameText for SimpleText {
     }
 
     fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn_bundle(self.bundle);
+        parent.spawn(self.bundle);
     }
 }

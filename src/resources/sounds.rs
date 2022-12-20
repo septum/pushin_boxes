@@ -8,11 +8,13 @@ use super::prelude::*;
 
 pub const INITIAL_VOLUME: f64 = 0.5;
 
+#[derive(Resource)]
 pub struct Sfx;
 
+#[derive(Resource)]
 pub struct Music;
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Resource)]
 pub struct Sounds {
     volume: f64,
     #[asset(path = "sounds/sfx/move_character.wav")]

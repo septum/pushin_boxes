@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 #[derive(Default)]
 pub struct Picture {
-    bundle: NodeBundle,
+    bundle: ImageBundle,
 }
 
 impl Picture {
@@ -15,6 +15,6 @@ impl Picture {
     }
 
     pub fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn_bundle(self.bundle);
+        parent.spawn(self.bundle);
     }
 }

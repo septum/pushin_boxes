@@ -86,7 +86,7 @@ impl MapPosition {
             texture,
             ..default()
         };
-        commands.spawn_bundle(bundle).insert(*self);
+        commands.spawn(bundle).insert(*self);
     }
 
     pub fn spawn_character(
@@ -105,6 +105,6 @@ impl MapPosition {
             transform,
             ..default()
         };
-        commands.spawn_bundle(bundle).insert(CharacterMarker);
+        commands.spawn(bundle).insert(CharacterMarker);
     }
 }

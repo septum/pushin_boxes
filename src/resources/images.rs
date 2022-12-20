@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Resource)]
 pub struct Images {
     #[asset(path = "images/entities/box.png")]
     pub entity_box: Handle<Image>,

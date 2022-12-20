@@ -96,7 +96,7 @@ pub fn spawn(
     title.primary();
     middle
         .row()
-        .wrap_reverse()
+        .wrap()
         .justify_start()
         .items_start()
         .content_start();

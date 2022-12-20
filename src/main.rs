@@ -8,7 +8,6 @@ use pushin_boxes::{config, resources, scenes};
 fn main() {
     App::new()
         .add_plugin(config::Plugin)
-        .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)
         .add_plugin(resources::Plugin)
         .add_plugin(scenes::Plugin)

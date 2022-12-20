@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct LevelValidity {
     pub zones: usize,
     pub boxes: usize,
@@ -26,6 +26,7 @@ pub enum BrushEntity {
     Character,
 }
 
+#[derive(Resource)]
 pub struct Brush {
     pub entity: BrushEntity,
     pub position: MapPosition,
@@ -40,7 +41,7 @@ impl Default for Brush {
         Self {
             entity: BrushEntity::default(),
             position: MapPosition::default(),
-            blink_timer: Timer::from_seconds(0.1, true),
+            blink_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         }
     }
 }
@@ -63,7 +64,7 @@ impl Brush {
         };
 
         commands.insert_resource(brush);
-        commands.spawn_bundle(bundle).insert(BrushSprite);
+        commands.spawn(bundle).insert(BrushSprite);
     }
 
     pub fn cycle(&mut self) {

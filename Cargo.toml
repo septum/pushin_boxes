@@ -11,26 +11,26 @@ default = ['bevy/dynamic']
 
 [dependencies]
 ron = "0.8.0"
-serde = "1.0.149"
+serde = "1.0.151"
 regex = "1.7.0"
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.1"
 default-features = false
 features = ["bevy_winit", "bevy_core_pipeline", "bevy_render", "bevy_sprite", "bevy_text", "bevy_ui", "png", "x11"]
 
 [dependencies.bevy_common_assets]
-version = "0.3.0"
+version = "0.4.0"
 default-features = false
 features = ["ron"]
 
 [dependencies.bevy_asset_loader]
-version = "0.12.1"
+version = "0.14.1"
 default-features = false
 features = ["2d", "stageless"]
 
 [dependencies.bevy_kira_audio]
-version = "0.12.0"
+version = "0.13.0"
 default-features = false
 features = ["wav"]
 
@@ -39,7 +39,7 @@ version = "0.13.1"
 features = ["serde"]
 
 [dependencies.iyes_loopless]
-version = "0.7.1"
+version = "0.9.1"
 default-features = false
 features = ["states", "app"]
 

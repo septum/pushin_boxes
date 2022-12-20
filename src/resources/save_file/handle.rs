@@ -2,7 +2,7 @@ use bevy::{asset::LoadState, prelude::*};
 
 use super::SaveFile;
 
-#[derive(Clone)]
+#[derive(Clone, Resource)]
 pub struct SaveFileHandle {
     pub value: Handle<SaveFile>,
 }

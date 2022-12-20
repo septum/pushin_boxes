@@ -11,7 +11,7 @@ pub use self::handle::SaveFileHandle;
 
 use super::prelude::*;
 
-#[derive(TypeUuid, Serialize, Deserialize, Clone)]
+#[derive(TypeUuid, Serialize, Deserialize, Clone, Resource)]
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
     volume: f64,

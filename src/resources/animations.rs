@@ -16,7 +16,7 @@ pub const BLINK_ROW_LAST_FRAME_INDEX: usize = 19;
 const TITLE_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(0.0, 74.0, 1.0));
 const WIN_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(222.0, 12.0, 1.0));
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct CharacterAnimation {
     primary_timer: Timer,
     secondary_timer: Timer,
@@ -33,12 +33,12 @@ impl CharacterAnimation {
             ..default()
         };
         let character_animation = CharacterAnimation {
-            primary_timer: Timer::from_seconds(0.25, true),
-            secondary_timer: Timer::from_seconds(3.0, false),
+            primary_timer: Timer::from_seconds(0.25, TimerMode::Repeating),
+            secondary_timer: Timer::from_seconds(3.0, TimerMode::Once),
             ..default()
         };
         commands.insert_resource(character_animation);
-        commands.spawn_bundle(bundle).insert(CharacterMarker);
+        commands.spawn(bundle).insert(CharacterMarker);
     }
 
     pub fn insert_happy_character_animation(mut commands: Commands, images: Res<Images>) {
@@ -48,19 +48,19 @@ impl CharacterAnimation {
             ..default()
         };
         let character_animation = CharacterAnimation {
-            primary_timer: Timer::from_seconds(0.125, true),
+            primary_timer: Timer::from_seconds(0.125, TimerMode::Repeating),
             row: 6,
             ..default()
         };
         commands.insert_resource(character_animation);
-        commands.spawn_bundle(bundle).insert(CharacterMarker);
+        commands.spawn(bundle).insert(CharacterMarker);
     }
 
     pub fn insert_level_character_animation(mut commands: Commands) {
         let character_animation = CharacterAnimation {
-            primary_timer: Timer::from_seconds(0.25, true),
-            secondary_timer: Timer::from_seconds(7.0, false),
-            tertiary_timer: Timer::from_seconds(10.0, false),
+            primary_timer: Timer::from_seconds(0.25, TimerMode::Repeating),
+            secondary_timer: Timer::from_seconds(7.0, TimerMode::Once),
+            tertiary_timer: Timer::from_seconds(10.0, TimerMode::Once),
             row: FRONT_ROW,
             index: 0,
         };

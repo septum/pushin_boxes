@@ -48,7 +48,7 @@ impl BevyPlugin for Plugin {
 }
 
 fn handle_direction_input(
-    mut query: Query<(&mut GameButtonData, &mut UiColor)>,
+    mut query: Query<(&mut GameButtonData, &mut BackgroundColor)>,
     mut direction_event_reader: EventReader<DirectionInputEvent>,
 ) {
     for direction_event in direction_event_reader.iter() {

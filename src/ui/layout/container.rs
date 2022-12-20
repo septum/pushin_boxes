@@ -12,12 +12,12 @@ impl Default for Container {
             bundle: NodeBundle {
                 style: Style {
                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    flex_direction: FlexDirection::ColumnReverse,
+                    flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                color: Colors::TRANSPARENT.into(),
+                background_color: Colors::TRANSPARENT.into(),
                 ..default()
             },
         }
@@ -111,8 +111,8 @@ impl Container {
         self
     }
 
-    pub fn wrap_reverse(&mut self) -> &mut Container {
-        self.bundle.style.flex_wrap = FlexWrap::WrapReverse;
+    pub fn wrap(&mut self) -> &mut Container {
+        self.bundle.style.flex_wrap = FlexWrap::Wrap;
         self
     }
 
@@ -132,6 +132,6 @@ impl Container {
     }
 
     pub fn spawn(self, parent: &mut ChildBuilder, children: impl FnOnce(&mut ChildBuilder)) {
-        parent.spawn_bundle(self.bundle).with_children(children);
+        parent.spawn(self.bundle).with_children(children);
     }
 }

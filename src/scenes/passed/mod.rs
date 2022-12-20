@@ -18,10 +18,12 @@ use crate::{
     ui::{DynamicTextData, OverlayMarker},
 };
 
+#[derive(Resource)]
 pub struct LevelNameRegex {
     pub value: Regex,
 }
 
+#[derive(Resource)]
 pub struct TextCursor {
     pub blink_timer: Timer,
     pub blink_toggle: bool,
@@ -37,7 +39,7 @@ impl BevyPlugin for Plugin {
             value: Regex::new(r"^[a-zA-Z ]$").unwrap(),
         })
         .insert_resource(TextCursor {
-            blink_timer: Timer::from_seconds(0.5, true),
+            blink_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
             blink_toggle: true,
         })
         .add_enter_system_set(

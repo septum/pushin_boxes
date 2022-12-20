@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use super::state::LevelState;
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Resource)]
 pub struct LevelHandles {
     #[asset(
         paths(

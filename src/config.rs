@@ -1,5 +1,5 @@
 use bevy::{
-    app::Plugin as BevyPlugin, prelude::*, render::texture::ImageSettings, window::WindowMode,
+    app::Plugin as BevyPlugin, prelude::*, render::texture::ImageSampler, window::WindowMode,
 };
 use iyes_loopless::prelude::*;
 
@@ -9,13 +9,22 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(WindowDescriptor {
-            title: "Pushin' Boxes".to_string(),
-            mode: WindowMode::BorderlessFullscreen,
-            ..default()
-        })
+        app.add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    window: WindowDescriptor {
+                        title: "Pushin' Boxes".to_string(),
+                        mode: WindowMode::BorderlessFullscreen,
+                        ..default()
+                    },
+                    ..default()
+                })
+                .set(ImagePlugin {
+                    default_sampler: ImageSampler::nearest_descriptor(),
+                    ..default()
+                }),
+        )
         .insert_resource(Msaa { samples: 1 })
-        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Colors::DARK))
         .add_loopless_state(GameState::Loading)
         .add_event::<ActionInputEvent>()

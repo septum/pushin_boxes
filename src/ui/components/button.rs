@@ -28,7 +28,7 @@ impl Default for GameButton {
 
         GameButton {
             bundle: ButtonBundle {
-                color: Colors::TRANSPARENT.into(),
+                background_color: Colors::TRANSPARENT.into(),
                 style,
                 ..default()
             },
@@ -61,7 +61,7 @@ impl GameButton {
 
     pub fn selected(&mut self) -> &mut GameButton {
         self.data.selected = true;
-        self.bundle.color = Colors::PRIMARY_DARK.into();
+        self.bundle.background_color = Colors::PRIMARY_DARK.into();
         self
     }
 
@@ -72,7 +72,7 @@ impl GameButton {
 
     pub fn spawn(self, parent: &mut ChildBuilder) {
         parent
-            .spawn_bundle(self.bundle)
+            .spawn(self.bundle)
             .with_children(|parent| self.child.spawn(parent))
             .insert(self.data);
     }

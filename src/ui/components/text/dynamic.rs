@@ -38,7 +38,7 @@ impl GameText for DynamicText {
     }
 
     fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn_bundle(self.bundle).insert(self.data);
+        parent.spawn(self.bundle).insert(self.data);
     }
 }
 

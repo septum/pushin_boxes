@@ -111,7 +111,7 @@ pub struct LevelDone {
     pub value: bool,
 }
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct Level {
     pub kind: LevelKind,
     state: LevelState,
@@ -134,7 +134,7 @@ impl Level {
             moves: 0,
             stopwatch: Stopwatch::new(),
             done: LevelDone {
-                timer: Timer::from_seconds(0.25, false),
+                timer: Timer::from_seconds(0.25, TimerMode::Once),
                 value: false,
             },
         }

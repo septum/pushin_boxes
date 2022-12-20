@@ -37,7 +37,7 @@ impl GameText for EmbossedText {
         background.style.position.left = Val::Px(relief);
         background.text.sections[0].style.color = Colors::DARK;
 
-        parent.spawn_bundle(background);
-        parent.spawn_bundle(foreground);
+        parent.spawn(background);
+        parent.spawn(foreground);
     }
 }
