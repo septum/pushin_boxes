@@ -52,7 +52,7 @@ pub fn insert_custom_level_handles(
         let split_key: Vec<&str> = key.split('$').collect();
         let uuid = Uuid::parse_str(split_key[1]).expect("Cannot parse uuid");
         let path = format!("levels/custom/{}.lvl", &split_key[1]);
-        level_handles.insert_custom(uuid, asset_server.load(&path));
+        level_handles.insert_custom(uuid, asset_server.load(path));
     }
 }
 
