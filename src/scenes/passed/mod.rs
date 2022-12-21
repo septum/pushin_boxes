@@ -149,8 +149,8 @@ pub fn handle_text_input(
                                 level.get_set_record(),
                             );
 
-                            *level_name = "".to_string();
-                            text.sections[0].value = "".to_string();
+                            *level_name = String::new();
+                            text.sections[0].value = String::new();
 
                             save_file.save();
                             game_state_event_writer.send(SceneTransitionEvent::selection(true));

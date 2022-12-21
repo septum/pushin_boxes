@@ -1,4 +1,4 @@
-# PUSHIN' BOXES 2.0
+# PUSHIN' BOXES
 
 ## License
 
@@ -8,3 +8,4 @@ Dual-licensed under either
 - MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
 
 at your option.
+
