@@ -23,7 +23,7 @@ pub mod prelude {
     pub use super::save_file::{SaveFile, SaveFileHandle};
     pub use super::scene::SceneTransitionEvent;
     pub use super::sounds::{Music, Sfx, Sounds, INITIAL_VOLUME};
-    pub use super::state::GameState;
+    pub use super::state::{GameState, SelectionKind};
     pub use super::systems::cleanup;
 }
 

@@ -46,14 +46,16 @@ fn handle_action_input(
                 match &level.kind {
                     LevelKind::Stock(index) => {
                         if level.is_last() {
-                            game_state_event_writer.send(SceneTransitionEvent::selection(false));
+                            game_state_event_writer
+                                .send(SceneTransitionEvent::selection(SelectionKind::Stock));
                         } else {
                             level_instertion_event_writer
                                 .send(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
                         }
                     }
                     LevelKind::Custom(_) => {
-                        game_state_event_writer.send(SceneTransitionEvent::selection(true));
+                        game_state_event_writer
+                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
                     }
                     LevelKind::Playtest(_) => {
                         unreachable!("A playtest level cannot be won");

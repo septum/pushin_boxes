@@ -1,4 +1,4 @@
-use super::state::GameState;
+use super::state::{GameState, SelectionKind};
 
 pub struct SceneTransitionEvent {
     pub state: GameState,
@@ -41,9 +41,9 @@ impl SceneTransitionEvent {
         }
     }
 
-    pub fn selection(custom: bool) -> Self {
+    pub fn selection(kind: SelectionKind) -> Self {
         Self {
-            state: GameState::Selection(custom),
+            state: GameState::Selection { kind },
         }
     }
 

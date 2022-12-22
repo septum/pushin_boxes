@@ -74,7 +74,13 @@ fn handle_action_input(
             }
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
-                game_state_event_writer.send(SceneTransitionEvent::selection(!level.is_stock()));
+                game_state_event_writer.send(SceneTransitionEvent::selection(
+                    if level.is_stock() {
+                        SelectionKind::Stock
+                    } else {
+                        SelectionKind::Custom
+                    },
+                ));
             }
             _ => (),
         }

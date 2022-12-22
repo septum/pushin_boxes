@@ -65,10 +65,6 @@ pub fn spawn(
     fonts: Res<Fonts>,
     save_file: Res<SaveFile>,
 ) {
-    let GameState::Selection(is_custom_selection) = game_state.0 else {
-        unreachable!("The current game state is invalid, it should be Selection");
-    };
-
     let font = fonts.primary();
 
     let overlay = Overlay::extended();
@@ -76,20 +72,10 @@ pub fn spawn(
     let mut middle = Container::default();
     let bottom = Container::auto_height();
 
-    // TODO: Change this
-    let selection_kind = if is_custom_selection {
-        "Custom"
-    } else {
-        "Stock"
-    };
-    let next_selection_kind = if is_custom_selection {
-        "stock"
-    } else {
-        "custom"
-    };
-    let mut title = SimpleText::medium(format!("Select a {selection_kind} Level"), font);
+    let kind = game_state.0.get_selection_kind();
+    let mut title = SimpleText::medium(format!("Select a {} Level", kind.to_str()), font);
     let press_button = SimpleText::small(
-        format!("Press ENTER to switch to {next_selection_kind} selection"),
+        format!("Press ENTER to switch to {} levels", kind.toggle().to_str()),
         font,
     );
 
@@ -106,10 +92,10 @@ pub fn spawn(
             title.spawn(parent);
         });
         middle.spawn(parent, |parent| {
-            if is_custom_selection {
-                spawn_custom_buttons(parent, &save_file, font);
-            } else {
+            if kind.is_stock() {
                 spawn_stock_buttons(parent, &save_file, font);
+            } else {
+                spawn_custom_buttons(parent, &save_file, font);
             }
         });
         bottom.spawn(parent, |parent| {

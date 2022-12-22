@@ -99,7 +99,7 @@ fn handle_action_input(
                         match button.id {
                             PLAY_ID => {
                                 game_state_event_writer
-                                    .send(SceneTransitionEvent::selection(false));
+                                    .send(SceneTransitionEvent::selection(SelectionKind::Stock));
                             }
                             INSTRUCTIONS_ID => {
                                 game_state_event_writer.send(SceneTransitionEvent::instructions());

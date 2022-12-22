@@ -13,18 +13,18 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        for custom in [false, true] {
-            app.add_enter_system(GameState::Selection(custom), self::ui::spawn)
+        for kind in [SelectionKind::Stock, SelectionKind::Custom] {
+            app.add_enter_system(GameState::Selection { kind }, self::ui::spawn)
                 .add_system_set(
                     ConditionSet::new()
-                        .run_in_state(GameState::Selection(custom))
+                        .run_in_state(GameState::Selection { kind })
                         .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
                         .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
                         .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
                         .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
                         .into(),
                 )
-                .add_exit_system(GameState::Selection(custom), cleanup::<OverlayMarker>);
+                .add_exit_system(GameState::Selection { kind }, cleanup::<OverlayMarker>);
         }
     }
 }
@@ -35,9 +35,7 @@ fn handle_direction_input(
     game_state: Res<CurrentState<GameState>>,
     save_file: Res<SaveFile>,
 ) {
-    let GameState::Selection(is_custom_selection) = game_state.0 else {
-        unreachable!("The current game state is invalid, it should be Selection");
-    };
+    let is_stock = game_state.0.get_selection_kind().is_stock();
 
     for direction_event in direction_event_reader.iter() {
         let mut selected_index: Option<usize> = None;
@@ -50,10 +48,10 @@ fn handle_direction_input(
                     DirectionInput::Right => button.id + 1,
                 };
 
-                let max_value = if is_custom_selection {
-                    save_file.total_custom_levels()
-                } else {
+                let max_value = if is_stock {
                     save_file.unlocked_levels()
+                } else {
+                    save_file.total_custom_levels()
                 };
 
                 selected_index = Some(if index < max_value {
@@ -87,24 +85,22 @@ fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     game_state: Res<CurrentState<GameState>>,
 ) {
-    let GameState::Selection(is_custom_selection) = game_state.0 else {
-        unreachable!("The current game state is invalid, it should be Selection");
-    };
+    let is_stock = game_state.0.get_selection_kind().is_stock();
 
     for action_event in action_event_reader.iter() {
         match action_event.value {
             ActionInput::Select => {
                 for button in query.iter_mut() {
                     if button.selected {
-                        let kind = if is_custom_selection {
+                        let kind = if is_stock {
+                            LevelKind::Stock(button.id)
+                        } else {
                             LevelKind::Custom(
                                 button
                                     .payload
                                     .clone()
                                     .expect("The button payload was empty"),
                             )
-                        } else {
-                            LevelKind::Stock(button.id)
                         };
 
                         level_insertion_event_writer.send(LevelInsertionEvent::new(kind));
@@ -112,8 +108,11 @@ fn handle_action_input(
                 }
             }
             ActionInput::Toggle => {
-                scene_transition_event_writer
-                    .send(SceneTransitionEvent::selection(!is_custom_selection));
+                scene_transition_event_writer.send(SceneTransitionEvent::selection(if is_stock {
+                    SelectionKind::Custom
+                } else {
+                    SelectionKind::Stock
+                }));
             }
             ActionInput::Exit => {
                 scene_transition_event_writer.send(SceneTransitionEvent::title());

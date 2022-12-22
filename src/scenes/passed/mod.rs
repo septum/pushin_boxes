@@ -153,7 +153,8 @@ pub fn handle_text_input(
                             text.sections[0].value = String::new();
 
                             save_file.save();
-                            game_state_event_writer.send(SceneTransitionEvent::selection(true));
+                            game_state_event_writer
+                                .send(SceneTransitionEvent::selection(SelectionKind::Custom));
                         }
                     }
                     _ => (),
