@@ -36,6 +36,7 @@ fn gather_input(
                     KeyCode::Escape => action_event_writer.send(ActionInputEvent::exit()),
                     KeyCode::Space => action_event_writer.send(ActionInputEvent::select()),
                     KeyCode::Return => action_event_writer.send(ActionInputEvent::toggle()),
+                    KeyCode::Delete => action_event_writer.send(ActionInputEvent::delete()),
                     _ => (),
                 };
             }

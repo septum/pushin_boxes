@@ -1,5 +1,7 @@
 mod ui;
 
+use std::{env, fs::remove_file, path::PathBuf};
+
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use iyes_loopless::prelude::*;
@@ -51,7 +53,7 @@ fn handle_direction_input(
                 let max_value = if is_stock {
                     save_file.unlocked_levels()
                 } else {
-                    save_file.total_custom_levels()
+                    save_file.number_custom_levels()
                 };
 
                 selected_index = Some(if index < max_value {
@@ -83,6 +85,7 @@ fn handle_action_input(
     mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
     mut query: Query<&mut GameButtonData>,
     mut action_event_reader: EventReader<ActionInputEvent>,
+    mut save_file: ResMut<SaveFile>,
     game_state: Res<CurrentState<GameState>>,
 ) {
     let is_stock = game_state.0.get_selection_kind().is_stock();
@@ -114,6 +117,30 @@ fn handle_action_input(
                     SelectionKind::Stock
                 }));
             }
+
+            ActionInput::Delete => {
+                for button in query.iter_mut() {
+                    if button.selected && !is_stock {
+                        let payload = button
+                            .payload
+                            .clone()
+                            .expect("The button payload was empty");
+                        let parsed_payload: Vec<&str> = payload.split('$').collect();
+                        save_file.delete_custom_level_record(&payload);
+                        save_file.save();
+                        let levels_path = format!("levels/custom/{}.lvl", parsed_payload[1]);
+                        let assets_path = format!("assets/{}", &levels_path);
+                        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                            PathBuf::from(manifest_dir).join(assets_path)
+                        } else {
+                            PathBuf::from(assets_path)
+                        };
+                        remove_file(path).expect("File cannot be removed");
+                        scene_transition_event_writer
+                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+                    }
+                }
+            }
             ActionInput::Exit => {
                 scene_transition_event_writer.send(SceneTransitionEvent::title());
             }
@@ -129,7 +156,7 @@ fn play_action_sfx(
 ) {
     for action_event in action_event_reader.iter() {
         match action_event.value {
-            ActionInput::Exit => {
+            ActionInput::Exit | ActionInput::Delete => {
                 sfx.play(sounds.sfx_push_box.clone());
             }
             ActionInput::Toggle => {

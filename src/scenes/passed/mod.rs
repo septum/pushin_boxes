@@ -144,8 +144,10 @@ pub fn handle_text_input(
 
                             level_handles.insert_custom(uuid, asset_server.load(&levels_path));
 
+                            let lower_level_name = level_name.to_lowercase();
+
                             save_file.insert_custom_level_record(
-                                format!("{}${uuid}", *level_name),
+                                format!("{lower_level_name}${uuid}"),
                                 level.get_set_record(),
                             );
 

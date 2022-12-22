@@ -3,6 +3,7 @@ pub enum ActionInput {
     Reload,
     Select,
     Toggle,
+    Delete,
     Exit,
 }
 
@@ -32,6 +33,12 @@ impl ActionInputEvent {
     pub fn toggle() -> ActionInputEvent {
         ActionInputEvent {
             value: ActionInput::Toggle,
+        }
+    }
+
+    pub fn delete() -> ActionInputEvent {
+        ActionInputEvent {
+            value: ActionInput::Delete,
         }
     }
 

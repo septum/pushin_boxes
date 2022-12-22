@@ -1,9 +1,9 @@
 mod handle;
 
-use std::{env, fs::File, io::Write, iter::Enumerate, path::PathBuf, slice::Iter};
+use std::{env, fs::File, io::Write, iter::Enumerate, path::PathBuf, slice::Iter, vec::IntoIter};
 
 use bevy::{asset::LoadState, prelude::*, reflect::TypeUuid};
-use hashbrown::{hash_map, HashMap};
+use hashbrown::HashMap;
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
 
@@ -95,6 +95,10 @@ impl SaveFile {
         self.custom_records.insert(key, level_record);
     }
 
+    pub fn delete_custom_level_record(&mut self, key: &str) {
+        self.custom_records.remove(key);
+    }
+
     pub fn unlock_new_level(&mut self, level: &Level) {
         if let LevelKind::Stock(index) = level.kind {
             let unlocked_levels = self.unlocked_levels();
@@ -116,7 +120,7 @@ impl SaveFile {
         self.stock_records.len()
     }
 
-    pub fn total_custom_levels(&self) -> usize {
+    pub fn number_custom_levels(&self) -> usize {
         self.custom_records.len()
     }
 
@@ -124,7 +128,13 @@ impl SaveFile {
         self.stock_records.iter().enumerate()
     }
 
-    pub fn enumerated_custom_records(&self) -> Enumerate<hash_map::Iter<String, LevelRecord>> {
-        self.custom_records.iter().enumerate()
+    pub fn ordered_custom_records(&self) -> Enumerate<IntoIter<(&String, &LevelRecord)>> {
+        let mut x = self
+            .custom_records
+            .iter()
+            .collect::<Vec<(&String, &LevelRecord)>>();
+        x.sort_by(|(a_key, _), (b_key, _)| a_key.cmp(b_key));
+
+        x.into_iter().enumerate()
     }
 }

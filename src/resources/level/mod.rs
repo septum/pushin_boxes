@@ -13,7 +13,7 @@ pub mod prelude {
     pub use super::map::{MapEntity, MapPosition};
     pub use super::record::LevelRecord;
     pub use super::state::LevelState;
-    pub use super::{Level, TOTAL_STOCK_LEVELS};
+    pub use super::{Level, TOTAL_CUSTOM_LEVELS, TOTAL_STOCK_LEVELS};
 }
 
 use std::time::Duration;
@@ -34,6 +34,7 @@ use self::{
 use super::prelude::*;
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
+pub const TOTAL_CUSTOM_LEVELS: usize = 16;
 
 pub struct Plugin;
 
@@ -48,7 +49,7 @@ pub fn insert_custom_level_handles(
     mut level_handles: ResMut<LevelHandles>,
     asset_server: Res<AssetServer>,
 ) {
-    for (_, (key, _)) in save_file.enumerated_custom_records() {
+    for (_, (key, _)) in save_file.ordered_custom_records() {
         let split_key: Vec<&str> = key.split('$').collect();
         let uuid = Uuid::parse_str(split_key[1]).expect("Cannot parse uuid");
         let path = format!("levels/custom/{}.lvl", &split_key[1]);

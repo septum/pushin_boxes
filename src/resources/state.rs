@@ -21,6 +21,7 @@ impl SelectionKind {
         }
     }
 
+    #[must_use]
     pub fn toggle(&self) -> Self {
         match self {
             Self::Stock => Self::Custom,
@@ -35,6 +36,7 @@ pub enum GameState {
     Title,
     Instructions,
     Editor,
+    Limit,
     Passed,
     Options,
     Selection { kind: SelectionKind },

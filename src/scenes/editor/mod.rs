@@ -19,6 +19,7 @@ impl BevyPlugin for Plugin {
             .add_enter_system_set(
                 GameState::Editor,
                 SystemSet::new()
+                    .with_system(check_total_custom_levels)
                     .with_system(self::ui::spawn)
                     .with_system(Brush::insert)
                     .with_system(setup_level),
@@ -46,6 +47,15 @@ impl BevyPlugin for Plugin {
                     .with_system(cleanup::<MapPosition>)
                     .with_system(cleanup::<BrushSprite>),
             );
+    }
+}
+
+fn check_total_custom_levels(
+    save_file: Res<SaveFile>,
+    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+) {
+    if save_file.number_custom_levels() == TOTAL_CUSTOM_LEVELS {
+        scene_transition_event_writer.send(SceneTransitionEvent::limit());
     }
 }
 

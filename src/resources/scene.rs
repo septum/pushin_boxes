@@ -29,6 +29,12 @@ impl SceneTransitionEvent {
         }
     }
 
+    pub fn limit() -> Self {
+        Self {
+            state: GameState::Limit,
+        }
+    }
+
     pub fn options() -> Self {
         Self {
             state: GameState::Options,

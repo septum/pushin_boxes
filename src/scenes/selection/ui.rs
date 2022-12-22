@@ -33,7 +33,7 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
 }
 
 fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
-    for (index, (key, record)) in save_file.enumerated_custom_records() {
+    for (index, (key, record)) in save_file.ordered_custom_records() {
         let housing = Container::size_percentage(25.0, 25.0);
         let split_key: Vec<&str> = key.split('$').collect();
         let mut button = GameButton::new(split_key[0], font);
@@ -46,7 +46,7 @@ fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &
         };
 
         button.id(index);
-        button.payload(key.clone());
+        button.payload(key.clone().clone());
 
         if index == 0 {
             button.selected();
@@ -70,14 +70,15 @@ pub fn spawn(
     let overlay = Overlay::extended();
     let top = Container::auto_height();
     let mut middle = Container::default();
-    let bottom = Container::auto_height();
+    let mut bottom = Container::auto_height();
 
     let kind = game_state.0.get_selection_kind();
     let mut title = SimpleText::medium(format!("Select a {} Level", kind.to_str()), font);
-    let press_button = SimpleText::small(
-        format!("Press ENTER to switch to {} levels", kind.toggle().to_str()),
+    let mut enter = SimpleText::small(
+        format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
         font,
     );
+    let mut delete = SimpleText::small("(DELETE) - Remove a custom level", font);
 
     title.primary();
     middle
@@ -86,6 +87,11 @@ pub fn spawn(
         .justify_start()
         .items_start()
         .content_start();
+
+    enter.primary();
+    delete.primary();
+
+    bottom.row().justify_between();
 
     overlay.spawn(&mut commands, |parent| {
         top.spawn(parent, |parent| {
@@ -99,7 +105,8 @@ pub fn spawn(
             }
         });
         bottom.spawn(parent, |parent| {
-            press_button.spawn(parent);
+            enter.spawn(parent);
+            delete.spawn(parent);
         });
     });
 }
