@@ -1,7 +1,6 @@
 mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
-use iyes_loopless::prelude::*;
 
 use crate::{resources::prelude::*, ui::OverlayMarker};
 
@@ -9,22 +8,26 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameState::Win,
-            SystemSet::new()
-                .with_system(save)
-                .with_system(self::ui::spawn)
-                .with_system(CharacterAnimation::insert_happy_character_animation),
+        app.add_systems(
+            (
+                save,
+                self::ui::spawn,
+                CharacterAnimation::insert_happy_character_animation,
+            )
+                .in_schedule(OnEnter(GameState::Win)),
         )
-        .add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameState::Win)
-                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                .with_system(update_character_animation)
-                .into(),
+        .add_systems(
+            (
+                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                update_character_animation,
+            )
+                .in_set(OnUpdate(GameState::Win)),
         )
-        .add_exit_system(GameState::Win, cleanup::<OverlayMarker>)
-        .add_exit_system(GameState::Win, cleanup::<CharacterMarker>);
+        .add_systems(
+            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>)
+                .chain()
+                .in_schedule(OnExit(GameState::Win)),
+        );
     }
 }
 

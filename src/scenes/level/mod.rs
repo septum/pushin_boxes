@@ -2,7 +2,6 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
@@ -17,32 +16,34 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameState::Level,
-            SystemSet::new()
-                .with_system(self::ui::spawn)
-                .with_system(spawn_level)
-                .with_system(CharacterAnimation::insert_level_character_animation),
+        app.add_systems(
+            (
+                self::ui::spawn,
+                spawn_level,
+                CharacterAnimation::insert_level_character_animation,
+            )
+                .in_schedule(OnEnter(GameState::Level)),
         )
-        .add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameState::Level)
-                .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
-                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                .with_system(update_character_position)
-                .with_system(update_character_sprite)
-                .with_system(update_counters)
-                .with_system(update_map)
-                .with_system(update_level_state)
-                .with_system(check_lever_timer_just_finished)
-                .into(),
+        .add_systems(
+            (
+                handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
+                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                update_character_position,
+                update_character_sprite,
+                update_counters,
+                update_map,
+                update_level_state,
+                check_lever_timer_just_finished,
+            )
+                .in_set(OnUpdate(GameState::Level)),
         )
-        .add_exit_system_set(
-            GameState::Level,
-            SystemSet::new()
-                .with_system(cleanup::<OverlayMarker>)
-                .with_system(cleanup::<CharacterMarker>)
-                .with_system(cleanup::<MapPosition>),
+        .add_systems(
+            (
+                cleanup::<OverlayMarker>,
+                cleanup::<CharacterMarker>,
+                cleanup::<MapPosition>,
+            )
+                .in_schedule(OnExit(GameState::Level)),
         );
     }
 }

@@ -5,7 +5,6 @@ use bevy::{
     prelude::*,
 };
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
@@ -22,27 +21,26 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system_set(
-            GameState::Title,
-            SystemSet::new()
-                .with_system(self::ui::spawn)
-                .with_system(CharacterAnimation::insert_blinking_character_animation),
+        app.add_systems(
+            (
+                self::ui::spawn,
+                CharacterAnimation::insert_blinking_character_animation,
+            )
+                .in_schedule(OnEnter(GameState::Title)),
         )
-        .add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameState::Title)
-                .with_system(update_character_animation)
-                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
-                .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
-                .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
-                .into(),
+        .add_systems(
+            (
+                update_character_animation,
+                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
+                play_action_sfx.run_if(on_event::<ActionInputEvent>()),
+                play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+            )
+                .in_set(OnUpdate(GameState::Title)),
         )
-        .add_exit_system_set(
-            GameState::Title,
-            SystemSet::new()
-                .with_system(cleanup::<OverlayMarker>)
-                .with_system(cleanup::<CharacterMarker>),
+        .add_systems(
+            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>)
+                .in_schedule(OnExit(GameState::Title)),
         );
     }
 }

@@ -5,7 +5,6 @@ pub use action::{ActionInput, ActionInputEvent};
 pub use direction::{DirectionInput, DirectionInputEvent};
 
 use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*};
-use iyes_loopless::prelude::*;
 
 use super::prelude::*;
 
@@ -14,7 +13,7 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_system(gather_input)
-            .add_system(clear_input.run_on_event::<SceneTransitionEvent>());
+            .add_system(clear_input.run_if(on_event::<SceneTransitionEvent>()));
     }
 }
 

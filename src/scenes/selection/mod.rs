@@ -4,7 +4,6 @@ use std::{env, fs::remove_file, path::PathBuf};
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
@@ -15,18 +14,18 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        for kind in [SelectionKind::Stock, SelectionKind::Custom] {
-            app.add_enter_system(GameState::Selection { kind }, self::ui::spawn)
-                .add_system_set(
-                    ConditionSet::new()
-                        .run_in_state(GameState::Selection { kind })
-                        .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                        .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
-                        .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
-                        .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
-                        .into(),
+        for state in [GameState::SelectionStock, GameState::SelectionCustom] {
+            app.add_system(self::ui::spawn.in_schedule(OnEnter(state)))
+                .add_systems(
+                    (
+                        handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                        handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
+                        play_action_sfx.run_if(on_event::<ActionInputEvent>()),
+                        play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                    )
+                        .in_set(OnUpdate(state)),
                 )
-                .add_exit_system(GameState::Selection { kind }, cleanup::<OverlayMarker>);
+                .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(state)));
         }
     }
 }
@@ -34,7 +33,7 @@ impl BevyPlugin for Plugin {
 fn handle_direction_input(
     mut query: Query<(&mut GameButtonData, &mut BackgroundColor)>,
     mut direction_event_reader: EventReader<DirectionInputEvent>,
-    game_state: Res<CurrentState<GameState>>,
+    game_state: Res<State<GameState>>,
     save_file: Res<SaveFile>,
 ) {
     let is_stock = game_state.0.get_selection_kind().is_stock();
@@ -86,7 +85,7 @@ fn handle_action_input(
     mut query: Query<&mut GameButtonData>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut save_file: ResMut<SaveFile>,
-    game_state: Res<CurrentState<GameState>>,
+    game_state: Res<State<GameState>>,
 ) {
     let is_stock = game_state.0.get_selection_kind().is_stock();
 

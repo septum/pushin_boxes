@@ -31,7 +31,6 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_asset_loader::prelude::*;
 use bevy_common_assets::ron::RonAssetPlugin;
 use bevy_kira_audio::AudioApp;
-use iyes_loopless::prelude::*;
 
 use prelude::*;
 
@@ -48,27 +47,25 @@ impl BevyPlugin for Plugin {
             .add_audio_channel::<Sfx>()
             .add_audio_channel::<Music>()
             .add_loading_state(
-                LoadingState::new(GameState::Loading)
-                    .continue_to_state(GameState::Title)
-                    .with_collection::<LevelHandles>()
-                    .with_collection::<Fonts>()
-                    .with_collection::<Images>()
-                    .with_collection::<Sounds>(),
+                LoadingState::new(GameState::Loading).continue_to_state(GameState::Title),
             )
-            .add_enter_system(GameState::Loading, SaveFileHandle::load)
+            .add_collection_to_loading_state::<_, LevelHandles>(GameState::Loading)
+            .add_collection_to_loading_state::<_, Fonts>(GameState::Loading)
+            .add_collection_to_loading_state::<_, Images>(GameState::Loading)
+            .add_collection_to_loading_state::<_, Sounds>(GameState::Loading)
+            .add_system(SaveFileHandle::load.in_schedule(OnEnter(GameState::Loading)))
             .add_system(
                 SaveFile::insert
-                    .run_in_state(GameState::Loading)
+                    .in_set(OnUpdate(GameState::Loading))
                     .run_if(SaveFileHandle::check_loaded_or_failed),
             )
-            .add_exit_system_set(
-                GameState::Loading,
-                ConditionSet::new()
-                    .run_if_resource_added::<SaveFile>()
-                    .with_system(camera::setup)
-                    .with_system(sounds::setup)
-                    .with_system(level::insert_custom_level_handles)
-                    .into(),
+            .add_systems(
+                (
+                    camera::setup.run_if(resource_added::<SaveFile>()),
+                    sounds::setup.run_if(resource_added::<SaveFile>()),
+                    level::insert_custom_level_handles.run_if(resource_added::<SaveFile>()),
+                )
+                    .in_schedule(OnExit(GameState::Loading)),
             );
     }
 }

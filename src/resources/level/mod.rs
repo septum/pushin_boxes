@@ -23,7 +23,7 @@ use bevy::{
     prelude::*,
     time::{Stopwatch, Timer},
 };
-use iyes_loopless::prelude::*;
+
 use uuid::Uuid;
 
 use self::{
@@ -40,7 +40,7 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(insert_level.run_on_event::<LevelInsertionEvent>());
+        app.add_system(insert_level.run_if(on_event::<LevelInsertionEvent>()));
     }
 }
 
@@ -109,7 +109,6 @@ fn insert_level(
 #[derive(Default)]
 pub struct LevelDone {
     pub timer: Timer,
-    pub value: bool,
 }
 
 #[derive(Default, Resource)]
@@ -136,7 +135,6 @@ impl Level {
             stopwatch: Stopwatch::new(),
             done: LevelDone {
                 timer: Timer::from_seconds(0.25, TimerMode::Once),
-                value: false,
             },
         }
     }

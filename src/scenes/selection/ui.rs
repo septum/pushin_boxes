@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use iyes_loopless::state::CurrentState;
 
 use crate::{
     resources::prelude::*,
@@ -61,7 +60,7 @@ fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &
 
 pub fn spawn(
     mut commands: Commands,
-    game_state: Res<CurrentState<GameState>>,
+    game_state: Res<State<GameState>>,
     fonts: Res<Fonts>,
     save_file: Res<SaveFile>,
 ) {

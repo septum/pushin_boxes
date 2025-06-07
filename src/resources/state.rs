@@ -1,5 +1,4 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
-use iyes_loopless::prelude::*;
 
 use super::prelude::*;
 
@@ -30,8 +29,9 @@ impl SelectionKind {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Hash, States)]
 pub enum GameState {
+    #[default]
     Loading,
     Title,
     Instructions,
@@ -39,7 +39,11 @@ pub enum GameState {
     Limit,
     Passed,
     Options,
-    Selection { kind: SelectionKind },
+    SelectionStock,
+    SelectionCustom,
+    // Selection {
+    //     kind: SelectionKind,
+    // },
     Level,
     Win,
 }
@@ -47,7 +51,8 @@ pub enum GameState {
 impl GameState {
     pub fn get_selection_kind(&self) -> &SelectionKind {
         match self {
-            Self::Selection { kind } => kind,
+            Self::SelectionStock => &SelectionKind::Stock,
+            Self::SelectionCustom => &SelectionKind::Custom,
             _ => unreachable!("The GameState is not Selection"),
         }
     }
@@ -57,7 +62,7 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(insert_next_state.run_on_event::<SceneTransitionEvent>());
+        app.add_system(insert_next_state.run_if(on_event::<SceneTransitionEvent>()));
     }
 }
 
@@ -66,6 +71,6 @@ fn insert_next_state(
     mut scene_transition_event_reader: EventReader<SceneTransitionEvent>,
 ) {
     if let Some(scene_transition) = scene_transition_event_reader.iter().next() {
-        commands.insert_resource(NextState(scene_transition.state.clone()));
+        commands.insert_resource(NextState(scene_transition.state.clone().into()));
     };
 }

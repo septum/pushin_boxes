@@ -2,7 +2,6 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
@@ -15,18 +14,18 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(GameState::Options, self::ui::spawn)
-            .add_system_set(
-                ConditionSet::new()
-                    .run_in_state(GameState::Options)
-                    .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                    .with_system(handle_direction_input.run_on_event::<DirectionInputEvent>())
-                    .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
-                    .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
-                    .with_system(update_dynamic_text)
-                    .into(),
+        app.add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Options)))
+            .add_systems(
+                (
+                    handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                    handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
+                    play_action_sfx.run_if(on_event::<ActionInputEvent>()),
+                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                    update_dynamic_text,
+                )
+                    .in_set(OnUpdate(GameState::Options)),
             )
-            .add_exit_system(GameState::Options, cleanup::<OverlayMarker>);
+            .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Options)));
     }
 }
 

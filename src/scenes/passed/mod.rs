@@ -9,7 +9,7 @@ use std::{
 
 use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
+
 use regex::Regex;
 use uuid::Uuid;
 
@@ -42,18 +42,15 @@ impl BevyPlugin for Plugin {
             blink_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
             blink_toggle: true,
         })
-        .add_enter_system_set(
-            GameState::Passed,
-            SystemSet::new().with_system(self::ui::spawn),
+        .add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Passed)))
+        .add_systems(
+            (
+                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                handle_text_input,
+            )
+                .in_set(OnUpdate(GameState::Passed)),
         )
-        .add_system_set(
-            ConditionSet::new()
-                .run_in_state(GameState::Passed)
-                .with_system(handle_action_input.run_on_event::<ActionInputEvent>())
-                .with_system(handle_text_input)
-                .into(),
-        )
-        .add_exit_system(GameState::Passed, cleanup::<OverlayMarker>);
+        .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Passed)));
     }
 }
 

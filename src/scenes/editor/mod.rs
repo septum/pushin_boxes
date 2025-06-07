@@ -2,7 +2,6 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{
     resources::prelude::*,
@@ -16,36 +15,38 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(LevelValidity::default())
-            .add_enter_system_set(
-                GameState::Editor,
-                SystemSet::new()
-                    .with_system(check_total_custom_levels)
-                    .with_system(self::ui::spawn)
-                    .with_system(Brush::insert)
-                    .with_system(setup_level),
+            .add_systems(
+                (
+                    check_total_custom_levels,
+                    self::ui::spawn,
+                    Brush::insert,
+                    setup_level,
+                )
+                    .in_schedule(OnEnter(GameState::Editor)),
             )
-            .add_system_set(
-                ConditionSet::new()
-                    .run_in_state(GameState::Editor)
-                    .with_system(handle_action_input)
-                    .with_system(handle_direction_input)
-                    .with_system(blink_tile)
-                    .with_system(apply_brush_to_level)
-                    .with_system(update_character_position)
-                    .with_system(update_map)
-                    .with_system(update_brush_sprite)
-                    .with_system(check_validity)
-                    .with_system(play_action_sfx.run_on_event::<ActionInputEvent>())
-                    .with_system(play_direction_sfx.run_on_event::<DirectionInputEvent>())
-                    .into(),
+            .add_systems(
+                (
+                    handle_action_input,
+                    handle_direction_input,
+                    blink_tile,
+                    apply_brush_to_level,
+                    update_character_position,
+                    update_map,
+                    update_brush_sprite,
+                    check_validity,
+                    play_action_sfx.run_if(on_event::<ActionInputEvent>()),
+                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                )
+                    .in_set(OnUpdate(GameState::Editor)),
             )
-            .add_exit_system_set(
-                GameState::Editor,
-                SystemSet::new()
-                    .with_system(cleanup::<OverlayMarker>)
-                    .with_system(cleanup::<CharacterMarker>)
-                    .with_system(cleanup::<MapPosition>)
-                    .with_system(cleanup::<BrushSprite>),
+            .add_systems(
+                (
+                    cleanup::<OverlayMarker>,
+                    cleanup::<CharacterMarker>,
+                    cleanup::<MapPosition>,
+                    cleanup::<BrushSprite>,
+                )
+                    .in_schedule(OnExit(GameState::Editor)),
             );
     }
 }

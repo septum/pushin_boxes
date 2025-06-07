@@ -2,7 +2,6 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use iyes_loopless::prelude::*;
 
 use crate::{resources::prelude::*, ui::OverlayMarker};
 
@@ -10,15 +9,15 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(GameState::Limit, self::ui::spawn)
-            .add_system_set(
-                ConditionSet::new()
-                    .run_in_state(GameState::Limit)
-                    .with_system(handle_input.run_on_event::<ActionInputEvent>())
-                    .with_system(play_sfx.run_on_event::<ActionInputEvent>())
-                    .into(),
+        app.add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Limit)))
+            .add_systems(
+                (
+                    handle_input.run_if(on_event::<ActionInputEvent>()),
+                    play_sfx.run_if(on_event::<ActionInputEvent>()),
+                )
+                    .in_set(OnUpdate(GameState::Limit)),
             )
-            .add_exit_system(GameState::Limit, cleanup::<OverlayMarker>);
+            .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Limit)));
     }
 }
 

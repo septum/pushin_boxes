@@ -7,38 +7,32 @@ license = "MIT OR Apache-2.0"
 exclude = ["assets"]
 
 [dependencies]
-ron = "0.8.0"
-serde = "1.0.151"
-regex = "1.7.0"
+ron = "0.10"
+serde = "1.0.219"
+regex = "1.11"
 
 [dependencies.bevy]
-version = "0.9.1"
-default-features = false
-features = ["bevy_winit", "bevy_core_pipeline", "bevy_render", "bevy_sprite", "bevy_text", "bevy_ui", "png", "x11"]
+version = "0.10"
+features = ["wayland"]
 
 [dependencies.bevy_common_assets]
-version = "0.4.0"
+version = "0.6"
 default-features = false
 features = ["ron"]
 
 [dependencies.bevy_asset_loader]
-version = "0.14.1"
+version = "0.16"
 default-features = false
-features = ["2d", "stageless"]
+features = ["2d"]
 
 [dependencies.bevy_kira_audio]
-version = "0.13.0"
+version = "0.15"
 default-features = false
 features = ["wav"]
 
 [dependencies.hashbrown]
 version = "0.13.1"
 features = ["serde"]
-
-[dependencies.iyes_loopless]
-version = "0.9.1"
-default-features = false
-features = ["states", "app"]
 
 [dependencies.uuid]
 version = "1.2.2"

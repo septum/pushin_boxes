@@ -1,8 +1,6 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl, AudioSource};
-use iyes_loopless::prelude::*;
-use iyes_loopless::state::CurrentState;
 
 use super::prelude::*;
 
@@ -76,13 +74,8 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if_resource_exists::<Sounds>()
-                .with_system(handle_volume_change)
-                .with_system(play_music)
-                .into(),
-        );
+        app.add_system(play_music.run_if(resource_exists::<Sounds>()));
+        app.add_system(handle_volume_change.run_if(resource_exists::<Sounds>()));
     }
 }
 
@@ -100,16 +93,17 @@ fn handle_volume_change(
 fn play_music(
     sounds: Res<Sounds>,
     music: Res<AudioChannel<Music>>,
-    game_state: Res<CurrentState<GameState>>,
+    game_state: Res<State<GameState>>,
 ) {
     if game_state.is_changed() {
         music.stop();
         music
             .play(match game_state.0 {
                 GameState::Title | GameState::Instructions => sounds.music_title.clone(),
-                GameState::Selection { .. } | GameState::Options | GameState::Limit => {
-                    sounds.music_selection.clone()
-                }
+                GameState::SelectionStock
+                | GameState::SelectionCustom
+                | GameState::Options
+                | GameState::Limit => sounds.music_selection.clone(),
                 GameState::Level | GameState::Editor => sounds.music_level.clone(),
                 GameState::Win | GameState::Passed => sounds.music_win.clone(),
                 GameState::Loading => return,
