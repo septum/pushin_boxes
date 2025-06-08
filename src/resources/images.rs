@@ -25,7 +25,7 @@ pub struct Images {
     pub brush_zone: Handle<Image>,
     #[asset(path = "images/brushes/character.png")]
     pub brush_character: Handle<Image>,
-    #[asset(texture_atlas(
+    #[asset(texture_atlas_layout(
         tile_size_x = 64.0,
         tile_size_y = 96.0,
         columns = 4,
@@ -33,8 +33,9 @@ pub struct Images {
         padding_x = 4.,
         padding_y = 4.
     ))]
+    pub character_layout: Handle<TextureAtlasLayout>,
     #[asset(path = "images/character/spritesheet.png")]
-    pub character_atlas: Handle<TextureAtlas>,
+    pub character: Handle<Image>,
     #[asset(path = "images/instructions.png")]
     pub instructions: Handle<Image>,
 }

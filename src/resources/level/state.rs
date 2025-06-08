@@ -1,13 +1,9 @@
-use bevy::{
-    prelude::*,
-    reflect::{TypePath, TypeUuid},
-};
+use bevy::{prelude::*, reflect::TypePath};
 use serde::{Deserialize, Serialize};
 
 use super::map::{Map, MapEntity, MapPosition, MAP_COLS, MAP_ROWS};
 
-#[derive(Asset, TypePath, TypeUuid, Serialize, Deserialize, Clone, Copy, Default)]
-#[uuid = "d1e78377-22a5-49f7-a675-60d348abc837"]
+#[derive(Asset, TypePath, Serialize, Deserialize, Clone, Copy, Default)]
 pub struct LevelState {
     pub animation_row: usize,
     pub map: Map,

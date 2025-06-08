@@ -66,9 +66,9 @@ impl BevyPlugin for Plugin {
         .add_systems(
             OnExit(GameState::Loading),
             (
-                camera::setup.run_if(resource_added::<SaveFile>()),
-                sounds::setup.run_if(resource_added::<SaveFile>()),
-                level::insert_custom_level_handles.run_if(resource_added::<SaveFile>()),
+                camera::setup.run_if(resource_added::<SaveFile>),
+                sounds::setup.run_if(resource_added::<SaveFile>),
+                level::insert_custom_level_handles.run_if(resource_added::<SaveFile>),
             ),
         );
     }

@@ -92,16 +92,16 @@ impl MapPosition {
     pub fn spawn_character(
         &self,
         commands: &mut Commands,
-        texture_atlas: Handle<TextureAtlas>,
-        index: usize,
+        atlas: TextureAtlas,
+        texture: Handle<Image>,
     ) {
         let mut translation = Vec3::default();
         self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
         let bundle = SpriteSheetBundle {
-            sprite: TextureAtlasSprite { index, ..default() },
-            texture_atlas,
+            atlas,
+            texture,
             transform,
             ..default()
         };

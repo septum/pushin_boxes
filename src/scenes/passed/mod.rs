@@ -92,7 +92,7 @@ pub fn handle_text_input(
                 .is_match(&character_event.char.to_string())
             {
                 sfx.play(sounds.sfx_move_character.clone());
-                level_name.push(character_event.char);
+                level_name.push_str(&character_event.char);
             }
         }
 
@@ -114,52 +114,50 @@ pub fn handle_text_input(
 
     for event in keyboard_input_events.read() {
         if event.state.is_pressed() {
-            if let Some(key_code) = event.key_code {
-                match key_code {
-                    KeyCode::Back => {
-                        sfx.play(sounds.sfx_undo_move.clone());
-                        level_name.pop();
+            match event.key_code {
+                KeyCode::Backspace => {
+                    sfx.play(sounds.sfx_undo_move.clone());
+                    level_name.pop();
+                }
+                KeyCode::Enter => {
+                    if level_name.len() > 0 {
+                        sfx.play(sounds.sfx_set_zone.clone());
+                        let uuid = Uuid::new_v4();
+                        let serialized_string =
+                            ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
+                        let levels_path = format!("levels/custom/{}.lvl", &uuid);
+                        let assets_path = format!("assets/{}", &levels_path);
+                        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                            PathBuf::from(manifest_dir).join(assets_path)
+                        } else {
+                            PathBuf::from(assets_path)
+                        };
+
+                        let parent_path = path.parent().unwrap();
+                        create_dir_all(parent_path).unwrap();
+
+                        let mut file = File::create(path).unwrap();
+                        file.write_all(serialized_string.as_bytes()).unwrap();
+
+                        level_handles.insert_custom(uuid, asset_server.load(&levels_path));
+
+                        let lower_level_name = level_name.to_lowercase();
+
+                        save_file.insert_custom_level_record(
+                            format!("{lower_level_name}${uuid}"),
+                            level.get_set_record(),
+                        );
+
+                        *level_name = String::new();
+                        text.sections[0].value = String::new();
+
+                        save_file.save();
+                        game_state_event_writer
+                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
                     }
-                    KeyCode::Return => {
-                        if level_name.len() > 0 {
-                            sfx.play(sounds.sfx_set_zone.clone());
-                            let uuid = Uuid::new_v4();
-                            let serialized_string =
-                                ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
-                            let levels_path = format!("levels/custom/{}.lvl", &uuid);
-                            let assets_path = format!("assets/{}", &levels_path);
-                            let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-                                PathBuf::from(manifest_dir).join(assets_path)
-                            } else {
-                                PathBuf::from(assets_path)
-                            };
-
-                            let parent_path = path.parent().unwrap();
-                            create_dir_all(parent_path).unwrap();
-
-                            let mut file = File::create(path).unwrap();
-                            file.write_all(serialized_string.as_bytes()).unwrap();
-
-                            level_handles.insert_custom(uuid, asset_server.load(&levels_path));
-
-                            let lower_level_name = level_name.to_lowercase();
-
-                            save_file.insert_custom_level_record(
-                                format!("{lower_level_name}${uuid}"),
-                                level.get_set_record(),
-                            );
-
-                            *level_name = String::new();
-                            text.sections[0].value = String::new();
-
-                            save_file.save();
-                            game_state_event_writer
-                                .send(SceneTransitionEvent::selection(SelectionKind::Custom));
-                        }
-                    }
-                    _ => (),
-                };
-            }
+                }
+                _ => (),
+            };
         }
     }
 }

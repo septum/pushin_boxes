@@ -117,7 +117,9 @@ fn handle_action_input(
                     }
                 }
             }
-            ActionInput::Exit => exit.send(AppExit),
+            ActionInput::Exit => {
+                exit.send(AppExit);
+            }
             _ => (),
         }
     }
@@ -153,7 +155,7 @@ pub fn play_direction_sfx(
 
 pub fn update_character_animation(
     time: Res<Time>,
-    mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
+    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
     mut character_animation: ResMut<CharacterAnimation>,
 ) {
     let mut sprite = query.single_mut();

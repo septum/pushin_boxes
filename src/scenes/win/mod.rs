@@ -79,7 +79,7 @@ fn handle_action_input(
 fn update_character_animation(
     time: Res<Time>,
     mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
+    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
 ) {
     character_animation.tick(time.delta());
     if character_animation.primary_timer_just_finished() {

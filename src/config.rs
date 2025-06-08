@@ -26,7 +26,7 @@ impl BevyPlugin for Plugin {
         )
         .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Colors::DARK))
-        .add_state::<GameState>()
+        .init_state::<GameState>()
         .add_event::<ActionInputEvent>()
         .add_event::<DirectionInputEvent>()
         .add_event::<SceneTransitionEvent>()

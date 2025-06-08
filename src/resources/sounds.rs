@@ -77,8 +77,8 @@ impl BevyPlugin for Plugin {
         app.add_systems(
             Update,
             (
-                play_music.run_if(resource_exists::<Sounds>()),
-                handle_volume_change.run_if(resource_exists::<Sounds>()),
+                play_music.run_if(resource_exists::<Sounds>),
+                handle_volume_change.run_if(resource_exists::<Sounds>),
             ),
         );
     }

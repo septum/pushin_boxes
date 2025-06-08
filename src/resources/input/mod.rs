@@ -29,21 +29,39 @@ fn gather_input(
 ) {
     for event in keyboard_input_events.read() {
         if event.state.is_pressed() {
-            if let Some(key_code) = event.key_code {
-                match key_code {
-                    KeyCode::Up => direction_event_writer.send(DirectionInputEvent::up()),
-                    KeyCode::Down => direction_event_writer.send(DirectionInputEvent::down()),
-                    KeyCode::Left => direction_event_writer.send(DirectionInputEvent::left()),
-                    KeyCode::Right => direction_event_writer.send(DirectionInputEvent::right()),
-                    KeyCode::Z => action_event_writer.send(ActionInputEvent::undo()),
-                    KeyCode::F5 => action_event_writer.send(ActionInputEvent::reload()),
-                    KeyCode::Escape => action_event_writer.send(ActionInputEvent::exit()),
-                    KeyCode::Space => action_event_writer.send(ActionInputEvent::select()),
-                    KeyCode::Return => action_event_writer.send(ActionInputEvent::toggle()),
-                    KeyCode::Delete => action_event_writer.send(ActionInputEvent::delete()),
-                    _ => (),
-                };
-            }
+            match event.key_code {
+                KeyCode::ArrowUp => {
+                    direction_event_writer.send(DirectionInputEvent::up());
+                }
+                KeyCode::ArrowDown => {
+                    direction_event_writer.send(DirectionInputEvent::down());
+                }
+                KeyCode::ArrowLeft => {
+                    direction_event_writer.send(DirectionInputEvent::left());
+                }
+                KeyCode::ArrowRight => {
+                    direction_event_writer.send(DirectionInputEvent::right());
+                }
+                KeyCode::KeyZ => {
+                    action_event_writer.send(ActionInputEvent::undo());
+                }
+                KeyCode::F5 => {
+                    action_event_writer.send(ActionInputEvent::reload());
+                }
+                KeyCode::Escape => {
+                    action_event_writer.send(ActionInputEvent::exit());
+                }
+                KeyCode::Space => {
+                    action_event_writer.send(ActionInputEvent::select());
+                }
+                KeyCode::Enter => {
+                    action_event_writer.send(ActionInputEvent::toggle());
+                }
+                KeyCode::Delete => {
+                    action_event_writer.send(ActionInputEvent::delete());
+                }
+                _ => (),
+            };
         }
     }
 }

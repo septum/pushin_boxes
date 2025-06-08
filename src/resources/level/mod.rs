@@ -362,8 +362,11 @@ impl Level {
 
         position.spawn_character(
             commands,
-            images.character_atlas.clone(),
-            level_animation_row,
+            TextureAtlas {
+                layout: images.character_layout.clone(),
+                index: level_animation_row,
+            },
+            images.character.clone(),
         );
 
         self.loop_over_entity_and_position(|entity, position| {

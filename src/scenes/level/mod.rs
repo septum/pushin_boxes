@@ -179,7 +179,7 @@ fn update_character_sprite(
     time: Res<Time>,
     level: Res<Level>,
     mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut TextureAtlasSprite, With<CharacterMarker>>,
+    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
 ) {
     let mut sprite = query.single_mut();
     let level_animation_row = level.get_animation_row();

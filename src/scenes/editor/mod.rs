@@ -104,7 +104,9 @@ fn handle_action_input(
                     ));
                 }
             }
-            ActionInput::Exit => game_state_event_writer.send(SceneTransitionEvent::title()),
+            ActionInput::Exit => {
+                game_state_event_writer.send(SceneTransitionEvent::title());
+            }
             _ => (),
         }
     }
