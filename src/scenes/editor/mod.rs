@@ -264,6 +264,12 @@ fn update_map(
         let map_entity = level.get_entity(position);
         *image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
+
+        // NOTE: The floor entity is drawn over the character
+        // and somehow it's related to the alphabetical order filenames
+        if matches!(map_entity, MapEntity::F) {
+            transform.translation.z -= 1.0;
+        }
     }
 }
 

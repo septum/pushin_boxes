@@ -35,6 +35,7 @@ impl BevyPlugin for Plugin {
                 update_level_state,
                 check_lever_timer_just_finished,
             )
+                .chain()
                 .in_set(OnUpdate(GameState::Level)),
         )
         .add_systems(
@@ -61,6 +62,10 @@ fn handle_action_input(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
+    if level.no_remaining_zones() {
+        return;
+    };
+
     for action_event in action_event_reader.iter() {
         match &action_event.value {
             ActionInput::Undo => {
@@ -94,6 +99,10 @@ fn handle_direction_input(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
+    if level.no_remaining_zones() {
+        return;
+    };
+
     for direction_event in direction_event_reader.iter() {
         let direction = &direction_event.value;
         level.set_animation_row_with(direction);
@@ -227,6 +236,12 @@ fn update_map(
         let map_entity = level.get_entity(position);
         *image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
+
+        // NOTE: The floor entity is drawn over the character
+        // and somehow it's related to the alphabetical order filenames
+        if matches!(map_entity, MapEntity::F) {
+            transform.translation.z -= 1.0;
+        }
     }
 }
 
