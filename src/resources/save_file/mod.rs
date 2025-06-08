@@ -15,7 +15,7 @@ pub use self::handle::SaveFileHandle;
 
 use super::prelude::*;
 
-#[derive(TypePath, TypeUuid, Serialize, Deserialize, Clone, Resource)]
+#[derive(Asset, TypePath, TypeUuid, Serialize, Deserialize, Clone, Resource)]
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
     volume: f64,
@@ -42,7 +42,7 @@ impl SaveFile {
     ) {
         let load_state = asset_server.get_load_state(save_file_handle.value.clone());
 
-        let file = if matches!(load_state, LoadState::Loaded) {
+        let file = if matches!(load_state, Some(LoadState::Loaded)) {
             save_file.get(&save_file_handle.value).unwrap().clone()
         } else {
             SaveFile::default()

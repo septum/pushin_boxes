@@ -29,8 +29,8 @@ impl BevyPlugin for Plugin {
             (
                 handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
                 handle_action_input.run_if(on_event::<ActionInputEvent>()),
-                update_character_position,
                 update_character_sprite,
+                update_character_position,
                 update_counters,
                 update_map,
                 update_level_state,
@@ -67,7 +67,7 @@ fn handle_action_input(
         return;
     };
 
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match &action_event.value {
             ActionInput::Undo => {
                 if level.undo() {
@@ -104,7 +104,7 @@ fn handle_direction_input(
         return;
     };
 
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         let direction = &direction_event.value;
         level.set_animation_row_with(direction);
 
@@ -237,12 +237,6 @@ fn update_map(
         let map_entity = level.get_entity(position);
         *image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
-
-        // NOTE: The floor entity is drawn over the character
-        // and somehow it's related to the alphabetical order filenames
-        if matches!(map_entity, MapEntity::F) {
-            transform.translation.z -= 1.0;
-        }
     }
 }
 

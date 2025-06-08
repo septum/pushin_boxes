@@ -35,7 +35,7 @@ fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     save_file: Res<SaveFile>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             save_file.save();
             game_state_event_writer.send(SceneTransitionEvent::title());
@@ -48,7 +48,7 @@ fn handle_direction_input(
     mut sounds: ResMut<Sounds>,
     mut save_file: ResMut<SaveFile>,
 ) {
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         match direction_event.value {
             DirectionInput::Left => {
                 sounds.decrease_volume();
@@ -68,7 +68,7 @@ pub fn play_direction_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         match direction_event.value {
             DirectionInput::Left | DirectionInput::Right => {
                 sfx.play(sounds.sfx_move_character.clone());
@@ -83,7 +83,7 @@ fn play_action_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             sfx.play(sounds.sfx_push_box.clone());
         }

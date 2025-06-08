@@ -43,7 +43,7 @@ fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     level: Res<Level>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Select => {
                 match &level.kind {

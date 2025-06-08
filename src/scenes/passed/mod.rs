@@ -59,7 +59,7 @@ fn handle_action_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             game_state_event_writer.send(SceneTransitionEvent::title());
         }
@@ -86,7 +86,7 @@ pub fn handle_text_input(
 ) {
     let (mut text, data) = query.single_mut();
     if level_name.len() < 16 {
-        for character_event in character_event_reader.iter() {
+        for character_event in character_event_reader.read() {
             if level_name_regex
                 .value
                 .is_match(&character_event.char.to_string())
@@ -112,7 +112,7 @@ pub fn handle_text_input(
         text.sections[1].style.color = Colors::SECONDARY;
     }
 
-    for event in keyboard_input_events.iter() {
+    for event in keyboard_input_events.read() {
         if event.state.is_pressed() {
             if let Some(key_code) = event.key_code {
                 match key_code {

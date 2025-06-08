@@ -50,7 +50,7 @@ fn handle_direction_input(
     mut query: Query<(&mut GameButtonData, &mut BackgroundColor)>,
     mut direction_event_reader: EventReader<DirectionInputEvent>,
 ) {
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         if matches!(
             direction_event.value,
             DirectionInput::Up | DirectionInput::Down
@@ -90,7 +90,7 @@ fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Select => {
                 for button in query.iter_mut() {
@@ -128,7 +128,7 @@ fn play_action_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
@@ -146,7 +146,7 @@ pub fn play_direction_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for _ in direction_event_reader.iter() {
+    for _ in direction_event_reader.read() {
         sfx.play(sounds.sfx_move_character.clone());
     }
 }

@@ -26,7 +26,7 @@ fn handle_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             game_state_event_writer.send(SceneTransitionEvent::title());
         }
@@ -38,7 +38,7 @@ fn play_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             sfx.play(sounds.sfx_push_box.clone());
         }

@@ -1,5 +1,6 @@
 use bevy::{
-    app::Plugin as BevyPlugin, prelude::*, render::texture::ImageSampler, window::WindowMode,
+    app::Plugin as BevyPlugin, prelude::*, render::texture::ImageSamplerDescriptor,
+    window::WindowMode,
 };
 
 use crate::resources::prelude::*;
@@ -20,7 +21,7 @@ impl BevyPlugin for Plugin {
                     ..default()
                 })
                 .set(ImagePlugin {
-                    default_sampler: ImageSampler::nearest_descriptor(),
+                    default_sampler: ImageSamplerDescriptor::nearest(),
                 }),
         )
         .insert_resource(Msaa::Off)

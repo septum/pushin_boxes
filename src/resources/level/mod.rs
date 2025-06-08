@@ -68,7 +68,7 @@ fn insert_level(
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
 ) {
-    if let Some(level_insertion_event) = level_insertion_event_reader.iter().next() {
+    if let Some(level_insertion_event) = level_insertion_event_reader.read().next() {
         match &level_insertion_event.kind {
             LevelKind::Stock(index) => {
                 let state = *level_states_assets

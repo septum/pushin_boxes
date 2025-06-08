@@ -49,12 +49,13 @@ impl BevyPlugin for Plugin {
         .add_audio_channel::<Sfx>()
         .add_audio_channel::<Music>()
         .add_loading_state(
-            LoadingState::new(GameState::Loading).continue_to_state(GameState::Title),
+            LoadingState::new(GameState::Loading)
+                .continue_to_state(GameState::Title)
+                .load_collection::<LevelHandles>()
+                .load_collection::<Fonts>()
+                .load_collection::<Images>()
+                .load_collection::<Sounds>(),
         )
-        .add_collection_to_loading_state::<_, LevelHandles>(GameState::Loading)
-        .add_collection_to_loading_state::<_, Fonts>(GameState::Loading)
-        .add_collection_to_loading_state::<_, Images>(GameState::Loading)
-        .add_collection_to_loading_state::<_, Sounds>(GameState::Loading)
         .add_systems(OnEnter(GameState::Loading), SaveFileHandle::load)
         .add_systems(
             Update,

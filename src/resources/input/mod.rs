@@ -27,7 +27,7 @@ fn gather_input(
     mut action_event_writer: EventWriter<ActionInputEvent>,
     mut direction_event_writer: EventWriter<DirectionInputEvent>,
 ) {
-    for event in keyboard_input_events.iter() {
+    for event in keyboard_input_events.read() {
         if event.state.is_pressed() {
             if let Some(key_code) = event.key_code {
                 match key_code {

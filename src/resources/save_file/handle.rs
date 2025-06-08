@@ -2,7 +2,7 @@ use bevy::{asset::LoadState, prelude::*};
 
 use super::SaveFile;
 
-#[derive(Clone, Resource)]
+#[derive(Asset, TypePath, Clone, Resource)]
 pub struct SaveFileHandle {
     pub value: Handle<SaveFile>,
 }
@@ -20,7 +20,7 @@ impl SaveFileHandle {
     ) -> bool {
         matches!(
             asset_server.get_load_state(save_file_handle.value.clone()),
-            LoadState::Loaded | LoadState::Failed
+            Some(LoadState::Loaded) | Some(LoadState::Failed)
         )
     }
 }

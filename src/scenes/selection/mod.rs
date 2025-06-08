@@ -39,7 +39,7 @@ fn handle_direction_input(
 ) {
     let is_stock = game_state.get_selection_kind().is_stock();
 
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         let mut selected_index: Option<usize> = None;
         for (button, _) in query.iter() {
             if button.selected {
@@ -90,7 +90,7 @@ fn handle_action_input(
 ) {
     let is_stock = game_state.get_selection_kind().is_stock();
 
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Select => {
                 for button in query.iter_mut() {
@@ -154,7 +154,7 @@ fn play_action_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Exit | ActionInput::Delete => {
                 sfx.play(sounds.sfx_push_box.clone());
@@ -175,7 +175,7 @@ pub fn play_direction_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for _ in direction_event_reader.iter() {
+    for _ in direction_event_reader.read() {
         sfx.play(sounds.sfx_move_character.clone());
     }
 }

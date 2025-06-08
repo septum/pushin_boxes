@@ -76,7 +76,7 @@ fn handle_direction_input(
     mut brush: ResMut<Brush>,
     mut direction_event_reader: EventReader<DirectionInputEvent>,
 ) {
-    for direction_event in direction_event_reader.iter() {
+    for direction_event in direction_event_reader.read() {
         match direction_event.value {
             DirectionInput::Up => brush.position.decrement_y(),
             DirectionInput::Down => brush.position.increment_y(),
@@ -94,7 +94,7 @@ fn handle_action_input(
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Toggle => brush.cycle(),
             ActionInput::Select => {
@@ -265,12 +265,6 @@ fn update_map(
         let map_entity = level.get_entity(position);
         *image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
-
-        // NOTE: The floor entity is drawn over the character
-        // and somehow it's related to the alphabetical order filenames
-        if matches!(map_entity, MapEntity::F) {
-            transform.translation.z -= 1.0;
-        }
     }
 }
 
@@ -279,7 +273,7 @@ fn play_action_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.iter() {
+    for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
@@ -300,7 +294,7 @@ pub fn play_direction_sfx(
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for _ in direction_event_reader.iter() {
+    for _ in direction_event_reader.read() {
         sfx.play(sounds.sfx_move_character.clone());
     }
 }
