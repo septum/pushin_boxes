@@ -20,7 +20,8 @@ pub struct GameButton {
 impl Default for GameButton {
     fn default() -> GameButton {
         let style = Style {
-            size: Size::new(Val::Px(400.0), Val::Px(60.0)),
+            width: Val::Px(400.0),
+            height: Val::Px(60.0),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
@@ -48,8 +49,8 @@ impl GameButton {
 
     pub fn square<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> GameButton {
         let mut button = Self::default();
-        button.bundle.style.size.width = Val::Px(60.0);
-        button.bundle.style.size.height = Val::Px(60.0);
+        button.bundle.style.width = Val::Px(60.0);
+        button.bundle.style.height = Val::Px(60.0);
         button.child = EmbossedText::medium(value, font);
         button
     }

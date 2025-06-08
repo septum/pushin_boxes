@@ -74,8 +74,13 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(play_music.run_if(resource_exists::<Sounds>()));
-        app.add_system(handle_volume_change.run_if(resource_exists::<Sounds>()));
+        app.add_systems(
+            Update,
+            (
+                play_music.run_if(resource_exists::<Sounds>()),
+                handle_volume_change.run_if(resource_exists::<Sounds>()),
+            ),
+        );
     }
 }
 
@@ -98,7 +103,7 @@ fn play_music(
     if game_state.is_changed() {
         music.stop();
         music
-            .play(match game_state.0 {
+            .play(match game_state.get() {
                 GameState::Title | GameState::Instructions => sounds.music_title.clone(),
                 GameState::SelectionStock
                 | GameState::SelectionCustom

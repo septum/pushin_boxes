@@ -1,5 +1,8 @@
+use bevy::prelude::*;
+
 use super::kind::LevelKind;
 
+#[derive(Event)]
 pub struct LevelInsertionEvent {
     pub kind: LevelKind,
 }

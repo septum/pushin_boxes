@@ -38,34 +38,37 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(state::Plugin)
-            .add_plugin(level::Plugin)
-            .add_plugin(input::Plugin)
-            .add_plugin(sounds::Plugin)
-            .add_plugin(RonAssetPlugin::<SaveFile>::new(&["dat"]))
-            .add_plugin(RonAssetPlugin::<LevelState>::new(&["lvl"]))
-            .add_audio_channel::<Sfx>()
-            .add_audio_channel::<Music>()
-            .add_loading_state(
-                LoadingState::new(GameState::Loading).continue_to_state(GameState::Title),
-            )
-            .add_collection_to_loading_state::<_, LevelHandles>(GameState::Loading)
-            .add_collection_to_loading_state::<_, Fonts>(GameState::Loading)
-            .add_collection_to_loading_state::<_, Images>(GameState::Loading)
-            .add_collection_to_loading_state::<_, Sounds>(GameState::Loading)
-            .add_system(SaveFileHandle::load.in_schedule(OnEnter(GameState::Loading)))
-            .add_system(
-                SaveFile::insert
-                    .in_set(OnUpdate(GameState::Loading))
-                    .run_if(SaveFileHandle::check_loaded_or_failed),
-            )
-            .add_systems(
-                (
-                    camera::setup.run_if(resource_added::<SaveFile>()),
-                    sounds::setup.run_if(resource_added::<SaveFile>()),
-                    level::insert_custom_level_handles.run_if(resource_added::<SaveFile>()),
-                )
-                    .in_schedule(OnExit(GameState::Loading)),
-            );
+        app.add_plugins((
+            state::Plugin,
+            level::Plugin,
+            input::Plugin,
+            sounds::Plugin,
+            RonAssetPlugin::<SaveFile>::new(&["dat"]),
+            RonAssetPlugin::<LevelState>::new(&["lvl"]),
+        ))
+        .add_audio_channel::<Sfx>()
+        .add_audio_channel::<Music>()
+        .add_loading_state(
+            LoadingState::new(GameState::Loading).continue_to_state(GameState::Title),
+        )
+        .add_collection_to_loading_state::<_, LevelHandles>(GameState::Loading)
+        .add_collection_to_loading_state::<_, Fonts>(GameState::Loading)
+        .add_collection_to_loading_state::<_, Images>(GameState::Loading)
+        .add_collection_to_loading_state::<_, Sounds>(GameState::Loading)
+        .add_systems(OnEnter(GameState::Loading), SaveFileHandle::load)
+        .add_systems(
+            Update,
+            SaveFile::insert
+                .run_if(SaveFileHandle::check_loaded_or_failed)
+                .run_if(in_state(GameState::Loading)),
+        )
+        .add_systems(
+            OnExit(GameState::Loading),
+            (
+                camera::setup.run_if(resource_added::<SaveFile>()),
+                sounds::setup.run_if(resource_added::<SaveFile>()),
+                level::insert_custom_level_handles.run_if(resource_added::<SaveFile>()),
+            ),
+        );
     }
 }

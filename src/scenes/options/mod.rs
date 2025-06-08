@@ -14,8 +14,9 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Options)))
+        app.add_systems(OnEnter(GameState::Options), self::ui::spawn)
             .add_systems(
+                Update,
                 (
                     handle_action_input.run_if(on_event::<ActionInputEvent>()),
                     handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
@@ -23,9 +24,9 @@ impl BevyPlugin for Plugin {
                     play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
                     update_dynamic_text,
                 )
-                    .in_set(OnUpdate(GameState::Options)),
+                    .run_if(in_state(GameState::Options)),
             )
-            .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Options)));
+            .add_systems(OnExit(GameState::Options), cleanup::<OverlayMarker>);
     }
 }
 

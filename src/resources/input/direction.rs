@@ -1,3 +1,5 @@
+use bevy::prelude::*;
+
 pub enum DirectionInput {
     Up,
     Down,
@@ -5,6 +7,7 @@ pub enum DirectionInput {
     Right,
 }
 
+#[derive(Event)]
 pub struct DirectionInputEvent {
     pub value: DirectionInput,
 }

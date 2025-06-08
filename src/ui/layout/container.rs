@@ -11,7 +11,8 @@ impl Default for Container {
         Container {
             bundle: NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    height: Val::Percent(100.0),
+                    width: Val::Percent(100.0),
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
@@ -27,47 +28,47 @@ impl Default for Container {
 impl Container {
     pub fn size(width: f32, height: f32) -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.width = Val::Px(width);
-        housing.bundle.style.size.height = Val::Px(height);
+        housing.bundle.style.width = Val::Px(width);
+        housing.bundle.style.height = Val::Px(height);
         housing
     }
 
     pub fn size_percentage(width: f32, height: f32) -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.width = Val::Percent(width);
-        housing.bundle.style.size.height = Val::Percent(height);
+        housing.bundle.style.width = Val::Percent(width);
+        housing.bundle.style.height = Val::Percent(height);
         housing
     }
 
     pub fn auto_height() -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.height = Val::Auto;
+        housing.bundle.style.height = Val::Auto;
         housing
     }
 
     pub fn auto_height_with_width(width: f32) -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.width = Val::Px(width);
-        housing.bundle.style.size.height = Val::Auto;
+        housing.bundle.style.width = Val::Px(width);
+        housing.bundle.style.height = Val::Auto;
         housing
     }
 
     pub fn auto() -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.width = Val::Auto;
-        housing.bundle.style.size.height = Val::Auto;
+        housing.bundle.style.width = Val::Auto;
+        housing.bundle.style.height = Val::Auto;
         housing
     }
 
     pub fn half() -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.width = Val::Percent(50.0);
+        housing.bundle.style.width = Val::Percent(50.0);
         housing
     }
 
     pub fn height(height: f32) -> Container {
         let mut housing = Self::default();
-        housing.bundle.style.size.height = Val::Px(height);
+        housing.bundle.style.height = Val::Px(height);
         housing
     }
 

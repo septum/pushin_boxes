@@ -22,13 +22,14 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            OnEnter(GameState::Title),
             (
                 self::ui::spawn,
                 CharacterAnimation::insert_blinking_character_animation,
-            )
-                .in_schedule(OnEnter(GameState::Title)),
+            ),
         )
         .add_systems(
+            Update,
             (
                 update_character_animation,
                 handle_action_input.run_if(on_event::<ActionInputEvent>()),
@@ -36,11 +37,11 @@ impl BevyPlugin for Plugin {
                 play_action_sfx.run_if(on_event::<ActionInputEvent>()),
                 play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
             )
-                .in_set(OnUpdate(GameState::Title)),
+                .run_if(in_state(GameState::Title)),
         )
         .add_systems(
-            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>)
-                .in_schedule(OnExit(GameState::Title)),
+            OnExit(GameState::Title),
+            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>),
         );
     }
 }

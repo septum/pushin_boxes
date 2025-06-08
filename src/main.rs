@@ -7,9 +7,11 @@ use pushin_boxes::{config, resources, scenes};
 
 fn main() {
     App::new()
-        .add_plugin(config::Plugin)
-        .add_plugin(AudioPlugin)
-        .add_plugin(resources::Plugin)
-        .add_plugin(scenes::Plugin)
+        .add_plugins((
+            config::Plugin,
+            AudioPlugin,
+            resources::Plugin,
+            scenes::Plugin,
+        ))
         .run();
 }

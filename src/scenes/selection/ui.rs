@@ -71,7 +71,7 @@ pub fn spawn(
     let mut middle = Container::default();
     let mut bottom = Container::auto_height();
 
-    let kind = game_state.0.get_selection_kind();
+    let kind = game_state.get_selection_kind();
     let mut title = SimpleText::medium(format!("Select a {} Level", kind.to_str()), font);
     let mut enter = SimpleText::small(
         format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),

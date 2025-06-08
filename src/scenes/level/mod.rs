@@ -17,14 +17,15 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            OnEnter(GameState::Level),
             (
                 self::ui::spawn,
                 spawn_level,
                 CharacterAnimation::insert_level_character_animation,
-            )
-                .in_schedule(OnEnter(GameState::Level)),
+            ),
         )
         .add_systems(
+            Update,
             (
                 handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
                 handle_action_input.run_if(on_event::<ActionInputEvent>()),
@@ -36,15 +37,15 @@ impl BevyPlugin for Plugin {
                 check_lever_timer_just_finished,
             )
                 .chain()
-                .in_set(OnUpdate(GameState::Level)),
+                .run_if(in_state(GameState::Level)),
         )
         .add_systems(
+            OnExit(GameState::Level),
             (
                 cleanup::<OverlayMarker>,
                 cleanup::<CharacterMarker>,
                 cleanup::<MapPosition>,
-            )
-                .in_schedule(OnExit(GameState::Level)),
+            ),
         );
     }
 }

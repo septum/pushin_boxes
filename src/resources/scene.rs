@@ -1,5 +1,8 @@
+use bevy::prelude::*;
+
 use super::state::{GameState, SelectionKind};
 
+#[derive(Event)]
 pub struct SceneTransitionEvent {
     pub state: GameState,
 }

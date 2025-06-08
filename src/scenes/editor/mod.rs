@@ -16,15 +16,16 @@ impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(LevelValidity::default())
             .add_systems(
+                OnEnter(GameState::Editor),
                 (
                     check_total_custom_levels,
                     self::ui::spawn,
                     Brush::insert,
                     setup_level,
-                )
-                    .in_schedule(OnEnter(GameState::Editor)),
+                ),
             )
             .add_systems(
+                Update,
                 (
                     handle_action_input,
                     handle_direction_input,
@@ -37,16 +38,16 @@ impl BevyPlugin for Plugin {
                     play_action_sfx.run_if(on_event::<ActionInputEvent>()),
                     play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
                 )
-                    .in_set(OnUpdate(GameState::Editor)),
+                    .run_if(in_state(GameState::Editor)),
             )
             .add_systems(
+                OnExit(GameState::Editor),
                 (
                     cleanup::<OverlayMarker>,
                     cleanup::<CharacterMarker>,
                     cleanup::<MapPosition>,
                     cleanup::<BrushSprite>,
-                )
-                    .in_schedule(OnExit(GameState::Editor)),
+                ),
             );
     }
 }

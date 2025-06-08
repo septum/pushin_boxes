@@ -28,13 +28,17 @@ impl GameText for EmbossedText {
     }
 
     fn spawn(self, parent: &mut ChildBuilder) {
+        let text_clone = self.bundle.text.clone();
         let mut foreground = self.bundle;
-        let mut background = foreground.clone();
+        let mut background = TextBundle {
+            text: text_clone,
+            ..default()
+        };
         let relief = foreground.text.sections[0].style.font_size / EmbossedText::SIZE_SMALL;
 
         foreground.style.position_type = PositionType::Absolute;
-        background.style.position.top = Val::Px(relief);
-        background.style.position.left = Val::Px(relief);
+        background.style.top = Val::Px(relief);
+        background.style.left = Val::Px(relief);
         background.text.sections[0].style.color = Colors::DARK;
 
         parent.spawn(background);

@@ -9,24 +9,24 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            OnEnter(GameState::Win),
             (
                 save,
                 self::ui::spawn,
                 CharacterAnimation::insert_happy_character_animation,
-            )
-                .in_schedule(OnEnter(GameState::Win)),
+            ),
         )
         .add_systems(
+            Update,
             (
                 handle_action_input.run_if(on_event::<ActionInputEvent>()),
                 update_character_animation,
             )
-                .in_set(OnUpdate(GameState::Win)),
+                .run_if(in_state(GameState::Win)),
         )
         .add_systems(
-            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>)
-                .chain()
-                .in_schedule(OnExit(GameState::Win)),
+            OnExit(GameState::Win),
+            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>).chain(),
         );
     }
 }

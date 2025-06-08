@@ -15,17 +15,18 @@ pub struct Plugin;
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         for state in [GameState::SelectionStock, GameState::SelectionCustom] {
-            app.add_system(self::ui::spawn.in_schedule(OnEnter(state)))
+            app.add_systems(OnEnter(state), self::ui::spawn)
                 .add_systems(
+                    Update,
                     (
                         handle_action_input.run_if(on_event::<ActionInputEvent>()),
                         handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
                         play_action_sfx.run_if(on_event::<ActionInputEvent>()),
                         play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
                     )
-                        .in_set(OnUpdate(state)),
+                        .run_if(in_state(state)),
                 )
-                .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(state)));
+                .add_systems(OnExit(state), cleanup::<OverlayMarker>);
         }
     }
 }
@@ -36,7 +37,7 @@ fn handle_direction_input(
     game_state: Res<State<GameState>>,
     save_file: Res<SaveFile>,
 ) {
-    let is_stock = game_state.0.get_selection_kind().is_stock();
+    let is_stock = game_state.get_selection_kind().is_stock();
 
     for direction_event in direction_event_reader.iter() {
         let mut selected_index: Option<usize> = None;
@@ -87,7 +88,7 @@ fn handle_action_input(
     mut save_file: ResMut<SaveFile>,
     game_state: Res<State<GameState>>,
 ) {
-    let is_stock = game_state.0.get_selection_kind().is_stock();
+    let is_stock = game_state.get_selection_kind().is_stock();
 
     for action_event in action_event_reader.iter() {
         match action_event.value {

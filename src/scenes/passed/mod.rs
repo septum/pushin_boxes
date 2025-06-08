@@ -42,15 +42,16 @@ impl BevyPlugin for Plugin {
             blink_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
             blink_toggle: true,
         })
-        .add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Passed)))
+        .add_systems(OnEnter(GameState::Passed), self::ui::spawn)
         .add_systems(
+            Update,
             (
                 handle_action_input.run_if(on_event::<ActionInputEvent>()),
                 handle_text_input,
             )
-                .in_set(OnUpdate(GameState::Passed)),
+                .run_if(in_state(GameState::Passed)),
         )
-        .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Passed)));
+        .add_systems(OnExit(GameState::Passed), cleanup::<OverlayMarker>);
     }
 }
 

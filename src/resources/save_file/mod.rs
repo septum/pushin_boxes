@@ -2,7 +2,11 @@ mod handle;
 
 use std::{env, fs::File, io::Write, iter::Enumerate, path::PathBuf, slice::Iter, vec::IntoIter};
 
-use bevy::{asset::LoadState, prelude::*, reflect::TypeUuid};
+use bevy::{
+    asset::LoadState,
+    prelude::*,
+    reflect::{TypePath, TypeUuid},
+};
 use hashbrown::HashMap;
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
@@ -11,7 +15,7 @@ pub use self::handle::SaveFileHandle;
 
 use super::prelude::*;
 
-#[derive(TypeUuid, Serialize, Deserialize, Clone, Resource)]
+#[derive(TypePath, TypeUuid, Serialize, Deserialize, Clone, Resource)]
 #[uuid = "2e5bbfc2-8dfd-4547-8c85-cbaf27533998"]
 pub struct SaveFile {
     volume: f64,

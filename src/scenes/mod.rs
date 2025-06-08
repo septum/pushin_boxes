@@ -14,14 +14,16 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(title::Plugin)
-            .add_plugin(instructions::Plugin)
-            .add_plugin(editor::Plugin)
-            .add_plugin(limit::Plugin)
-            .add_plugin(passed::Plugin)
-            .add_plugin(options::Plugin)
-            .add_plugin(selection::Plugin)
-            .add_plugin(level::Plugin)
-            .add_plugin(win::Plugin);
+        app.add_plugins((
+            title::Plugin,
+            instructions::Plugin,
+            editor::Plugin,
+            limit::Plugin,
+            passed::Plugin,
+            options::Plugin,
+            selection::Plugin,
+            level::Plugin,
+            win::Plugin,
+        ));
     }
 }

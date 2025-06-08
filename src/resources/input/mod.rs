@@ -12,8 +12,13 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(gather_input)
-            .add_system(clear_input.run_if(on_event::<SceneTransitionEvent>()));
+        app.add_systems(
+            Update,
+            (
+                gather_input,
+                clear_input.run_if(on_event::<SceneTransitionEvent>()),
+            ),
+        );
     }
 }
 

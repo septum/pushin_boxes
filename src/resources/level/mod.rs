@@ -40,7 +40,10 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(insert_level.run_if(on_event::<LevelInsertionEvent>()));
+        app.add_systems(
+            Update,
+            insert_level.run_if(on_event::<LevelInsertionEvent>()),
+        );
     }
 }
 

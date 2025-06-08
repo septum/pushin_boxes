@@ -9,15 +9,16 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system(self::ui::spawn.in_schedule(OnEnter(GameState::Instructions)))
+        app.add_systems(OnEnter(GameState::Instructions), self::ui::spawn)
             .add_systems(
+                Update,
                 (
                     handle_input.run_if(on_event::<ActionInputEvent>()),
                     play_sfx.run_if(on_event::<ActionInputEvent>()),
                 )
-                    .in_set(OnUpdate(GameState::Instructions)),
+                    .run_if(in_state(GameState::Instructions)),
             )
-            .add_system(cleanup::<OverlayMarker>.in_schedule(OnExit(GameState::Instructions)));
+            .add_systems(OnExit(GameState::Instructions), cleanup::<OverlayMarker>);
     }
 }
 

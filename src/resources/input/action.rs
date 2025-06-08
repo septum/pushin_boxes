@@ -1,3 +1,5 @@
+use bevy::prelude::*;
+
 pub enum ActionInput {
     Undo,
     Reload,
@@ -7,6 +9,7 @@ pub enum ActionInput {
     Exit,
 }
 
+#[derive(Event)]
 pub struct ActionInputEvent {
     pub value: ActionInput,
 }

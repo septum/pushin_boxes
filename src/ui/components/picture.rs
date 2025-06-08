@@ -8,8 +8,8 @@ pub struct Picture {
 impl Picture {
     pub fn new(width: f32, height: f32, image: &Handle<Image>) -> Picture {
         let mut picture = Self::default();
-        picture.bundle.style.size.width = Val::Px(width);
-        picture.bundle.style.size.height = Val::Px(height);
+        picture.bundle.style.width = Val::Px(width);
+        picture.bundle.style.height = Val::Px(height);
         picture.bundle.image = image.clone().into();
         picture
     }
