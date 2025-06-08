@@ -110,7 +110,7 @@ fn handle_action_input(
                                 game_state_event_writer.send(SceneTransitionEvent::options());
                             }
                             QUIT_ID => {
-                                exit.send(AppExit);
+                                exit.send(AppExit::Success);
                             }
                             _ => unreachable!("The button id was not declared"),
                         }
@@ -118,7 +118,7 @@ fn handle_action_input(
                 }
             }
             ActionInput::Exit => {
-                exit.send(AppExit);
+                exit.send(AppExit::Success);
             }
             _ => (),
         }

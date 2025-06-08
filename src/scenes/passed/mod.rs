@@ -7,7 +7,11 @@ use std::{
     path::PathBuf,
 };
 
-use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*};
+use bevy::{
+    app::Plugin as BevyPlugin,
+    input::keyboard::{Key, KeyboardInput},
+    prelude::*,
+};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use regex::Regex;
@@ -78,30 +82,12 @@ pub fn handle_text_input(
     mut level_handles: ResMut<LevelHandles>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut text_cursor: ResMut<TextCursor>,
-    mut character_event_reader: EventReader<ReceivedCharacter>,
     mut query: Query<(&mut Text, &DynamicTextData)>,
     mut level_name: Local<String>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
     let (mut text, data) = query.single_mut();
-    if level_name.len() < 16 {
-        for character_event in character_event_reader.read() {
-            if level_name_regex
-                .value
-                .is_match(&character_event.char.to_string())
-            {
-                sfx.play(sounds.sfx_move_character.clone());
-                level_name.push_str(&character_event.char);
-            }
-        }
-
-        text.sections[0].value = match data.id {
-            LEVEL_NAME_ID => level_name.to_string(),
-            _ => unreachable!("The text id does not exists"),
-        };
-    }
-
     if text_cursor.blink_timer.tick(time.delta()).just_finished() {
         text_cursor.blink_toggle = !text_cursor.blink_toggle;
     }
@@ -113,51 +99,86 @@ pub fn handle_text_input(
     }
 
     for event in keyboard_input_events.read() {
-        if event.state.is_pressed() {
-            match event.key_code {
-                KeyCode::Backspace => {
-                    sfx.play(sounds.sfx_undo_move.clone());
-                    level_name.pop();
-                }
-                KeyCode::Enter => {
-                    if level_name.len() > 0 {
-                        sfx.play(sounds.sfx_set_zone.clone());
-                        let uuid = Uuid::new_v4();
-                        let serialized_string =
-                            ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
-                        let levels_path = format!("levels/custom/{}.lvl", &uuid);
-                        let assets_path = format!("assets/{}", &levels_path);
-                        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-                            PathBuf::from(manifest_dir).join(assets_path)
-                        } else {
-                            PathBuf::from(assets_path)
-                        };
+        if !event.state.is_pressed() {
+            continue;
+        }
 
-                        let parent_path = path.parent().unwrap();
-                        create_dir_all(parent_path).unwrap();
-
-                        let mut file = File::create(path).unwrap();
-                        file.write_all(serialized_string.as_bytes()).unwrap();
-
-                        level_handles.insert_custom(uuid, asset_server.load(&levels_path));
-
-                        let lower_level_name = level_name.to_lowercase();
-
-                        save_file.insert_custom_level_record(
-                            format!("{lower_level_name}${uuid}"),
-                            level.get_set_record(),
-                        );
-
-                        *level_name = String::new();
-                        text.sections[0].value = String::new();
-
-                        save_file.save();
-                        game_state_event_writer
-                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+        match &event.logical_key {
+            Key::Character(character) => {
+                if level_name.len() < 16 {
+                    if level_name_regex.value.is_match(character) {
+                        sfx.play(sounds.sfx_move_character.clone());
+                        level_name.push_str(character);
                     }
+
+                    text.sections[0].value = match data.id {
+                        LEVEL_NAME_ID => level_name.to_string(),
+                        _ => unreachable!("The text id does not exists"),
+                    };
                 }
-                _ => (),
-            };
+            }
+            Key::Space => {
+                if level_name.len() < 16 {
+                    let character = " ";
+
+                    if level_name_regex.value.is_match(character) {
+                        sfx.play(sounds.sfx_move_character.clone());
+                        level_name.push_str(character);
+                    }
+
+                    text.sections[0].value = match data.id {
+                        LEVEL_NAME_ID => level_name.to_string(),
+                        _ => unreachable!("The text id does not exists"),
+                    };
+                }
+            }
+            Key::Backspace => {
+                sfx.play(sounds.sfx_undo_move.clone());
+                level_name.pop();
+
+                text.sections[0].value = match data.id {
+                    LEVEL_NAME_ID => level_name.to_string(),
+                    _ => unreachable!("The text id does not exists"),
+                };
+            }
+            Key::Enter => {
+                if level_name.len() > 0 {
+                    sfx.play(sounds.sfx_set_zone.clone());
+                    let uuid = Uuid::new_v4();
+                    let serialized_string =
+                        ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
+                    let levels_path = format!("levels/custom/{}.lvl", &uuid);
+                    let assets_path = format!("assets/{}", &levels_path);
+                    let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                        PathBuf::from(manifest_dir).join(assets_path)
+                    } else {
+                        PathBuf::from(assets_path)
+                    };
+
+                    let parent_path = path.parent().unwrap();
+                    create_dir_all(parent_path).unwrap();
+
+                    let mut file = File::create(path).unwrap();
+                    file.write_all(serialized_string.as_bytes()).unwrap();
+
+                    level_handles.insert_custom(uuid, asset_server.load(&levels_path));
+
+                    let lower_level_name = level_name.to_lowercase();
+
+                    save_file.insert_custom_level_record(
+                        format!("{lower_level_name}${uuid}"),
+                        level.get_set_record(),
+                    );
+
+                    *level_name = String::new();
+                    text.sections[0].value = String::new();
+
+                    save_file.save();
+                    game_state_event_writer
+                        .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+                }
+            }
+            _ => {}
         }
     }
 }

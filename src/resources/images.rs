@@ -26,12 +26,12 @@ pub struct Images {
     #[asset(path = "images/brushes/character.png")]
     pub brush_character: Handle<Image>,
     #[asset(texture_atlas_layout(
-        tile_size_x = 64.0,
-        tile_size_y = 96.0,
+        tile_size_x = 64,
+        tile_size_y = 96,
         columns = 4,
         rows = 7,
-        padding_x = 4.,
-        padding_y = 4.
+        padding_x = 4,
+        padding_y = 4
     ))]
     pub character_layout: Handle<TextureAtlasLayout>,
     #[asset(path = "images/character/spritesheet.png")]

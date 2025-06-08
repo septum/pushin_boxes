@@ -27,35 +27,43 @@ pub struct CharacterAnimation {
 
 impl CharacterAnimation {
     pub fn insert_blinking_character_animation(mut commands: Commands, images: Res<Images>) {
-        let bundle = SpriteSheetBundle {
-            atlas: images.character_layout.clone().into(),
+        let sprite = SpriteBundle {
             texture: images.character.clone(),
             transform: TITLE_CHARACTER_TRANSFORM,
             ..default()
         };
+        let atlas = TextureAtlas {
+            layout: images.character_layout.clone(),
+            ..default()
+        };
+
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.25, TimerMode::Repeating),
             secondary_timer: Timer::from_seconds(3.0, TimerMode::Once),
             ..default()
         };
         commands.insert_resource(character_animation);
-        commands.spawn(bundle).insert(CharacterMarker);
+        commands.spawn((sprite, atlas)).insert(CharacterMarker);
     }
 
     pub fn insert_happy_character_animation(mut commands: Commands, images: Res<Images>) {
-        let bundle = SpriteSheetBundle {
-            atlas: images.character_layout.clone().into(),
+        let sprite = SpriteBundle {
             texture: images.character.clone(),
             transform: WIN_CHARACTER_TRANSFORM,
             ..default()
         };
+        let atlas = TextureAtlas {
+            layout: images.character_layout.clone(),
+            ..default()
+        };
+
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.125, TimerMode::Repeating),
             row: 6,
             ..default()
         };
         commands.insert_resource(character_animation);
-        commands.spawn(bundle).insert(CharacterMarker);
+        commands.spawn((sprite, atlas)).insert(CharacterMarker);
     }
 
     pub fn insert_level_character_animation(mut commands: Commands) {

@@ -99,12 +99,11 @@ impl MapPosition {
         self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
-        let bundle = SpriteSheetBundle {
-            atlas,
+        let sprite = SpriteBundle {
             texture,
             transform,
             ..default()
         };
-        commands.spawn(bundle).insert(CharacterMarker);
+        commands.spawn((sprite, atlas)).insert(CharacterMarker);
     }
 }

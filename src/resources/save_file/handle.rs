@@ -19,8 +19,8 @@ impl SaveFileHandle {
         asset_server: Res<AssetServer>,
     ) -> bool {
         matches!(
-            asset_server.get_load_state(save_file_handle.value.clone()),
-            Some(LoadState::Loaded) | Some(LoadState::Failed)
+            asset_server.get_load_state(save_file_handle.value.id()),
+            Some(LoadState::Loaded) | Some(LoadState::Failed(_))
         )
     }
 }

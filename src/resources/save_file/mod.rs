@@ -35,7 +35,7 @@ impl SaveFile {
         save_file_handle: Res<SaveFileHandle>,
         save_file: Res<Assets<SaveFile>>,
     ) {
-        let load_state = asset_server.get_load_state(save_file_handle.value.clone());
+        let load_state = asset_server.get_load_state(save_file_handle.value.id());
 
         let file = if matches!(load_state, Some(LoadState::Loaded)) {
             save_file.get(&save_file_handle.value).unwrap().clone()
