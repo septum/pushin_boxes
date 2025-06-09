@@ -28,7 +28,7 @@ fn handle_input(
 ) {
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Select) {
-            game_state_event_writer.send(SceneTransitionEvent::selection(SelectionKind::Custom));
+            game_state_event_writer.write(SceneTransitionEvent::selection(SelectionKind::Custom));
         }
     }
 }

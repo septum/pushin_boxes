@@ -8,30 +8,49 @@ exclude = ["assets"]
 
 [dependencies]
 ron = "0.10"
-serde = "1.0.219"
+serde = "1.0"
 regex = "1.11"
 
 [dependencies.bevy]
-version = "0.15"
-features = ["wayland"]
+version = "0.16"
+default-features = false
+features = [
+    "async_executor",
+    "bevy_asset",
+    "bevy_color",
+    "bevy_core_pipeline",
+    "bevy_log",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_state",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_window",
+    "bevy_winit",
+    "multi_threaded",
+    "png",
+    "std",
+    "webgl2",
+    "wayland",
+]
 
 [dependencies.bevy_common_assets]
-version = "0.12"
+version = "0.13"
 default-features = false
 features = ["ron"]
 
 [dependencies.bevy_asset_loader]
-version = "0.22"
+version = "0.23"
 default-features = false
 features = ["2d"]
 
 [dependencies.bevy_kira_audio]
-version = "0.22"
+version = "0.23"
 default-features = false
 features = ["wav"]
 
 [dependencies.hashbrown]
-version = "0.15.4"
+version = "0.15"
 features = ["serde"]
 
 [dependencies.uuid]

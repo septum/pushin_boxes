@@ -67,7 +67,7 @@ impl GameButton {
         self
     }
 
-    pub fn spawn(self, parent: &mut ChildBuilder) {
+    pub fn spawn(self, parent: &mut ChildSpawnerCommands) {
         parent
             .spawn((self.node, self.background_color, self.data, Button))
             .with_children(|parent| self.child.spawn(parent));

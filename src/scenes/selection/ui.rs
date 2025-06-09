@@ -5,7 +5,11 @@ use crate::{
     ui::{Container, GameButton, GameText, Overlay, SimpleText},
 };
 
-fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
+fn spawn_stock_buttons(
+    parent: &mut ChildSpawnerCommands,
+    save_file: &SaveFile,
+    font: &Handle<Font>,
+) {
     let last_unlocked_index = save_file.unlocked_levels() - 1;
     for (index, record) in save_file.enumerated_stock_records() {
         let housing = Container::size_percentage(25.0, 25.0);
@@ -31,7 +35,11 @@ fn spawn_stock_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &H
     }
 }
 
-fn spawn_custom_buttons(parent: &mut ChildBuilder, save_file: &SaveFile, font: &Handle<Font>) {
+fn spawn_custom_buttons(
+    parent: &mut ChildSpawnerCommands,
+    save_file: &SaveFile,
+    font: &Handle<Font>,
+) {
     for (index, (key, record)) in save_file.ordered_custom_records() {
         let housing = Container::size_percentage(25.0, 25.0);
         let split_key: Vec<&str> = key.split('$').collect();

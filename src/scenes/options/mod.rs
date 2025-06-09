@@ -38,7 +38,7 @@ fn handle_action_input(
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             save_file.save();
-            game_state_event_writer.send(SceneTransitionEvent::title());
+            game_state_event_writer.write(SceneTransitionEvent::title());
         }
     }
 }

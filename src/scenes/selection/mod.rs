@@ -106,12 +106,12 @@ fn handle_action_input(
                             )
                         };
 
-                        level_insertion_event_writer.send(LevelInsertionEvent::new(kind));
+                        level_insertion_event_writer.write(LevelInsertionEvent::new(kind));
                     }
                 }
             }
             ActionInput::Toggle => {
-                scene_transition_event_writer.send(SceneTransitionEvent::selection(if is_stock {
+                scene_transition_event_writer.write(SceneTransitionEvent::selection(if is_stock {
                     SelectionKind::Custom
                 } else {
                     SelectionKind::Stock
@@ -137,12 +137,12 @@ fn handle_action_input(
                         };
                         remove_file(path).expect("File cannot be removed");
                         scene_transition_event_writer
-                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+                            .write(SceneTransitionEvent::selection(SelectionKind::Custom));
                     }
                 }
             }
             ActionInput::Exit => {
-                scene_transition_event_writer.send(SceneTransitionEvent::title());
+                scene_transition_event_writer.write(SceneTransitionEvent::title());
             }
             _ => (),
         }

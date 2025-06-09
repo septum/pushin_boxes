@@ -35,7 +35,7 @@ impl Default for EmbossedText {
 }
 
 impl GameText for EmbossedText {
-    fn spawn(self, parent: &mut ChildBuilder) {
+    fn spawn(self, parent: &mut ChildSpawnerCommands) {
         let mut foreground = self.clone();
         let mut background = self;
         let relief = foreground.font.font_size / EmbossedText::SIZE_SMALL;

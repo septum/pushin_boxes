@@ -12,7 +12,7 @@ impl Picture {
         picture
     }
 
-    pub fn spawn(self, parent: &mut ChildBuilder) {
+    pub fn spawn(self, parent: &mut ChildSpawnerCommands) {
         parent.spawn(self.node);
     }
 }

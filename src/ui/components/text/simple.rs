@@ -33,7 +33,7 @@ impl Default for SimpleText {
 }
 
 impl GameText for SimpleText {
-    fn spawn(self, parent: &mut ChildBuilder) {
+    fn spawn(self, parent: &mut ChildSpawnerCommands) {
         parent.spawn(self);
     }
 

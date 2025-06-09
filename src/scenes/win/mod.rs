@@ -50,15 +50,15 @@ fn handle_action_input(
                     LevelKind::Stock(index) => {
                         if level.is_last() {
                             game_state_event_writer
-                                .send(SceneTransitionEvent::selection(SelectionKind::Stock));
+                                .write(SceneTransitionEvent::selection(SelectionKind::Stock));
                         } else {
                             level_instertion_event_writer
-                                .send(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
+                                .write(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
                         }
                     }
                     LevelKind::Custom(_) => {
                         game_state_event_writer
-                            .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+                            .write(SceneTransitionEvent::selection(SelectionKind::Custom));
                     }
                     LevelKind::Playtest(_) => {
                         unreachable!("A playtest level cannot be won");
@@ -69,7 +69,7 @@ fn handle_action_input(
                 };
             }
             ActionInput::Exit => {
-                game_state_event_writer.send(SceneTransitionEvent::title());
+                game_state_event_writer.write(SceneTransitionEvent::title());
             }
             _ => {}
         }
@@ -83,7 +83,7 @@ fn update_character_animation(
 ) {
     character_animation.tick(time.delta());
     if character_animation.primary_timer_just_finished() {
-        let mut sprite = query.single_mut();
+        let mut sprite = query.single_mut().unwrap();
         character_animation.next_index();
         sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
     }

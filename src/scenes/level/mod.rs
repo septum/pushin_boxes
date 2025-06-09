@@ -81,7 +81,7 @@ fn handle_action_input(
             }
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
-                game_state_event_writer.send(SceneTransitionEvent::selection(
+                game_state_event_writer.write(SceneTransitionEvent::selection(
                     if level.is_stock() {
                         SelectionKind::Stock
                     } else {
@@ -169,7 +169,7 @@ fn update_character_position(
     level: Res<Level>,
     mut query: Query<&mut Transform, With<CharacterMarker>>,
 ) {
-    let mut transform = query.single_mut();
+    let mut transform = query.single_mut().unwrap();
     level
         .character_position()
         .update_translation(&mut transform.translation);
@@ -181,7 +181,7 @@ fn update_character_sprite(
     mut character_animation: ResMut<CharacterAnimation>,
     mut query: Query<&mut Sprite, With<CharacterMarker>>,
 ) {
-    let mut sprite = query.single_mut();
+    let mut sprite = query.single_mut().unwrap();
     let level_animation_row = level.get_animation_row();
 
     character_animation.tick(time.delta());
@@ -223,14 +223,12 @@ fn update_counters(
     mut texts: Query<(Entity, &DynamicTextData)>,
 ) {
     for (entity, data) in texts.iter_mut() {
-        if let Some(mut text) = writer.get_text(entity, 1) {
-            *text = match data.id {
-                MOVES_COUNTER_ID => level.moves_string(),
-                UNDOS_COUNTER_ID => level.undos_string(),
-                STOPWATCH_COUNTER_ID => level.stopwatch_string(),
-                _ => unreachable!("The counter id does not exists"),
-            };
-        }
+        *writer.text(entity, 1) = match data.id {
+            MOVES_COUNTER_ID => level.moves_string(),
+            UNDOS_COUNTER_ID => level.undos_string(),
+            STOPWATCH_COUNTER_ID => level.stopwatch_string(),
+            _ => unreachable!("The counter id does not exists"),
+        };
     }
 }
 
@@ -262,10 +260,10 @@ fn check_lever_timer_just_finished(
     if level.timer_just_finished() {
         match level.kind {
             LevelKind::Stock(_) | LevelKind::Custom(_) => {
-                scene_transition_event_writer.send(SceneTransitionEvent::win());
+                scene_transition_event_writer.write(SceneTransitionEvent::win());
             }
             LevelKind::Playtest(_) => {
-                scene_transition_event_writer.send(SceneTransitionEvent::passed());
+                scene_transition_event_writer.write(SceneTransitionEvent::passed());
             }
             LevelKind::Editable => unreachable!("An editable level cannot trigger the level timer"),
         }

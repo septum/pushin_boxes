@@ -75,7 +75,7 @@ fn insert_level(
                 let level = Level::new(level_insertion_event.kind.clone(), state, record);
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.send(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(SceneTransitionEvent::level());
             }
             LevelKind::Custom(payload) => {
                 let parsed_payload: Vec<&str> = payload.split('$').collect();
@@ -87,7 +87,7 @@ fn insert_level(
                 let level = Level::new(level_insertion_event.kind.clone(), state, record);
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.send(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(SceneTransitionEvent::level());
             }
             LevelKind::Playtest(state) => {
                 let level = Level::new(
@@ -97,7 +97,7 @@ fn insert_level(
                 );
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.send(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(SceneTransitionEvent::level());
             }
             LevelKind::Editable => {
                 unreachable!("An editable should not be inserted with this event")

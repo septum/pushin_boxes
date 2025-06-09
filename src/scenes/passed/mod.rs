@@ -65,7 +65,7 @@ fn handle_action_input(
 ) {
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
-            game_state_event_writer.send(SceneTransitionEvent::title());
+            game_state_event_writer.write(SceneTransitionEvent::title());
         }
     }
 }
@@ -84,24 +84,20 @@ pub fn handle_text_input(
     mut text_cursor: ResMut<TextCursor>,
     mut writer: TextUiWriter,
     mut query_entity: Query<(Entity, &DynamicTextData)>,
-    // mut query_text_color: Query<&mut TextColor, With<DynamicTextData>>,
     mut level_name: Local<String>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    let (entity, data) = query_entity.single_mut();
+    let (entity, data) = query_entity.single_mut().unwrap();
     if text_cursor.blink_timer.tick(time.delta()).just_finished() {
         text_cursor.blink_toggle = !text_cursor.blink_toggle;
     }
 
-    // {
-    //     let mut text_color = query_text_color.single_mut();
-    //     if text_cursor.blink_toggle {
-    //         *text_color = TextColor(Colors::TRANSPARENT);
-    //     } else {
-    //         *text_color = TextColor(Colors::SECONDARY);
-    //     }
-    // }
+    if text_cursor.blink_toggle {
+        *writer.color(entity, 1) = TextColor(Colors::TRANSPARENT);
+    } else {
+        *writer.color(entity, 1) = TextColor(Colors::SECONDARY);
+    }
 
     for event in keyboard_input_events.read() {
         if !event.state.is_pressed() {
@@ -180,7 +176,7 @@ pub fn handle_text_input(
 
                     save_file.save();
                     game_state_event_writer
-                        .send(SceneTransitionEvent::selection(SelectionKind::Custom));
+                        .write(SceneTransitionEvent::selection(SelectionKind::Custom));
                 }
             }
             _ => {}

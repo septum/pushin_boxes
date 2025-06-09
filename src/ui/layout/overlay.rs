@@ -41,7 +41,7 @@ impl Overlay {
         extended
     }
 
-    pub fn spawn(self, commands: &mut Commands, children: impl FnOnce(&mut ChildBuilder)) {
+    pub fn spawn(self, commands: &mut Commands, children: impl FnOnce(&mut ChildSpawnerCommands)) {
         commands
             .spawn((self.node, self.background_color))
             .with_children(children)

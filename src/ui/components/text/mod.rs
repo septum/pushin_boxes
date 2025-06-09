@@ -89,5 +89,5 @@ pub trait GameText: Default {
 
     fn get_text(&mut self) -> &mut Text;
 
-    fn spawn(self, parent: &mut ChildBuilder);
+    fn spawn(self, parent: &mut ChildSpawnerCommands);
 }

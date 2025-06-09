@@ -42,10 +42,16 @@ impl Default for DynamicText {
 }
 
 impl GameText for DynamicText {
-    fn spawn(self, parent: &mut ChildBuilder) {
+    fn spawn(self, parent: &mut ChildSpawnerCommands) {
         parent
-            .spawn((self.text, self.font.clone(), self.color, self.layout, self.data))
-            .with_child((self.span, self.font, self.color, self.layout));
+            .spawn((
+                self.text,
+                self.font.clone(),
+                self.color,
+                self.layout,
+                self.data,
+            ))
+            .with_child((self.span, self.font, self.color));
     }
 
     fn get_text_color(&mut self) -> &mut TextColor {

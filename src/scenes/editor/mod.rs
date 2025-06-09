@@ -57,7 +57,7 @@ fn check_total_custom_levels(
     mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
 ) {
     if save_file.number_custom_levels() == TOTAL_CUSTOM_LEVELS {
-        scene_transition_event_writer.send(SceneTransitionEvent::limit());
+        scene_transition_event_writer.write(SceneTransitionEvent::limit());
     }
 }
 
@@ -99,13 +99,13 @@ fn handle_action_input(
             ActionInput::Toggle => brush.cycle(),
             ActionInput::Select => {
                 if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
-                    level_insertion_event_writer.send(LevelInsertionEvent::new(
+                    level_insertion_event_writer.write(LevelInsertionEvent::new(
                         LevelKind::Playtest(level.clone_state()),
                     ));
                 }
             }
             ActionInput::Exit => {
-                game_state_event_writer.send(SceneTransitionEvent::title());
+                game_state_event_writer.write(SceneTransitionEvent::title());
             }
             _ => (),
         }
@@ -213,7 +213,7 @@ fn update_character_position(
     level: Res<Level>,
     mut query: Query<&mut Transform, With<CharacterMarker>>,
 ) {
-    let mut transform = query.single_mut();
+    let mut transform = query.single_mut().unwrap();
     level
         .character_position()
         .update_translation(&mut transform.translation);
@@ -224,7 +224,7 @@ fn update_brush_sprite(
     images: Res<Images>,
     mut query: Query<(&mut Sprite, &mut Transform), With<BrushSprite>>,
 ) {
-    let (mut sprite, mut transform) = query.single_mut();
+    let (mut sprite, mut transform) = query.single_mut().unwrap();
     brush
         .position
         .update_translation(&mut transform.translation);
@@ -246,7 +246,7 @@ fn check_validity(
     mut writer: TextUiWriter,
     mut texts: Query<(Entity, &DynamicTextData)>,
 ) {
-    let (entity, data) = texts.single_mut();
+    let (entity, data) = texts.single_mut().unwrap();
     *writer.text(entity, 1) = match data.id {
         VALID_ID => {
             if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {

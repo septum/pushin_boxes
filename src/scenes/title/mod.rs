@@ -98,19 +98,19 @@ fn handle_action_input(
                         match button.id {
                             PLAY_ID => {
                                 game_state_event_writer
-                                    .send(SceneTransitionEvent::selection(SelectionKind::Stock));
+                                    .write(SceneTransitionEvent::selection(SelectionKind::Stock));
                             }
                             INSTRUCTIONS_ID => {
-                                game_state_event_writer.send(SceneTransitionEvent::instructions());
+                                game_state_event_writer.write(SceneTransitionEvent::instructions());
                             }
                             EDITOR_ID => {
-                                game_state_event_writer.send(SceneTransitionEvent::editor());
+                                game_state_event_writer.write(SceneTransitionEvent::editor());
                             }
                             OPTIONS_ID => {
-                                game_state_event_writer.send(SceneTransitionEvent::options());
+                                game_state_event_writer.write(SceneTransitionEvent::options());
                             }
                             QUIT_ID => {
-                                exit.send(AppExit::Success);
+                                exit.write(AppExit::Success);
                             }
                             _ => unreachable!("The button id was not declared"),
                         }
@@ -118,7 +118,7 @@ fn handle_action_input(
                 }
             }
             ActionInput::Exit => {
-                exit.send(AppExit::Success);
+                exit.write(AppExit::Success);
             }
             _ => (),
         }
@@ -158,7 +158,7 @@ pub fn update_character_animation(
     mut query: Query<&mut Sprite, With<CharacterMarker>>,
     mut character_animation: ResMut<CharacterAnimation>,
 ) {
-    let mut sprite = query.single_mut();
+    let mut sprite = query.single_mut().unwrap();
 
     character_animation.tick(time.delta());
 

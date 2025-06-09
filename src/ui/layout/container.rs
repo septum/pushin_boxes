@@ -130,7 +130,11 @@ impl Container {
         self
     }
 
-    pub fn spawn(self, parent: &mut ChildBuilder, children: impl FnOnce(&mut ChildBuilder)) {
+    pub fn spawn(
+        self,
+        parent: &mut ChildSpawnerCommands,
+        children: impl FnOnce(&mut ChildSpawnerCommands),
+    ) {
         parent
             .spawn((self.node, self.background_color))
             .with_children(children);
