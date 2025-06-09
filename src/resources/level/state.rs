@@ -1,7 +1,7 @@
 use bevy::{prelude::*, reflect::TypePath};
 use serde::{Deserialize, Serialize};
 
-use super::map::{Map, MapEntity, MapPosition, MAP_COLS, MAP_ROWS};
+use super::map::{MAP_COLS, MAP_ROWS, Map, MapEntity, MapPosition};
 
 #[derive(Asset, TypePath, Serialize, Deserialize, Clone, Copy, Default)]
 pub struct LevelState {

@@ -93,9 +93,9 @@ fn play_action_sfx(
 fn update_dynamic_text(
     sounds: Res<Sounds>,
     mut writer: TextUiWriter,
-    mut texts: Query<(Entity, &DynamicTextData)>,
+    texts: Query<(Entity, &DynamicTextData)>,
 ) {
-    for (entity, data) in texts.iter_mut() {
+    for (entity, data) in texts {
         *writer.text(entity, 1) = match data.id {
             VOLUME_ID => format!("<{:>4.0}%>", sounds.get_volume() * 100.0),
             _ => unreachable!("The text id does not exists"),

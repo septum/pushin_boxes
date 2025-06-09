@@ -1,6 +1,6 @@
 use bevy::{
-    asset::AssetMetaCheck,
-    app::Plugin as BevyPlugin, image::ImageSamplerDescriptor, prelude::*, window::WindowMode,
+    app::Plugin as BevyPlugin, asset::AssetMetaCheck, image::ImageSamplerDescriptor, prelude::*,
+    window::WindowMode,
 };
 
 use crate::resources::prelude::*;

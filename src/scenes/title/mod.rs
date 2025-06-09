@@ -70,7 +70,7 @@ fn handle_direction_input(
                 }
             }
             if let Some(id) = selected_id {
-                for (mut button, mut color) in query.iter_mut() {
+                for (mut button, mut color) in &mut query {
                     if button.id == id {
                         button.selected = true;
                         *color = Colors::PRIMARY_DARK.into();
@@ -93,7 +93,7 @@ fn handle_action_input(
     for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Select => {
-                for button in query.iter_mut() {
+                for button in &mut query {
                     if button.selected {
                         match button.id {
                             PLAY_ID => {

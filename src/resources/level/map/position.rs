@@ -73,7 +73,7 @@ impl MapPosition {
             DirectionInput::Left => self.decrement_x(),
             DirectionInput::Down => self.increment_y(),
             DirectionInput::Right => self.increment_x(),
-        };
+        }
     }
 
     pub fn spawn_entity(&self, commands: &mut Commands, image: Handle<Image>) {

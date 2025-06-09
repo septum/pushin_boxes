@@ -67,7 +67,7 @@ fn handle_direction_input(
         }
 
         if let Some(selected_index) = selected_index {
-            for (mut button, mut color) in query.iter_mut() {
+            for (mut button, mut color) in &mut query {
                 if selected_index == button.id {
                     button.selected = true;
                     *color = Colors::PRIMARY_DARK.into();
@@ -93,7 +93,7 @@ fn handle_action_input(
     for action_event in action_event_reader.read() {
         match action_event.value {
             ActionInput::Select => {
-                for button in query.iter_mut() {
+                for button in &mut query {
                     if button.selected {
                         let kind = if is_stock {
                             LevelKind::Stock(button.id)
@@ -119,7 +119,7 @@ fn handle_action_input(
             }
 
             ActionInput::Delete => {
-                for button in query.iter_mut() {
+                for button in &mut query {
                     if button.selected && !is_stock {
                         let payload = button
                             .payload

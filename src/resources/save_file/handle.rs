@@ -20,7 +20,7 @@ impl SaveFileHandle {
     ) -> bool {
         matches!(
             asset_server.get_load_state(save_file_handle.value.id()),
-            Some(LoadState::Loaded) | Some(LoadState::Failed(_))
+            Some(LoadState::Loaded | LoadState::Failed(_))
         )
     }
 }

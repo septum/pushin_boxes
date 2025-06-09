@@ -13,7 +13,7 @@ mod state;
 mod systems;
 
 pub mod prelude {
-    pub use super::animations::{CharacterAnimation, CharacterMarker, BLINK_ROW_LAST_FRAME_INDEX};
+    pub use super::animations::{BLINK_ROW_LAST_FRAME_INDEX, CharacterAnimation, CharacterMarker};
     pub use super::brush::{Brush, BrushEntity, BrushSprite, LevelValidity};
     pub use super::colors::Colors;
     pub use super::fonts::Fonts;
@@ -22,7 +22,7 @@ pub mod prelude {
     pub use super::level::prelude::*;
     pub use super::save_file::{SaveFile, SaveFileHandle};
     pub use super::scene::SceneTransitionEvent;
-    pub use super::sounds::{Music, Sfx, Sounds, INITIAL_VOLUME};
+    pub use super::sounds::{INITIAL_VOLUME, Music, Sfx, Sounds};
     pub use super::state::{GameState, SelectionKind};
     pub use super::systems::cleanup;
 }

@@ -74,6 +74,6 @@ fn insert_next_state(
     mut scene_transition_event_reader: EventReader<SceneTransitionEvent>,
 ) {
     if let Some(scene_transition) = scene_transition_event_reader.read().next() {
-        commands.insert_resource(NextState::Pending(scene_transition.state.clone()));
-    };
+        commands.insert_resource(NextState::Pending(scene_transition.state));
+    }
 }

@@ -45,29 +45,27 @@ fn handle_action_input(
 ) {
     for action_event in action_event_reader.read() {
         match action_event.value {
-            ActionInput::Select => {
-                match &level.kind {
-                    LevelKind::Stock(index) => {
-                        if level.is_last() {
-                            game_state_event_writer
-                                .write(SceneTransitionEvent::selection(SelectionKind::Stock));
-                        } else {
-                            level_instertion_event_writer
-                                .write(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
-                        }
-                    }
-                    LevelKind::Custom(_) => {
+            ActionInput::Select => match &level.kind {
+                LevelKind::Stock(index) => {
+                    if level.is_last() {
                         game_state_event_writer
-                            .write(SceneTransitionEvent::selection(SelectionKind::Custom));
+                            .write(SceneTransitionEvent::selection(SelectionKind::Stock));
+                    } else {
+                        level_instertion_event_writer
+                            .write(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
                     }
-                    LevelKind::Playtest(_) => {
-                        unreachable!("A playtest level cannot be won");
-                    }
-                    LevelKind::Editable => {
-                        unreachable!("An editable level cannot be won");
-                    }
-                };
-            }
+                }
+                LevelKind::Custom(_) => {
+                    game_state_event_writer
+                        .write(SceneTransitionEvent::selection(SelectionKind::Custom));
+                }
+                LevelKind::Playtest(_) => {
+                    unreachable!("A playtest level cannot be won");
+                }
+                LevelKind::Editable => {
+                    unreachable!("An editable level cannot be won");
+                }
+            },
             ActionInput::Exit => {
                 game_state_event_writer.write(SceneTransitionEvent::title());
             }

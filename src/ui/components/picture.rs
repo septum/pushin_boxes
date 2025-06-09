@@ -8,7 +8,7 @@ pub struct Picture {
 impl Picture {
     pub fn new(image: &Handle<Image>) -> Picture {
         let mut picture = Self::default();
-        picture.node.image = image.clone().into();
+        picture.node.image = image.clone();
         picture
     }
 

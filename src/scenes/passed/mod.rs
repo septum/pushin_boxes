@@ -143,7 +143,7 @@ pub fn handle_text_input(
                 };
             }
             Key::Enter => {
-                if level_name.len() > 0 {
+                if !level_name.is_empty() {
                     sfx.play(sounds.sfx_set_zone.clone());
                     let uuid = Uuid::new_v4();
                     let serialized_string =

@@ -65,7 +65,7 @@ fn handle_action_input(
 ) {
     if level.no_remaining_zones() {
         return;
-    };
+    }
 
     for action_event in action_event_reader.read() {
         match &action_event.value {
@@ -102,7 +102,7 @@ fn handle_direction_input(
 ) {
     if level.no_remaining_zones() {
         return;
-    };
+    }
 
     for direction_event in direction_event_reader.read() {
         let direction = &direction_event.value;
@@ -220,9 +220,9 @@ fn update_character_sprite(
 fn update_counters(
     level: Res<Level>,
     mut writer: TextUiWriter,
-    mut texts: Query<(Entity, &DynamicTextData)>,
+    texts: Query<(Entity, &DynamicTextData)>,
 ) {
-    for (entity, data) in texts.iter_mut() {
+    for (entity, data) in texts {
         *writer.text(entity, 1) = match data.id {
             MOVES_COUNTER_ID => level.moves_string(),
             UNDOS_COUNTER_ID => level.undos_string(),
@@ -237,7 +237,7 @@ fn update_map(
     images: Res<Images>,
     mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
 ) {
-    for (mut sprite, mut transform, position) in query.iter_mut() {
+    for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
         sprite.image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);

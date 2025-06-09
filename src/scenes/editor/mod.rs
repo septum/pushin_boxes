@@ -120,7 +120,7 @@ fn blink_tile(
     brush.blink_timer.tick(time.delta());
 
     if brush.blink_timer.just_finished() {
-        for (mut sprite, position) in entity_query.iter_mut() {
+        for (mut sprite, position) in &mut entity_query {
             if position == &brush.position {
                 if sprite.color == Colors::PRIMARY {
                     sprite.color = Colors::LIGHT;
@@ -264,7 +264,7 @@ fn update_map(
     images: Res<Images>,
     mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
 ) {
-    for (mut sprite, mut transform, position) in query.iter_mut() {
+    for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
         sprite.image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);

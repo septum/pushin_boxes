@@ -61,7 +61,7 @@ fn gather_input(
                     action_event_writer.write(ActionInputEvent::delete());
                 }
                 _ => (),
-            };
+            }
         }
     }
 }

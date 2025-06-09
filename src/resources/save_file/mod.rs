@@ -86,7 +86,7 @@ impl SaveFile {
                 LevelKind::Editable => {
                     unreachable!("Cannot set a record for an editable level")
                 }
-            };
+            }
         }
     }
 
