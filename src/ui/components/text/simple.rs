@@ -4,30 +4,48 @@ use crate::resources::prelude::*;
 
 use super::GameText;
 
+#[derive(Bundle)]
 pub struct SimpleText {
-    bundle: TextBundle,
+    text: Text,
+    font: TextFont,
+    color: TextColor,
+    layout: TextLayout,
 }
 
 impl Default for SimpleText {
     fn default() -> SimpleText {
-        let style = TextStyle {
+        let font = TextFont {
             font: Handle::default(),
             font_size: SimpleText::SIZE_MEDIUM,
-            color: Colors::LIGHT,
+            ..default()
         };
+        let color = TextColor(Colors::LIGHT);
+        let text = Text::new("");
+        let layout = TextLayout::new_with_justify(JustifyText::Center);
+
         SimpleText {
-            bundle: TextBundle::from_section(String::new(), style)
-                .with_text_justify(JustifyText::Center),
+            text,
+            font,
+            color,
+            layout,
         }
     }
 }
 
 impl GameText for SimpleText {
-    fn text_bundle(&mut self) -> &mut TextBundle {
-        &mut self.bundle
+    fn spawn(self, parent: &mut ChildBuilder) {
+        parent.spawn(self);
     }
 
-    fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn(self.bundle);
+    fn get_text_color(&mut self) -> &mut TextColor {
+        &mut self.color
+    }
+
+    fn get_text_font(&mut self) -> &mut TextFont {
+        &mut self.font
+    }
+
+    fn get_text(&mut self) -> &mut Text {
+        &mut self.text
     }
 }

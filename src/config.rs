@@ -1,6 +1,5 @@
 use bevy::{
-    app::Plugin as BevyPlugin, prelude::*, render::texture::ImageSamplerDescriptor,
-    window::WindowMode,
+    app::Plugin as BevyPlugin, image::ImageSamplerDescriptor, prelude::*, window::WindowMode,
 };
 
 use crate::resources::prelude::*;
@@ -14,7 +13,7 @@ impl BevyPlugin for Plugin {
                 .set(WindowPlugin {
                     primary_window: Window {
                         title: "Pushin' Boxes".to_string(),
-                        mode: WindowMode::BorderlessFullscreen,
+                        mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
                         ..default()
                     }
                     .into(),
@@ -24,7 +23,6 @@ impl BevyPlugin for Plugin {
                     default_sampler: ImageSamplerDescriptor::nearest(),
                 }),
         )
-        .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Colors::DARK))
         .init_state::<GameState>()
         .add_event::<ActionInputEvent>()

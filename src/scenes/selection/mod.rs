@@ -19,10 +19,10 @@ impl BevyPlugin for Plugin {
                 .add_systems(
                     Update,
                     (
-                        handle_action_input.run_if(on_event::<ActionInputEvent>()),
-                        handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
-                        play_action_sfx.run_if(on_event::<ActionInputEvent>()),
-                        play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                        handle_action_input.run_if(on_event::<ActionInputEvent>),
+                        handle_direction_input.run_if(on_event::<DirectionInputEvent>),
+                        play_action_sfx.run_if(on_event::<ActionInputEvent>),
+                        play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
                     )
                         .run_if(in_state(state)),
                 )

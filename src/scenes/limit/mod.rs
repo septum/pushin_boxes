@@ -13,8 +13,8 @@ impl BevyPlugin for Plugin {
             .add_systems(
                 Update,
                 (
-                    handle_input.run_if(on_event::<ActionInputEvent>()),
-                    play_sfx.run_if(on_event::<ActionInputEvent>()),
+                    handle_input.run_if(on_event::<ActionInputEvent>),
+                    play_sfx.run_if(on_event::<ActionInputEvent>),
                 )
                     .run_if(in_state(GameState::Limit)),
             )

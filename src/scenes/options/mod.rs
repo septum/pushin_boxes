@@ -18,10 +18,10 @@ impl BevyPlugin for Plugin {
             .add_systems(
                 Update,
                 (
-                    handle_action_input.run_if(on_event::<ActionInputEvent>()),
-                    handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
-                    play_action_sfx.run_if(on_event::<ActionInputEvent>()),
-                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                    handle_action_input.run_if(on_event::<ActionInputEvent>),
+                    handle_direction_input.run_if(on_event::<DirectionInputEvent>),
+                    play_action_sfx.run_if(on_event::<ActionInputEvent>),
+                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
                     update_dynamic_text,
                 )
                     .run_if(in_state(GameState::Options)),
@@ -90,9 +90,13 @@ fn play_action_sfx(
     }
 }
 
-fn update_dynamic_text(sounds: Res<Sounds>, mut texts: Query<(&mut Text, &DynamicTextData)>) {
-    for (mut text, data) in texts.iter_mut() {
-        text.sections[1].value = match data.id {
+fn update_dynamic_text(
+    sounds: Res<Sounds>,
+    mut writer: TextUiWriter,
+    mut texts: Query<(Entity, &DynamicTextData)>,
+) {
+    for (entity, data) in texts.iter_mut() {
+        *writer.text(entity, 1) = match data.id {
             VOLUME_ID => format!("<{:>4.0}%>", sounds.get_volume() * 100.0),
             _ => unreachable!("The text id does not exists"),
         };

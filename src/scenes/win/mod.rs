@@ -19,7 +19,7 @@ impl BevyPlugin for Plugin {
         .add_systems(
             Update,
             (
-                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                handle_action_input.run_if(on_event::<ActionInputEvent>),
                 update_character_animation,
             )
                 .run_if(in_state(GameState::Win)),
@@ -79,12 +79,12 @@ fn handle_action_input(
 fn update_character_animation(
     time: Res<Time>,
     mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
+    mut query: Query<&mut Sprite, With<CharacterMarker>>,
 ) {
     character_animation.tick(time.delta());
     if character_animation.primary_timer_just_finished() {
         let mut sprite = query.single_mut();
         character_animation.next_index();
-        sprite.index = character_animation.sprite_index();
+        sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
     }
 }

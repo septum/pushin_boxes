@@ -32,10 +32,10 @@ impl BevyPlugin for Plugin {
             Update,
             (
                 update_character_animation,
-                handle_action_input.run_if(on_event::<ActionInputEvent>()),
-                handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
-                play_action_sfx.run_if(on_event::<ActionInputEvent>()),
-                play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                handle_action_input.run_if(on_event::<ActionInputEvent>),
+                handle_direction_input.run_if(on_event::<DirectionInputEvent>),
+                play_action_sfx.run_if(on_event::<ActionInputEvent>),
+                play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
             )
                 .run_if(in_state(GameState::Title)),
         )
@@ -155,7 +155,7 @@ pub fn play_direction_sfx(
 
 pub fn update_character_animation(
     time: Res<Time>,
-    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
+    mut query: Query<&mut Sprite, With<CharacterMarker>>,
     mut character_animation: ResMut<CharacterAnimation>,
 ) {
     let mut sprite = query.single_mut();
@@ -169,7 +169,7 @@ pub fn update_character_animation(
     }
 
     if character_animation.primary_timer_just_finished() {
-        if sprite.index == BLINK_ROW_LAST_FRAME_INDEX {
+        if sprite.texture_atlas.as_mut().unwrap().index == BLINK_ROW_LAST_FRAME_INDEX {
             character_animation.set_front_row();
             character_animation.reset_primary_timer();
             character_animation.reset_secondary_timer();
@@ -178,5 +178,5 @@ pub fn update_character_animation(
         }
     }
 
-    sprite.index = character_animation.sprite_index();
+    sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
 }

@@ -16,7 +16,7 @@ impl BevyPlugin for Plugin {
             Update,
             (
                 gather_input,
-                clear_input.run_if(on_event::<SceneTransitionEvent>()),
+                clear_input.run_if(on_event::<SceneTransitionEvent>),
             ),
         );
     }

@@ -11,34 +11,53 @@ pub struct DynamicTextData {
 
 pub struct DynamicText {
     data: DynamicTextData,
-    bundle: TextBundle,
+    text: Text,
+    span: TextSpan,
+    font: TextFont,
+    color: TextColor,
+    layout: TextLayout,
 }
 
 impl Default for DynamicText {
     fn default() -> DynamicText {
-        let section = TextSection {
-            value: String::new(),
-            style: TextStyle {
-                font: Handle::default(),
-                font_size: DynamicText::SIZE_MEDIUM,
-                color: Colors::LIGHT,
-            },
+        let font = TextFont {
+            font: Handle::default(),
+            font_size: DynamicText::SIZE_MEDIUM,
+            ..default()
         };
+        let color = TextColor(Colors::LIGHT);
+        let text = Text::new("");
+        let span = TextSpan::new("");
+        let layout = TextLayout::new_with_justify(JustifyText::Center);
+
         DynamicText {
             data: DynamicTextData::default(),
-            bundle: TextBundle::from_sections(vec![section; 2])
-                .with_text_justify(JustifyText::Center),
+            text,
+            span,
+            font,
+            color,
+            layout,
         }
     }
 }
 
 impl GameText for DynamicText {
-    fn text_bundle(&mut self) -> &mut TextBundle {
-        &mut self.bundle
+    fn spawn(self, parent: &mut ChildBuilder) {
+        parent
+            .spawn((self.text, self.font.clone(), self.color, self.layout, self.data))
+            .with_child((self.span, self.font, self.color, self.layout));
     }
 
-    fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn(self.bundle).insert(self.data);
+    fn get_text_color(&mut self) -> &mut TextColor {
+        &mut self.color
+    }
+
+    fn get_text_font(&mut self) -> &mut TextFont {
+        &mut self.font
+    }
+
+    fn get_text(&mut self) -> &mut Text {
+        &mut self.text
     }
 }
 
@@ -49,7 +68,7 @@ impl DynamicText {
     }
 
     pub fn dynamic_text_value<S: Into<String> + Clone>(&mut self, text: S) -> &mut DynamicText {
-        self.bundle.text.sections[1].value = text.into();
+        self.span.0 = text.into();
         self
     }
 }

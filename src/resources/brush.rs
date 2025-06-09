@@ -57,14 +57,13 @@ impl Brush {
         translation.z = 20.0;
 
         let transform = Transform::from_translation(translation);
-        let bundle = SpriteBundle {
-            transform,
-            texture: images.brush_floor.clone(),
+        let sprite = Sprite {
+            image: images.brush_floor.clone(),
             ..default()
         };
 
         commands.insert_resource(brush);
-        commands.spawn(bundle).insert(BrushSprite);
+        commands.spawn((sprite, transform)).insert(BrushSprite);
     }
 
     pub fn cycle(&mut self) {

@@ -12,27 +12,23 @@ pub struct GameButtonData {
 }
 
 pub struct GameButton {
-    bundle: ButtonBundle,
+    node: Node,
+    background_color: BackgroundColor,
     child: EmbossedText,
     data: GameButtonData,
 }
 
 impl Default for GameButton {
     fn default() -> GameButton {
-        let style = Style {
-            width: Val::Px(400.0),
-            height: Val::Px(60.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        };
-
         GameButton {
-            bundle: ButtonBundle {
-                background_color: Colors::TRANSPARENT.into(),
-                style,
+            node: Node {
+                width: Val::Px(400.0),
+                height: Val::Px(60.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
+            background_color: BackgroundColor(Colors::TRANSPARENT),
             child: EmbossedText::default(),
             data: GameButtonData::default(),
         }
@@ -49,8 +45,8 @@ impl GameButton {
 
     pub fn square<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> GameButton {
         let mut button = Self::default();
-        button.bundle.style.width = Val::Px(60.0);
-        button.bundle.style.height = Val::Px(60.0);
+        button.node.width = Val::Px(60.0);
+        button.node.height = Val::Px(60.0);
         button.child = EmbossedText::medium(value, font);
         button
     }
@@ -62,7 +58,7 @@ impl GameButton {
 
     pub fn selected(&mut self) -> &mut GameButton {
         self.data.selected = true;
-        self.bundle.background_color = Colors::PRIMARY_DARK.into();
+        self.background_color = Colors::PRIMARY_DARK.into();
         self
     }
 
@@ -73,8 +69,7 @@ impl GameButton {
 
     pub fn spawn(self, parent: &mut ChildBuilder) {
         parent
-            .spawn(self.bundle)
-            .with_children(|parent| self.child.spawn(parent))
-            .insert(self.data);
+            .spawn((self.node, self.background_color, self.data, Button))
+            .with_children(|parent| self.child.spawn(parent));
     }
 }

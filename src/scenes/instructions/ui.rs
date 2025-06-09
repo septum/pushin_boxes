@@ -15,7 +15,8 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, images: Res<Images>) {
     let mut how_to_play = SimpleText::medium("How to Play", font);
     let mut press_button = SimpleText::small("Press ESC to return to the title screen", font);
 
-    let instructions = Picture::new(714.0, 326.0, &images.instructions);
+    // 714.0, 326.0
+    let instructions = Picture::new(&images.instructions);
 
     how_to_play.primary();
     press_button.primary();

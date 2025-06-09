@@ -2,19 +2,17 @@ use bevy::prelude::*;
 
 #[derive(Default)]
 pub struct Picture {
-    bundle: ImageBundle,
+    node: ImageNode,
 }
 
 impl Picture {
-    pub fn new(width: f32, height: f32, image: &Handle<Image>) -> Picture {
+    pub fn new(image: &Handle<Image>) -> Picture {
         let mut picture = Self::default();
-        picture.bundle.style.width = Val::Px(width);
-        picture.bundle.style.height = Val::Px(height);
-        picture.bundle.image = image.clone().into();
+        picture.node.image = image.clone().into();
         picture
     }
 
     pub fn spawn(self, parent: &mut ChildBuilder) {
-        parent.spawn(self.bundle);
+        parent.spawn(self.node);
     }
 }

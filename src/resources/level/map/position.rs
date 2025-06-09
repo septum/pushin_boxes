@@ -76,34 +76,30 @@ impl MapPosition {
         };
     }
 
-    pub fn spawn_entity(&self, commands: &mut Commands, texture: Handle<Image>) {
+    pub fn spawn_entity(&self, commands: &mut Commands, image: Handle<Image>) {
         let mut translation = Vec3::default();
         self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
-        let bundle = SpriteBundle {
-            transform,
-            texture,
-            ..default()
-        };
-        commands.spawn(bundle).insert(*self);
+        let sprite = Sprite { image, ..default() };
+        commands.spawn((sprite, transform)).insert(*self);
     }
 
     pub fn spawn_character(
         &self,
         commands: &mut Commands,
         atlas: TextureAtlas,
-        texture: Handle<Image>,
+        image: Handle<Image>,
     ) {
         let mut translation = Vec3::default();
         self.update_translation(&mut translation);
 
         let transform = Transform::from_translation(translation);
-        let sprite = SpriteBundle {
-            texture,
-            transform,
+        let sprite = Sprite {
+            image,
+            texture_atlas: Some(atlas),
             ..default()
         };
-        commands.spawn((sprite, atlas)).insert(CharacterMarker);
+        commands.spawn((sprite, transform)).insert(CharacterMarker);
     }
 }

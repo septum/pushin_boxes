@@ -35,8 +35,8 @@ impl BevyPlugin for Plugin {
                     update_map,
                     update_brush_sprite,
                     check_validity,
-                    play_action_sfx.run_if(on_event::<ActionInputEvent>()),
-                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>()),
+                    play_action_sfx.run_if(on_event::<ActionInputEvent>),
+                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
                 )
                     .run_if(in_state(GameState::Editor)),
             )
@@ -222,16 +222,16 @@ fn update_character_position(
 fn update_brush_sprite(
     brush: Res<Brush>,
     images: Res<Images>,
-    mut query: Query<(&mut Handle<Image>, &mut Transform), With<BrushSprite>>,
+    mut query: Query<(&mut Sprite, &mut Transform), With<BrushSprite>>,
 ) {
-    let (mut image, mut transform) = query.single_mut();
+    let (mut sprite, mut transform) = query.single_mut();
     brush
         .position
         .update_translation(&mut transform.translation);
     transform.translation.y += 20.0;
     transform.translation.z = 20.0;
 
-    *image = match brush.entity {
+    sprite.image = match brush.entity {
         BrushEntity::Floor => images.brush_floor.clone(),
         BrushEntity::Void => images.brush_void.clone(),
         BrushEntity::Zone => images.brush_zone.clone(),
@@ -243,10 +243,11 @@ fn update_brush_sprite(
 
 fn check_validity(
     level_validity: Res<LevelValidity>,
-    mut texts: Query<(&mut Text, &DynamicTextData)>,
+    mut writer: TextUiWriter,
+    mut texts: Query<(Entity, &DynamicTextData)>,
 ) {
-    let (mut text, data) = texts.single_mut();
-    text.sections[1].value = match data.id {
+    let (entity, data) = texts.single_mut();
+    *writer.text(entity, 1) = match data.id {
         VALID_ID => {
             if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
                 "YES".to_string()
@@ -261,11 +262,11 @@ fn check_validity(
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Handle<Image>, &mut Transform, &MapPosition)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
 ) {
-    for (mut image, mut transform, position) in query.iter_mut() {
+    for (mut sprite, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
-        *image = map_entity.to_image(&images);
+        sprite.image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
     }
 }

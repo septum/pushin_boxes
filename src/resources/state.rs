@@ -64,7 +64,7 @@ impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            insert_next_state.run_if(on_event::<SceneTransitionEvent>()),
+            insert_next_state.run_if(on_event::<SceneTransitionEvent>),
         );
     }
 }

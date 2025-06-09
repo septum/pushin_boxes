@@ -27,43 +27,47 @@ pub struct CharacterAnimation {
 
 impl CharacterAnimation {
     pub fn insert_blinking_character_animation(mut commands: Commands, images: Res<Images>) {
-        let sprite = SpriteBundle {
-            texture: images.character.clone(),
-            transform: TITLE_CHARACTER_TRANSFORM,
-            ..default()
-        };
         let atlas = TextureAtlas {
             layout: images.character_layout.clone(),
             ..default()
         };
-
+        let sprite = Sprite {
+            image: images.character.clone(),
+            texture_atlas: Some(atlas),
+            ..default()
+        };
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.25, TimerMode::Repeating),
             secondary_timer: Timer::from_seconds(3.0, TimerMode::Once),
             ..default()
         };
+
         commands.insert_resource(character_animation);
-        commands.spawn((sprite, atlas)).insert(CharacterMarker);
+        commands
+            .spawn((sprite, TITLE_CHARACTER_TRANSFORM))
+            .insert(CharacterMarker);
     }
 
     pub fn insert_happy_character_animation(mut commands: Commands, images: Res<Images>) {
-        let sprite = SpriteBundle {
-            texture: images.character.clone(),
-            transform: WIN_CHARACTER_TRANSFORM,
-            ..default()
-        };
         let atlas = TextureAtlas {
             layout: images.character_layout.clone(),
             ..default()
         };
-
+        let sprite = Sprite {
+            image: images.character.clone(),
+            texture_atlas: Some(atlas),
+            ..default()
+        };
         let character_animation = CharacterAnimation {
             primary_timer: Timer::from_seconds(0.125, TimerMode::Repeating),
             row: 6,
             ..default()
         };
+
         commands.insert_resource(character_animation);
-        commands.spawn((sprite, atlas)).insert(CharacterMarker);
+        commands
+            .spawn((sprite, WIN_CHARACTER_TRANSFORM))
+            .insert(CharacterMarker);
     }
 
     pub fn insert_level_character_animation(mut commands: Commands) {

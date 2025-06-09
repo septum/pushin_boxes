@@ -4,44 +4,60 @@ use crate::resources::prelude::*;
 
 use super::GameText;
 
+#[derive(Bundle, Clone)]
 pub struct EmbossedText {
-    bundle: TextBundle,
+    text: Text,
+    font: TextFont,
+    color: TextColor,
+    layout: TextLayout,
+    node: Node,
 }
 
 impl Default for EmbossedText {
     fn default() -> EmbossedText {
-        let style = TextStyle {
+        let font = TextFont {
             font: Handle::default(),
             font_size: EmbossedText::SIZE_MEDIUM,
-            color: Colors::LIGHT,
+            ..default()
         };
+        let color = TextColor(Colors::LIGHT);
+        let text = Text::new("");
+        let layout = TextLayout::new_with_justify(JustifyText::Center);
+
         EmbossedText {
-            bundle: TextBundle::from_section(String::new(), style)
-                .with_text_justify(JustifyText::Center),
+            text,
+            font,
+            color,
+            layout,
+            node: Node::default(),
         }
     }
 }
 
 impl GameText for EmbossedText {
-    fn text_bundle(&mut self) -> &mut TextBundle {
-        &mut self.bundle
-    }
-
     fn spawn(self, parent: &mut ChildBuilder) {
-        let text_clone = self.bundle.text.clone();
-        let mut foreground = self.bundle;
-        let mut background = TextBundle {
-            text: text_clone,
-            ..default()
-        };
-        let relief = foreground.text.sections[0].style.font_size / EmbossedText::SIZE_SMALL;
+        let mut foreground = self.clone();
+        let mut background = self;
+        let relief = foreground.font.font_size / EmbossedText::SIZE_SMALL;
 
-        foreground.style.position_type = PositionType::Absolute;
-        background.style.top = Val::Px(relief);
-        background.style.left = Val::Px(relief);
-        background.text.sections[0].style.color = Colors::DARK;
+        foreground.node.position_type = PositionType::Absolute;
+        background.node.top = Val::Px(relief);
+        background.node.left = Val::Px(relief);
+        background.color = TextColor(Colors::DARK);
 
         parent.spawn(background);
         parent.spawn(foreground);
+    }
+
+    fn get_text_color(&mut self) -> &mut TextColor {
+        &mut self.color
+    }
+
+    fn get_text_font(&mut self) -> &mut TextFont {
+        &mut self.font
+    }
+
+    fn get_text(&mut self) -> &mut Text {
+        &mut self.text
     }
 }

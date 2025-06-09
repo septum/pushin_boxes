@@ -27,8 +27,8 @@ impl BevyPlugin for Plugin {
         .add_systems(
             Update,
             (
-                handle_direction_input.run_if(on_event::<DirectionInputEvent>()),
-                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                handle_direction_input.run_if(on_event::<DirectionInputEvent>),
+                handle_action_input.run_if(on_event::<ActionInputEvent>),
                 update_character_sprite,
                 update_character_position,
                 update_counters,
@@ -179,7 +179,7 @@ fn update_character_sprite(
     time: Res<Time>,
     level: Res<Level>,
     mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut TextureAtlas, With<CharacterMarker>>,
+    mut query: Query<&mut Sprite, With<CharacterMarker>>,
 ) {
     let mut sprite = query.single_mut();
     let level_animation_row = level.get_animation_row();
@@ -214,28 +214,34 @@ fn update_character_sprite(
         character_animation.next_index();
     }
 
-    sprite.index = character_animation.sprite_index();
+    sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
 }
 
-fn update_counters(level: Res<Level>, mut texts: Query<(&mut Text, &DynamicTextData)>) {
-    for (mut text, data) in texts.iter_mut() {
-        text.sections[1].value = match data.id {
-            MOVES_COUNTER_ID => level.moves_string(),
-            UNDOS_COUNTER_ID => level.undos_string(),
-            STOPWATCH_COUNTER_ID => level.stopwatch_string(),
-            _ => unreachable!("The counter id does not exists"),
-        };
+fn update_counters(
+    level: Res<Level>,
+    mut writer: TextUiWriter,
+    mut texts: Query<(Entity, &DynamicTextData)>,
+) {
+    for (entity, data) in texts.iter_mut() {
+        if let Some(mut text) = writer.get_text(entity, 1) {
+            *text = match data.id {
+                MOVES_COUNTER_ID => level.moves_string(),
+                UNDOS_COUNTER_ID => level.undos_string(),
+                STOPWATCH_COUNTER_ID => level.stopwatch_string(),
+                _ => unreachable!("The counter id does not exists"),
+            };
+        }
     }
 }
 
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Handle<Image>, &mut Transform, &MapPosition)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
 ) {
-    for (mut image, mut transform, position) in query.iter_mut() {
+    for (mut sprite, mut transform, position) in query.iter_mut() {
         let map_entity = level.get_entity(position);
-        *image = map_entity.to_image(&images);
+        sprite.image = map_entity.to_image(&images);
         position.update_translation(&mut transform.translation);
     }
 }

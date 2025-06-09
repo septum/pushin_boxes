@@ -13,24 +13,22 @@ const EXTENDED_CONTAINER_PADDING: UiRect = UiRect {
 pub struct OverlayMarker;
 
 pub struct Overlay {
-    bundle: NodeBundle,
+    node: Node,
+    background_color: BackgroundColor,
 }
 
 impl Default for Overlay {
     fn default() -> Overlay {
         Overlay {
-            bundle: NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
-                    width: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: Colors::TRANSPARENT.into(),
+            node: Node {
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
+            background_color: BackgroundColor(Colors::TRANSPARENT),
         }
     }
 }
@@ -38,14 +36,14 @@ impl Default for Overlay {
 impl Overlay {
     pub fn extended() -> Overlay {
         let mut extended = Overlay::default();
-        extended.bundle.style.justify_content = JustifyContent::SpaceBetween;
-        extended.bundle.style.padding = EXTENDED_CONTAINER_PADDING;
+        extended.node.justify_content = JustifyContent::SpaceBetween;
+        extended.node.padding = EXTENDED_CONTAINER_PADDING;
         extended
     }
 
     pub fn spawn(self, commands: &mut Commands, children: impl FnOnce(&mut ChildBuilder)) {
         commands
-            .spawn(self.bundle)
+            .spawn((self.node, self.background_color))
             .with_children(children)
             .insert(OverlayMarker);
     }

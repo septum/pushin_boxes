@@ -2,7 +2,7 @@ mod ui;
 
 use std::{
     env,
-    fs::{create_dir_all, File},
+    fs::{File, create_dir_all},
     io::Write,
     path::PathBuf,
 };
@@ -50,7 +50,7 @@ impl BevyPlugin for Plugin {
         .add_systems(
             Update,
             (
-                handle_action_input.run_if(on_event::<ActionInputEvent>()),
+                handle_action_input.run_if(on_event::<ActionInputEvent>),
                 handle_text_input,
             )
                 .run_if(in_state(GameState::Passed)),
@@ -82,21 +82,26 @@ pub fn handle_text_input(
     mut level_handles: ResMut<LevelHandles>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut text_cursor: ResMut<TextCursor>,
-    mut query: Query<(&mut Text, &DynamicTextData)>,
+    mut writer: TextUiWriter,
+    mut query_entity: Query<(Entity, &DynamicTextData)>,
+    // mut query_text_color: Query<&mut TextColor, With<DynamicTextData>>,
     mut level_name: Local<String>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    let (mut text, data) = query.single_mut();
+    let (entity, data) = query_entity.single_mut();
     if text_cursor.blink_timer.tick(time.delta()).just_finished() {
         text_cursor.blink_toggle = !text_cursor.blink_toggle;
     }
 
-    if text_cursor.blink_toggle {
-        text.sections[1].style.color = Colors::TRANSPARENT;
-    } else {
-        text.sections[1].style.color = Colors::SECONDARY;
-    }
+    // {
+    //     let mut text_color = query_text_color.single_mut();
+    //     if text_cursor.blink_toggle {
+    //         *text_color = TextColor(Colors::TRANSPARENT);
+    //     } else {
+    //         *text_color = TextColor(Colors::SECONDARY);
+    //     }
+    // }
 
     for event in keyboard_input_events.read() {
         if !event.state.is_pressed() {
@@ -111,7 +116,7 @@ pub fn handle_text_input(
                         level_name.push_str(character);
                     }
 
-                    text.sections[0].value = match data.id {
+                    *writer.text(entity, 0) = match data.id {
                         LEVEL_NAME_ID => level_name.to_string(),
                         _ => unreachable!("The text id does not exists"),
                     };
@@ -126,7 +131,7 @@ pub fn handle_text_input(
                         level_name.push_str(character);
                     }
 
-                    text.sections[0].value = match data.id {
+                    *writer.text(entity, 0) = match data.id {
                         LEVEL_NAME_ID => level_name.to_string(),
                         _ => unreachable!("The text id does not exists"),
                     };
@@ -136,7 +141,7 @@ pub fn handle_text_input(
                 sfx.play(sounds.sfx_undo_move.clone());
                 level_name.pop();
 
-                text.sections[0].value = match data.id {
+                *writer.text(entity, 0) = match data.id {
                     LEVEL_NAME_ID => level_name.to_string(),
                     _ => unreachable!("The text id does not exists"),
                 };
@@ -171,7 +176,7 @@ pub fn handle_text_input(
                     );
 
                     *level_name = String::new();
-                    text.sections[0].value = String::new();
+                    *writer.text(entity, 0) = String::new();
 
                     save_file.save();
                     game_state_event_writer
