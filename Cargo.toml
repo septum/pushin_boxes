@@ -10,6 +10,15 @@ exclude = ["assets"]
 ron = "0.10"
 serde = "1.0"
 regex = "1.11"
+log = { version = "0.4", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
+tracing = { version = "0.1", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
+
 
 [dependencies.bevy]
 version = "0.16"
@@ -58,12 +67,61 @@ version = "1.17"
 default-features = false
 features = ["v4", "fast-rng", "serde"]
 
-[profile.dev.package."*"]
-opt-level = 3
+[features]
+default = ["dev_native"]
+dev = [
+    "bevy/dynamic_linking",
+    "bevy/bevy_dev_tools",
+    "bevy/bevy_ui_debug",
+    "bevy/track_location",
+]
+dev_native = ["dev", "bevy/file_watcher", "bevy/embedded_watcher"]
+
+
+[package.metadata.bevy_cli.release]
+default-features = false
+
+[package.metadata.bevy_cli.web]
+default-features = false
+
+[package.metadata.bevy_cli.web.dev]
+features = ["dev"]
+
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
+
+[lints.clippy]
+too_many_arguments = "allow"
+type_complexity = "allow"
+nonstandard_macro_braces = "warn"
+
+[package.metadata.bevy_lint]
+
 
 [profile.dev]
 opt-level = 1
 
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev.package.wgpu-types]
+debug-assertions = false
+
 [profile.release]
-lto = "thin"
 codegen-units = 1
+lto = "thin"
+
+[profile.web-release]
+inherits = "release"
+opt-level = "s"
+strip = "debuginfo"
+
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+debug = "line-tables-only"
+codegen-units = 4
+
+[profile.ci.package."*"]
+opt-level = 0

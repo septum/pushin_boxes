@@ -1,3 +1,5 @@
 /target
 /assets/game.dat
 /assets/levels/custom
+.cargo/config.toml
+rust-toolchain.toml

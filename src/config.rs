@@ -1,4 +1,5 @@
 use bevy::{
+    asset::AssetMetaCheck,
     app::Plugin as BevyPlugin, image::ImageSamplerDescriptor, prelude::*, window::WindowMode,
 };
 
@@ -10,10 +11,15 @@ impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(
             DefaultPlugins
+                .set(AssetPlugin {
+                    meta_check: AssetMetaCheck::Never,
+                    ..default()
+                })
                 .set(WindowPlugin {
                     primary_window: Window {
                         title: "Pushin' Boxes".to_string(),
                         mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
+                        fit_canvas_to_parent: true,
                         ..default()
                     }
                     .into(),

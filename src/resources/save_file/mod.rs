@@ -123,7 +123,7 @@ impl SaveFile {
         self.custom_records.len()
     }
 
-    pub fn enumerated_stock_records(&self) -> Enumerate<Iter<LevelRecord>> {
+    pub fn enumerated_stock_records(&self) -> Enumerate<Iter<'_, LevelRecord>> {
         self.stock_records.iter().enumerate()
     }
 
