@@ -8,15 +8,18 @@ pub use simple::SimpleText;
 
 use std::default::Default;
 
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    text::{FontSmoothing, LineHeight},
+};
 
 use crate::resources::prelude::*;
 
 pub trait GameText: Default {
-    const SIZE_SMALL: f32 = 18.0;
-    const SIZE_MEDIUM: f32 = 36.0;
-    const SIZE_LARGE: f32 = 90.0;
-    const SIZE_EXTRA_LARGE: f32 = 108.0;
+    const SIZE_SMALL: f32 = 20.0;
+    const SIZE_MEDIUM: f32 = 40.0;
+    const SIZE_LARGE: f32 = 100.0;
+    const SIZE_EXTRA_LARGE: f32 = 120.0;
 
     fn small<S: Into<String> + Clone>(value: S, font: &Handle<Font>) -> Self {
         let mut game_text = Self::default();
@@ -24,6 +27,8 @@ pub trait GameText: Default {
         *game_text.get_text_font() = TextFont {
             font: font.clone(),
             font_size: Self::SIZE_SMALL,
+            line_height: LineHeight::RelativeToFont(1.),
+            font_smoothing: FontSmoothing::None,
             ..default()
         };
         *game_text.get_text() = Text::new(value);
@@ -36,6 +41,8 @@ pub trait GameText: Default {
         *game_text.get_text_font() = TextFont {
             font: font.clone(),
             font_size: Self::SIZE_MEDIUM,
+            line_height: LineHeight::RelativeToFont(1.),
+            font_smoothing: FontSmoothing::None,
             ..default()
         };
         *game_text.get_text() = Text::new(value);
@@ -48,6 +55,8 @@ pub trait GameText: Default {
         *game_text.get_text_font() = TextFont {
             font: font.clone(),
             font_size: Self::SIZE_LARGE,
+            line_height: LineHeight::RelativeToFont(1.),
+            font_smoothing: FontSmoothing::None,
             ..default()
         };
         *game_text.get_text() = Text::new(value);
@@ -61,6 +70,8 @@ pub trait GameText: Default {
         *game_text.get_text_font() = TextFont {
             font: font.clone(),
             font_size: Self::SIZE_EXTRA_LARGE,
+            line_height: LineHeight::RelativeToFont(1.),
+            font_smoothing: FontSmoothing::None,
             ..default()
         };
         *game_text.get_text() = Text::new(value);
