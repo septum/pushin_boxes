@@ -81,11 +81,6 @@ pub fn spawn(
 
     let kind = game_state.get_selection_kind();
     let mut title = SimpleText::medium(format!("Select a {} Level", kind.to_str()), font);
-    let mut enter = SimpleText::small(
-        format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
-        font,
-    );
-    let mut delete = SimpleText::small("(DELETE) - Remove a custom level", font);
 
     title.primary();
     middle
@@ -95,9 +90,6 @@ pub fn spawn(
         .items_start()
         .content_start();
 
-    enter.primary();
-    delete.primary();
-
     bottom.row().justify_between();
 
     overlay.spawn(&mut commands, |parent| {
@@ -105,15 +97,34 @@ pub fn spawn(
             title.spawn(parent);
         });
         middle.spawn(parent, |parent| {
-            if kind.is_stock() {
+            #[cfg(target_family = "wasm")]
+            {
                 spawn_stock_buttons(parent, &save_file, font);
-            } else {
-                spawn_custom_buttons(parent, &save_file, font);
+            }
+            #[cfg(not(target_family = "wasm"))]
+            {
+                if kind.is_stock() {
+                    spawn_stock_buttons(parent, &save_file, font);
+                } else {
+                    spawn_custom_buttons(parent, &save_file, font);
+                }
             }
         });
-        bottom.spawn(parent, |parent| {
-            enter.spawn(parent);
-            delete.spawn(parent);
-        });
+        #[cfg(not(target_family = "wasm"))]
+        {
+            bottom.spawn(parent, |parent| {
+                let mut enter = SimpleText::small(
+                    format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
+                    font,
+                );
+                let mut delete = SimpleText::small("(DELETE) - Remove a custom level", font);
+
+                enter.primary();
+                delete.primary();
+
+                enter.spawn(parent);
+                delete.spawn(parent);
+            });
+        }
     });
 }

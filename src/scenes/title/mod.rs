@@ -59,14 +59,27 @@ fn handle_direction_input(
             let mut selected_id = None;
             for (button, _) in query.iter() {
                 if button.selected {
-                    selected_id = match button.id {
-                        PLAY_ID => Some(if up { QUIT_ID } else { INSTRUCTIONS_ID }),
-                        INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { EDITOR_ID }),
-                        EDITOR_ID => Some(if up { INSTRUCTIONS_ID } else { OPTIONS_ID }),
-                        OPTIONS_ID => Some(if up { EDITOR_ID } else { QUIT_ID }),
-                        QUIT_ID => Some(if up { OPTIONS_ID } else { PLAY_ID }),
-                        _ => unreachable!("The button id was not declared"),
-                    };
+                    #[cfg(not(target_family = "wasm"))]
+                    {
+                        selected_id = match button.id {
+                            PLAY_ID => Some(if up { QUIT_ID } else { INSTRUCTIONS_ID }),
+                            INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { EDITOR_ID }),
+                            EDITOR_ID => Some(if up { INSTRUCTIONS_ID } else { OPTIONS_ID }),
+                            OPTIONS_ID => Some(if up { EDITOR_ID } else { QUIT_ID }),
+                            QUIT_ID => Some(if up { OPTIONS_ID } else { PLAY_ID }),
+                            _ => unreachable!("The button id was not declared"),
+                        };
+                    }
+
+                    #[cfg(target_family = "wasm")]
+                    {
+                        selected_id = match button.id {
+                            PLAY_ID => Some(if up { OPTIONS_ID } else { INSTRUCTIONS_ID }),
+                            INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { OPTIONS_ID }),
+                            OPTIONS_ID => Some(if up { INSTRUCTIONS_ID } else { PLAY_ID }),
+                            _ => unreachable!("The button id was not declared or is not available"),
+                        };
+                    }
                 }
             }
             if let Some(id) = selected_id {
@@ -110,7 +123,10 @@ fn handle_action_input(
                                 game_state_event_writer.write(SceneTransitionEvent::options());
                             }
                             QUIT_ID => {
-                                exit.write(AppExit::Success);
+                                #[cfg(not(target_family = "wasm"))]
+                                {
+                                    exit.write(AppExit::Success);
+                                }
                             }
                             _ => unreachable!("The button id was not declared"),
                         }
@@ -118,7 +134,10 @@ fn handle_action_input(
                 }
             }
             ActionInput::Exit => {
-                exit.write(AppExit::Success);
+                #[cfg(not(target_family = "wasm"))]
+                {
+                    exit.write(AppExit::Success);
+                }
             }
             _ => (),
         }

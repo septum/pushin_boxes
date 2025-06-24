@@ -47,15 +47,18 @@ impl SaveFile {
     }
 
     pub fn save(&self) {
-        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-            PathBuf::from(manifest_dir).join("assets").join("game.dat")
-        } else {
-            PathBuf::from("./assets").join("game.dat")
-        };
+        #[cfg(not(target_family = "wasm"))]
+        {
+            let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                PathBuf::from(manifest_dir).join("assets").join("game.dat")
+            } else {
+                PathBuf::from("./assets").join("game.dat")
+            };
 
-        if let Ok(serialized_string) = serialize_ron::to_string(self) {
-            let mut file = File::create(path).unwrap();
-            file.write_all(serialized_string.as_bytes()).unwrap();
+            if let Ok(serialized_string) = serialize_ron::to_string(self) {
+                let mut file = File::create(path).unwrap();
+                file.write_all(serialized_string.as_bytes()).unwrap();
+            }
         }
     }
 

@@ -13,7 +13,7 @@ const FRONT_ROW: usize = 0;
 
 pub const BLINK_ROW_LAST_FRAME_INDEX: usize = 19;
 
-const TITLE_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(0.0, 74.0, 1.0));
+const TITLE_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(0.0, 22.0, 1.0));
 const WIN_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(222.0, 12.0, 1.0));
 
 #[derive(Default, Resource)]

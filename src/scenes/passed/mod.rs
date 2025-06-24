@@ -150,17 +150,21 @@ pub fn handle_text_input(
                         ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
                     let levels_path = format!("levels/custom/{}.lvl", &uuid);
                     let assets_path = format!("assets/{}", &levels_path);
-                    let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-                        PathBuf::from(manifest_dir).join(assets_path)
-                    } else {
-                        PathBuf::from(assets_path)
-                    };
 
-                    let parent_path = path.parent().unwrap();
-                    create_dir_all(parent_path).unwrap();
+                    #[cfg(not(target_family = "wasm"))]
+                    {
+                        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                            PathBuf::from(manifest_dir).join(assets_path)
+                        } else {
+                            PathBuf::from(assets_path)
+                        };
 
-                    let mut file = File::create(path).unwrap();
-                    file.write_all(serialized_string.as_bytes()).unwrap();
+                        let parent_path = path.parent().unwrap();
+                        create_dir_all(parent_path).unwrap();
+
+                        let mut file = File::create(path).unwrap();
+                        file.write_all(serialized_string.as_bytes()).unwrap();
+                    }
 
                     level_handles.insert_custom(uuid, asset_server.load(&levels_path));
 

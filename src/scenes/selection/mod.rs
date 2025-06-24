@@ -111,11 +111,16 @@ fn handle_action_input(
                 }
             }
             ActionInput::Toggle => {
-                scene_transition_event_writer.write(SceneTransitionEvent::selection(if is_stock {
-                    SelectionKind::Custom
-                } else {
-                    SelectionKind::Stock
-                }));
+                #[cfg(not(target_family = "wasm"))]
+                {
+                    scene_transition_event_writer.write(SceneTransitionEvent::selection(
+                        if is_stock {
+                            SelectionKind::Custom
+                        } else {
+                            SelectionKind::Stock
+                        },
+                    ));
+                }
             }
 
             ActionInput::Delete => {
@@ -128,14 +133,17 @@ fn handle_action_input(
                         let parsed_payload: Vec<&str> = payload.split('$').collect();
                         save_file.delete_custom_level_record(&payload);
                         save_file.save();
-                        let levels_path = format!("levels/custom/{}.lvl", parsed_payload[1]);
-                        let assets_path = format!("assets/{}", &levels_path);
-                        let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-                            PathBuf::from(manifest_dir).join(assets_path)
-                        } else {
-                            PathBuf::from(assets_path)
-                        };
-                        remove_file(path).expect("File cannot be removed");
+                        #[cfg(not(target_family = "wasm"))]
+                        {
+                            let levels_path = format!("levels/custom/{}.lvl", parsed_payload[1]);
+                            let assets_path = format!("assets/{}", &levels_path);
+                            let path = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+                                PathBuf::from(manifest_dir).join(assets_path)
+                            } else {
+                                PathBuf::from(assets_path)
+                            };
+                            remove_file(path).expect("File cannot be removed");
+                        }
                         scene_transition_event_writer
                             .write(SceneTransitionEvent::selection(SelectionKind::Custom));
                     }
