@@ -94,6 +94,9 @@ impl MapPosition {
         let mut translation = Vec3::default();
         self.update_translation(&mut translation);
 
+        // TODO: There should be another way to do this proper
+        translation.z += 1.;
+
         let transform = Transform::from_translation(translation);
         let sprite = Sprite {
             image,

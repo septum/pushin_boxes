@@ -217,6 +217,9 @@ fn update_character_position(
     level
         .character_position()
         .update_translation(&mut transform.translation);
+
+    // TODO: There should be another way to do this proper
+    transform.translation.z += 1.;
 }
 
 fn update_brush_sprite(
