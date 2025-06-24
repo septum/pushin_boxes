@@ -1,6 +1,6 @@
 [package]
 name = "pushin_boxes"
-version = "0.14.0"
+version = "0.14.1"
 authors = ["Orlando Valverde <orlando.jesig.va@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
