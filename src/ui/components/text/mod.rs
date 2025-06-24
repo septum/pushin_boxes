@@ -29,7 +29,6 @@ pub trait GameText: Default {
             font_size: Self::SIZE_SMALL,
             line_height: LineHeight::RelativeToFont(1.),
             font_smoothing: FontSmoothing::None,
-            ..default()
         };
         *game_text.get_text() = Text::new(value);
         game_text
@@ -43,7 +42,6 @@ pub trait GameText: Default {
             font_size: Self::SIZE_MEDIUM,
             line_height: LineHeight::RelativeToFont(1.),
             font_smoothing: FontSmoothing::None,
-            ..default()
         };
         *game_text.get_text() = Text::new(value);
         game_text
@@ -57,7 +55,6 @@ pub trait GameText: Default {
             font_size: Self::SIZE_LARGE,
             line_height: LineHeight::RelativeToFont(1.),
             font_smoothing: FontSmoothing::None,
-            ..default()
         };
         *game_text.get_text() = Text::new(value);
 
@@ -72,7 +69,6 @@ pub trait GameText: Default {
             font_size: Self::SIZE_EXTRA_LARGE,
             line_height: LineHeight::RelativeToFont(1.),
             font_smoothing: FontSmoothing::None,
-            ..default()
         };
         *game_text.get_text() = Text::new(value);
 
