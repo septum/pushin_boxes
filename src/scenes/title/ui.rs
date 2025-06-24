@@ -59,13 +59,15 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
                 actions.spawn(parent, |parent| {
                     play.spawn(parent);
                     instructions.spawn(parent);
-                    options.spawn(parent);
                     #[cfg(not(target_family = "wasm"))]
                     {
                         let mut editor = GameButton::new("Editor", font);
                         editor.id(EDITOR_ID);
                         editor.spawn(parent);
-
+                    }
+                    options.spawn(parent);
+                    #[cfg(not(target_family = "wasm"))]
+                    {
                         let mut quit = GameButton::new("Quit", font);
                         quit.id(QUIT_ID);
                         quit.spawn(parent);
