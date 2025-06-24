@@ -44,12 +44,12 @@ impl CharacterAnimation {
 
         #[cfg(not(target_family = "wasm"))]
         {
-            transform = Transform::from_translation(Vec3::new(0.0, 74.0, 1.0))
+            transform = Transform::from_translation(Vec3::new(0.0, 74.0, 1.0));
         }
 
         #[cfg(target_family = "wasm")]
         {
-            transform = Transform::from_translation(Vec3::new(0.0, 22.0, 1.0))
+            transform = Transform::from_translation(Vec3::new(0.0, 22.0, 1.0));
         }
 
         commands.insert_resource(character_animation);
