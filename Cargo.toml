@@ -1,39 +1,24 @@
-[package]
-name = "pushin_boxes"
+[workspace]
+resolver = "3"
+members = ["crates/game_plugins", "crates/game_ui"]
+
+[workspace.package]
 version = "0.15.1"
 authors = ["Orlando Valverde <orlando.jesig.va@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
-exclude = ["assets"]
 
-[dependencies]
-ron = "0.10"
-serde = "1.0"
-regex = "1.11"
-log = { version = "0.4", features = [
-    "max_level_debug",
-    "release_max_level_warn",
-] }
-tracing = { version = "0.1", features = [
-    "max_level_debug",
-    "release_max_level_warn",
-] }
-
-
-[dependencies.bevy]
+[workspace.dependencies.bevy]
 version = "0.16"
 default-features = false
 features = [
     "async_executor",
     "bevy_asset",
-    "bevy_color",
     "bevy_core_pipeline",
     "bevy_log",
     "bevy_render",
     "bevy_sprite",
     "bevy_state",
-    "bevy_text",
-    "bevy_ui",
     "bevy_window",
     "bevy_winit",
     "multi_threaded",
@@ -43,29 +28,17 @@ features = [
     "wayland",
 ]
 
-[dependencies.bevy_common_assets]
-version = "0.13"
-default-features = false
-features = ["ron"]
+[package]
+name = "pushin_boxes"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+exclude = ["assets"]
 
-[dependencies.bevy_asset_loader]
-version = "0.23"
-default-features = false
-features = ["2d"]
-
-[dependencies.bevy_kira_audio]
-version = "0.23"
-default-features = false
-features = ["wav"]
-
-[dependencies.hashbrown]
-version = "0.15"
-features = ["serde"]
-
-[dependencies.uuid]
-version = "1.17"
-default-features = false
-features = ["v4", "fast-rng", "serde"]
+[dependencies]
+bevy = { workspace = true }
+game_plugins = { path = "./crates/game_plugins" }
 
 [features]
 default = ["dev_native"]
@@ -77,7 +50,6 @@ dev = [
 ]
 dev_native = ["dev", "bevy/file_watcher", "bevy/embedded_watcher"]
 
-
 [package.metadata.bevy_cli.release]
 default-features = false
 
@@ -86,7 +58,6 @@ default-features = false
 
 [package.metadata.bevy_cli.web.dev]
 features = ["dev"]
-
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
@@ -97,7 +68,6 @@ type_complexity = "allow"
 nonstandard_macro_braces = "warn"
 
 [package.metadata.bevy_lint]
-
 
 [profile.dev]
 opt-level = 1

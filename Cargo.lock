@@ -2128,6 +2128,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "game_plugins"
+version = "0.15.1"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader",
+ "bevy_common_assets",
+ "bevy_kira_audio",
+ "game_ui",
+ "hashbrown",
+ "log",
+ "regex",
+ "ron 0.10.1",
+ "serde",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "game_ui"
+version = "0.15.1"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3358,16 +3383,7 @@ name = "pushin_boxes"
 version = "0.15.1"
 dependencies = [
  "bevy",
- "bevy_asset_loader",
- "bevy_common_assets",
- "bevy_kira_audio",
- "hashbrown",
- "log",
- "regex",
- "ron 0.10.1",
- "serde",
- "tracing",
- "uuid",
+ "game_plugins",
 ]
 
 [[package]]
