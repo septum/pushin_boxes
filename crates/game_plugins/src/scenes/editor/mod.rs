@@ -2,6 +2,7 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
+use game_map::MapEntity;
 use game_ui::{Colors, DynamicTextData, OverlayMarker};
 
 use crate::resources::prelude::*;
@@ -43,7 +44,7 @@ impl BevyPlugin for Plugin {
                 (
                     cleanup::<OverlayMarker>,
                     cleanup::<CharacterMarker>,
-                    cleanup::<MapPosition>,
+                    cleanup::<MapPositionBundle>,
                     cleanup::<BrushSprite>,
                 ),
             );
@@ -113,13 +114,13 @@ fn handle_action_input(
 fn blink_tile(
     time: Res<Time>,
     mut brush: ResMut<Brush>,
-    mut entity_query: Query<(&mut Sprite, &MapPosition), With<MapPosition>>,
+    mut entity_query: Query<(&mut Sprite, &MapPositionBundle), With<MapPositionBundle>>,
 ) {
     brush.blink_timer.tick(time.delta());
 
     if brush.blink_timer.just_finished() {
         for (mut sprite, position) in &mut entity_query {
-            if position == &brush.position {
+            if position.x() == brush.position.x() && position.y() == brush.position.y() {
                 if sprite.color == Colors::PRIMARY {
                     sprite.color = Colors::LIGHT;
                 } else {
@@ -263,7 +264,7 @@ fn check_validity(
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionBundle)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);

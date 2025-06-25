@@ -17,7 +17,7 @@ pub mod prelude {
     pub use super::fonts::Fonts;
     pub use super::images::Images;
     pub use super::input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent};
-    pub use super::level::prelude::*;
+    pub use super::level::*;
     pub use super::save_file::{SaveFile, SaveFileHandle};
     pub use super::scene::SceneTransitionEvent;
     pub use super::sounds::{INITIAL_VOLUME, Music, Sfx, Sounds};
@@ -66,7 +66,7 @@ impl BevyPlugin for Plugin {
             (
                 camera::setup.run_if(resource_added::<SaveFile>),
                 sounds::setup.run_if(resource_added::<SaveFile>),
-                level::insert_custom_level_handles.run_if(resource_added::<SaveFile>),
+                insert_custom_level_handles.run_if(resource_added::<SaveFile>),
             ),
         );
     }

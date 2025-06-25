@@ -1,5 +1,8 @@
-use super::state::LevelState;
+use bevy::prelude::*;
+
+use crate::resources::prelude::*;
 
 pub const MAX_SNAPSHOTS: usize = 4;
 
-pub type LevelSnapshots = [Option<LevelState>; MAX_SNAPSHOTS];
+#[derive(Default, Deref, DerefMut)]
+pub struct LevelSnapshots([Option<LevelState>; MAX_SNAPSHOTS]);

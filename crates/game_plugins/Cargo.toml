@@ -8,8 +8,9 @@ license.workspace = true
 
 [dependencies]
 game_ui = { path = "../game_ui" }
+game_map = { path = "../game_map" }
 ron = "0.10"
-serde = "1.0"
+serde = { workspace = true }
 regex = "1.11"
 log = { version = "0.4", features = [
     "max_level_debug",

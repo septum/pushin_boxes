@@ -1,4 +1,4 @@
-use super::state::LevelState;
+use crate::resources::prelude::*;
 
 #[derive(Clone)]
 pub enum LevelKind {
@@ -6,12 +6,6 @@ pub enum LevelKind {
     Editable,
     Custom(String),
     Playtest(LevelState),
-}
-
-impl Default for LevelKind {
-    fn default() -> Self {
-        LevelKind::Stock(0)
-    }
 }
 
 impl LevelKind {

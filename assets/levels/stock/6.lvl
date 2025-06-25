@@ -1,5 +1,5 @@
 (
-    map: (
+    map: ((
         (V,V,V,V,V,V,V,V,V,V,),
         (V,V,V,V,V,V,V,V,V,V,),
         (V,V,Z,V,F,F,F,F,V,V,),
@@ -10,7 +10,7 @@
         (V,V,F,F,V,F,F,V,V,V,),
         (V,V,V,V,V,V,V,V,V,V,),
         (V,V,V,V,V,V,V,V,V,V,),
-    ),
+    )),
     character_position: (x: 2, y: 7),
     animation_row: 1,
     remaining_zones: 4,

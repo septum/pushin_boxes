@@ -1,22 +1,12 @@
 use bevy::{prelude::*, reflect::TypePath};
 use serde::{Deserialize, Serialize};
 
-use super::map::{MAP_COLS, MAP_ROWS, Map, MapEntity, MapPosition};
+use game_map::{Map, MapPosition};
 
-#[derive(Asset, TypePath, Serialize, Deserialize, Clone, Copy, Default)]
+#[derive(Asset, TypePath, Serialize, Deserialize, Default, Clone, Copy)]
 pub struct LevelState {
-    pub animation_row: usize,
     pub map: Map,
     pub character_position: MapPosition,
+    pub animation_row: usize,
     pub remaining_zones: usize,
-}
-
-impl LevelState {
-    pub fn editor() -> Self {
-        LevelState {
-            map: [[MapEntity::F; MAP_COLS]; MAP_ROWS],
-            character_position: MapPosition::new(4, 4),
-            ..default()
-        }
-    }
 }

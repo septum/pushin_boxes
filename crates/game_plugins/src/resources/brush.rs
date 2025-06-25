@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use game_map::MapPosition;
+
 use super::prelude::*;
 
 #[derive(Default, Resource)]

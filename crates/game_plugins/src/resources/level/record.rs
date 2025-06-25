@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize, Clone, Copy)]

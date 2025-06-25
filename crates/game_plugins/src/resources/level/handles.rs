@@ -1,9 +1,10 @@
+use std::collections::HashMap;
+
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
-use hashbrown::HashMap;
 use uuid::Uuid;
 
-use super::state::LevelState;
+use super::LevelState;
 
 #[derive(AssetCollection, Resource)]
 pub struct LevelHandles {
@@ -37,8 +38,8 @@ impl LevelHandles {
         &self.stock[*index]
     }
 
-    pub fn get_custom(&self, uuid: &Uuid) -> &Handle<LevelState> {
-        self.custom.get(uuid).expect("Cannot get custom level")
+    pub fn get_custom(&self, uuid: &Uuid) -> Option<&Handle<LevelState>> {
+        self.custom.get(uuid)
     }
 
     pub fn insert_custom(&mut self, uuid: Uuid, handle: Handle<LevelState>) {

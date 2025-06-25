@@ -2,6 +2,7 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
+use game_map::MapEntity;
 use game_ui::{DynamicTextData, OverlayMarker};
 
 use crate::resources::prelude::*;
@@ -42,7 +43,7 @@ impl BevyPlugin for Plugin {
             (
                 cleanup::<OverlayMarker>,
                 cleanup::<CharacterMarker>,
-                cleanup::<MapPosition>,
+                cleanup::<MapPositionBundle>,
             ),
         );
     }
@@ -236,7 +237,7 @@ fn update_counters(
 fn update_map(
     level: Res<Level>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPosition)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionBundle)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
