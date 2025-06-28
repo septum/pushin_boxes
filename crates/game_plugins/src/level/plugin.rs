@@ -1,13 +1,19 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
+use bevy_common_assets::ron::RonAssetPlugin;
 use uuid::Uuid;
 
-use crate::resources::prelude::*;
+use crate::level::event::LevelInsertionEvent;
+use crate::level::handles::LevelHandles;
+use crate::level::internal::{LevelKind, LevelRecord, LevelState};
+use crate::level::resource::LevelResource;
+use crate::resources::prelude::{SaveFile, SceneTransitionEvent};
 
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, insert_level.run_if(on_event::<LevelInsertionEvent>));
+        app.add_plugins((RonAssetPlugin::<LevelState>::new(&["lvl"]),))
+            .add_systems(Update, insert_level.run_if(on_event::<LevelInsertionEvent>));
     }
 }
 
@@ -20,13 +26,13 @@ fn insert_level(
     level_states_assets: Res<Assets<LevelState>>,
 ) {
     if let Some(level_insertion_event) = level_insertion_event_reader.read().next() {
-        match &level_insertion_event.kind {
+        match level_insertion_event.kind() {
             LevelKind::Stock(index) => {
                 let state = *level_states_assets
-                    .get(level_handles.get_stock(index))
+                    .get(level_handles.get_stock(&index))
                     .unwrap();
-                let record = save_file.get_record(&level_insertion_event.kind);
-                let level = Level::new(level_insertion_event.kind.clone(), state, record);
+                let record = save_file.get_record(level_insertion_event.kind());
+                let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(SceneTransitionEvent::level());
@@ -37,15 +43,15 @@ fn insert_level(
                 let state = *level_states_assets
                     .get(level_handles.get_custom(&uuid).unwrap())
                     .unwrap();
-                let record = save_file.get_record(&level_insertion_event.kind);
-                let level = Level::new(level_insertion_event.kind.clone(), state, record);
+                let record = save_file.get_record(level_insertion_event.kind());
+                let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(SceneTransitionEvent::level());
             }
             LevelKind::Playtest(state) => {
-                let level = Level::new(
-                    level_insertion_event.kind.clone(),
+                let level = LevelResource::new(
+                    level_insertion_event.kind().clone(),
                     *state,
                     LevelRecord::default(),
                 );
@@ -57,18 +63,5 @@ fn insert_level(
                 unreachable!("An editable should not be inserted with this event")
             }
         }
-    }
-}
-
-pub fn insert_custom_level_handles(
-    save_file: Res<SaveFile>,
-    mut level_handles: ResMut<LevelHandles>,
-    asset_server: Res<AssetServer>,
-) {
-    for (_, (key, _)) in save_file.ordered_custom_records() {
-        let split_key: Vec<&str> = key.split('$').collect();
-        let uuid = Uuid::parse_str(split_key[1]).expect("Cannot parse uuid");
-        let path = format!("levels/custom/{}.lvl", &split_key[1]);
-        level_handles.insert_custom(uuid, asset_server.load(path));
     }
 }

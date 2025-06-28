@@ -13,7 +13,7 @@ fn spawn_stock_buttons(
         let housing = Container::size_percentage(25.0, 25.0);
         let mut button = GameButton::square(format!("{}", index + 1), font);
         let record_new_level = if record.is_set() {
-            SimpleText::small(format!("Record: {}", record.moves_in_time("\n")), font)
+            SimpleText::small(format!("LevelRecord: {}", record.moves_in_time("\n")), font)
         } else {
             let mut simple_text = SimpleText::small("New Level!\n ".to_string(), font);
             simple_text.secondary();
@@ -43,7 +43,7 @@ fn spawn_custom_buttons(
         let split_key: Vec<&str> = key.split('$').collect();
         let mut button = GameButton::new(split_key[0], font);
         let record_new_level = if record.is_set() {
-            SimpleText::small(format!("Record: {}", record.moves_in_time("\n")), font)
+            SimpleText::small(format!("LevelRecord: {}", record.moves_in_time("\n")), font)
         } else {
             let mut simple_text = SimpleText::small("New Level!\n ".to_string(), font);
             simple_text.secondary();

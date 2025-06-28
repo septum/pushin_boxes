@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use game_ui::{Container, GameText, Overlay, SimpleText};
 
-use crate::resources::prelude::*;
+use crate::{level::LevelResource, resources::prelude::*};
 
-pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, level: Res<Level>) {
+pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, level: Res<LevelResource>) {
     let font = fonts.primary();
 
     let record = if level.new_record() {

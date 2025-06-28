@@ -12,6 +12,6 @@
         (V,V,V,V,V,V,V,V,V,V,),
     )),
     character_position: (x: 3, y: 6),
-    animation_row: 1,
+    character_facing_direction: 1,
     remaining_zones: 1,
 )

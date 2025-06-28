@@ -17,7 +17,10 @@ use game_ui::{Colors, DynamicTextData, OverlayMarker};
 use regex::Regex;
 use uuid::Uuid;
 
-use crate::resources::prelude::*;
+use crate::{
+    level::{LevelHandles, LevelKind, LevelResource},
+    resources::prelude::*,
+};
 
 #[derive(Resource)]
 pub struct LevelNameRegex {
@@ -71,7 +74,7 @@ fn handle_action_input(
 #[allow(clippy::too_many_arguments)]
 pub fn handle_text_input(
     time: Res<Time>,
-    level: Res<Level>,
+    level: Res<LevelResource>,
     level_name_regex: Res<LevelNameRegex>,
     asset_server: Res<AssetServer>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
@@ -143,8 +146,10 @@ pub fn handle_text_input(
                 if !level_name.is_empty() {
                     sfx.play(sounds.sfx_set_zone.clone());
                     let uuid = Uuid::new_v4();
-                    let serialized_string =
-                        ron::ser::to_string(&level.kind.get_playtest_state()).unwrap();
+                    let serialized_string = match level.kind() {
+                        LevelKind::Playtest(state) => ron::ser::to_string(state).unwrap(),
+                        _ => panic!("Cannot get the state if the level kind is not playtest"),
+                    };
                     let levels_path = format!("levels/custom/{}.lvl", &uuid);
                     let assets_path = format!("assets/{}", &levels_path);
 

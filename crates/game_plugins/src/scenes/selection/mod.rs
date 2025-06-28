@@ -6,7 +6,10 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{Colors, GameButtonData, OverlayMarker};
 
-use crate::resources::prelude::*;
+use crate::{
+    level::{LevelInsertionEvent, LevelKind},
+    resources::prelude::*,
+};
 
 pub struct Plugin;
 

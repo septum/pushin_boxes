@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use game_map::{MAP_ROWS, MapPosition};
-
-use crate::resources::prelude::*;
+use crate::{
+    level::internal::{MAP_ROWS, MapPosition},
+    resources::prelude::{CharacterMarker, DirectionInput},
+};
 
 const SPRITE_SIZE: usize = 64;
 const SPRITE_OFFSET: usize = 32;
@@ -13,8 +14,8 @@ const ENTITY_SURFACE_OFFSET: usize = 18;
 const MAP_WIDTH: f32 = 640.0;
 const MAP_HEIGHT: f32 = 388.0;
 
-#[derive(Component, Deref, PartialEq)]
-pub struct MapPositionBundle(MapPosition);
+#[derive(Component, Deref, DerefMut, PartialEq, Clone, Copy, Default)]
+pub struct MapPositionComponent(MapPosition);
 
 pub trait MapPositionExtension {
     fn update_translation(&self, translation: &mut Vec3);
@@ -58,7 +59,7 @@ impl MapPositionExtension for MapPosition {
         let sprite = Sprite { image, ..default() };
         commands
             .spawn((sprite, transform))
-            .insert(MapPositionBundle(*self));
+            .insert(MapPositionComponent(*self));
     }
 
     fn spawn_character(&self, commands: &mut Commands, atlas: TextureAtlas, image: Handle<Image>) {

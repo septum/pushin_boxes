@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use game_map::MapPosition;
-
-use super::prelude::*;
+use crate::{
+    level::{MapPosition, map_position::MapPositionExtension},
+    resources::prelude::Images,
+};
 
 #[derive(Default, Resource)]
 pub struct LevelValidity {

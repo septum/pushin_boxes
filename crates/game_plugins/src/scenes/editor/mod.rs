@@ -2,10 +2,15 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use game_map::MapEntity;
 use game_ui::{Colors, DynamicTextData, OverlayMarker};
 
-use crate::resources::prelude::*;
+use crate::{
+    level::{
+        Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelKind, LevelResource,
+        LevelValidity, MapEntity, MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
+    },
+    resources::prelude::*,
+};
 
 const VALID_ID: usize = 0;
 
@@ -44,7 +49,7 @@ impl BevyPlugin for Plugin {
                 (
                     cleanup::<OverlayMarker>,
                     cleanup::<CharacterMarker>,
-                    cleanup::<MapPositionBundle>,
+                    cleanup::<MapPositionComponent>,
                     cleanup::<BrushSprite>,
                 ),
             );
@@ -65,7 +70,7 @@ fn setup_level(
     images: Res<Images>,
     mut level_validity: ResMut<LevelValidity>,
 ) {
-    let mut level = Level::editable();
+    let mut level = LevelResource::editable();
     level.spawn(&mut commands, &images);
     commands.insert_resource(level);
     level_validity.reset();
@@ -86,7 +91,7 @@ fn handle_direction_input(
 }
 
 fn handle_action_input(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     level_validity: Res<LevelValidity>,
     mut brush: ResMut<Brush>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
@@ -99,7 +104,7 @@ fn handle_action_input(
             ActionInput::Select => {
                 if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
                     level_insertion_event_writer.write(LevelInsertionEvent::new(
-                        LevelKind::Playtest(level.clone_state()),
+                        LevelKind::Playtest(level.state().clone()),
                     ));
                 }
             }
@@ -114,7 +119,7 @@ fn handle_action_input(
 fn blink_tile(
     time: Res<Time>,
     mut brush: ResMut<Brush>,
-    mut entity_query: Query<(&mut Sprite, &MapPositionBundle), With<MapPositionBundle>>,
+    mut entity_query: Query<(&mut Sprite, &MapPositionComponent), With<MapPositionComponent>>,
 ) {
     brush.blink_timer.tick(time.delta());
 
@@ -135,7 +140,7 @@ fn blink_tile(
 
 fn apply_brush_to_level(
     brush: Res<Brush>,
-    mut level: ResMut<Level>,
+    mut level: ResMut<LevelResource>,
     mut level_validity: ResMut<LevelValidity>,
 ) {
     if matches!(brush.entity, BrushEntity::Character) {
@@ -209,7 +214,7 @@ fn apply_brush_to_level(
 }
 
 fn update_character_position(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     mut query: Query<&mut Transform, With<CharacterMarker>>,
 ) {
     let mut transform = query.single_mut().unwrap();
@@ -262,13 +267,19 @@ fn check_validity(
 }
 
 fn update_map(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionBundle)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionComponent)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
-        sprite.image = map_entity.to_image(&images);
+        sprite.image = match map_entity {
+            MapEntity::V => images.entity_void.clone(),
+            MapEntity::F => images.entity_floor.clone(),
+            MapEntity::Z => images.entity_zone.clone(),
+            MapEntity::B => images.entity_box.clone(),
+            MapEntity::P => images.entity_placed_box.clone(),
+        };
         position.update_translation(&mut transform.translation);
     }
 }

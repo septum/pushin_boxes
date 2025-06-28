@@ -10,8 +10,8 @@
 #![cfg_attr(target_family = "wasm", allow(unused_variables))]
 #![cfg_attr(target_family = "wasm", allow(dead_code))]
 
+mod level;
+
 pub mod config;
-
 pub mod resources;
-
 pub mod scenes;

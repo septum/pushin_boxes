@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use hashbrown::HashMap;
 use uuid::Uuid;
 
-use super::LevelState;
+use crate::level::internal::LevelState;
 
 #[derive(AssetCollection, Resource)]
 pub struct LevelHandles {

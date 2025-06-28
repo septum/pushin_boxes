@@ -1,12 +1,11 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize, Clone, Copy)]
 pub struct LevelRecord {
-    moves: usize,
-    time: f32,
+    pub moves: usize,
+    pub time: f32,
 }
 
 impl LevelRecord {

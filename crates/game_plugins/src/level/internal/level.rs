@@ -1,29 +1,67 @@
-use bevy::{
-    prelude::*,
-    time::{Stopwatch, Timer},
+use bevy::time::{Stopwatch, Timer, TimerMode};
+use std::{
+    ops::{Deref, DerefMut},
+    time::Duration,
 };
-use game_map::{MAP_COLS, MAP_ROWS, MapEntity, MapPosition};
-use std::time::Duration;
-use uuid::Uuid;
 
-use crate::resources::prelude::*;
+use crate::level::internal::{
+    kind::LevelKind,
+    map::{MAP_COLS, MAP_ROWS, MapEntity, MapPosition},
+    record::LevelRecord,
+    state::LevelState,
+};
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
 pub const TOTAL_CUSTOM_LEVELS: usize = 16;
 
-#[derive(Default)]
-pub struct LevelDone {
-    pub timer: Timer,
+const MAX_SNAPSHOTS: usize = 4;
+
+struct LevelSnapshots {
+    undos: usize,
+    inner: [Option<LevelState>; MAX_SNAPSHOTS],
 }
 
-#[derive(Resource)]
+impl Default for LevelSnapshots {
+    fn default() -> Self {
+        Self {
+            undos: MAX_SNAPSHOTS,
+            inner: [None; MAX_SNAPSHOTS],
+        }
+    }
+}
+
+impl Deref for LevelSnapshots {
+    type Target = [Option<LevelState>; MAX_SNAPSHOTS];
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl DerefMut for LevelSnapshots {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+struct LevelDone {
+    timer: Timer,
+}
+
+impl Default for LevelDone {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.25, TimerMode::Once),
+        }
+    }
+}
+
+#[derive(Default)]
 pub struct Level {
-    pub kind: LevelKind,
+    kind: LevelKind,
     state: LevelState,
     record: LevelRecord,
     snapshots: LevelSnapshots,
-    undos: usize,
-    moves: usize,
     stopwatch: Stopwatch,
     done: LevelDone,
 }
@@ -34,28 +72,26 @@ impl Level {
             kind,
             state,
             record,
-            snapshots: LevelSnapshots::default(),
-            undos: 4,
-            moves: 0,
-            stopwatch: Stopwatch::new(),
-            done: LevelDone {
-                timer: Timer::from_seconds(0.25, TimerMode::Once),
-            },
+            ..Default::default()
         }
+    }
+
+    pub fn kind(&self) -> &LevelKind {
+        &self.kind
+    }
+
+    pub fn state(&self) -> &LevelState {
+        &self.state
     }
 
     pub fn editable() -> Level {
         let state = LevelState {
             character_position: MapPosition::new(4, 4),
-            ..default()
+            ..Default::default()
         };
         let kind = LevelKind::Editable;
         let record = LevelRecord::default();
         Level::new(kind, state, record)
-    }
-
-    pub fn clone_state(&self) -> LevelState {
-        self.state
     }
 
     pub fn new_record(&self) -> bool {
@@ -63,10 +99,10 @@ impl Level {
     }
 
     pub fn set_state(&mut self, state: LevelState) {
-        self.snapshots = default();
+        self.snapshots = Default::default();
         self.state = state;
-        self.undos = 4;
-        self.moves = 0;
+        self.snapshots.undos = 4;
+        self.record.moves = 0;
     }
 
     pub fn loop_over_entity_and_position<F>(&self, mut f: F)
@@ -98,29 +134,12 @@ impl Level {
         &self.state.character_position
     }
 
-    pub fn get_animation_row(&self) -> usize {
-        self.state.animation_row
+    pub fn get_character_facing_direction(&self) -> usize {
+        self.state.character_facing_direction
     }
 
-    pub fn set_animation_row_with(&mut self, direction: &DirectionInput) {
-        match direction {
-            DirectionInput::Down => self.state.animation_row = 0,
-            DirectionInput::Up => self.state.animation_row = 1,
-            DirectionInput::Left => self.state.animation_row = 2,
-            DirectionInput::Right => self.state.animation_row = 3,
-        }
-    }
-
-    pub fn increment_moves(&mut self) {
-        self.moves += 1;
-    }
-
-    pub fn decrement_moves(&mut self) {
-        self.moves = self.moves.saturating_sub(1);
-    }
-
-    pub fn decrement_undos(&mut self) {
-        self.undos = self.undos.saturating_sub(1);
+    pub fn set_character_facing_direction(&mut self, direction: usize) {
+        self.state.character_facing_direction = direction;
     }
 
     pub fn move_character(&mut self, position: MapPosition) {
@@ -139,12 +158,36 @@ impl Level {
         self.state.remaining_zones == 0
     }
 
+    pub fn character_position(&self) -> MapPosition {
+        self.state.character_position
+    }
+
+    pub fn get_moves(&self) -> usize {
+        self.record.moves
+    }
+
+    pub fn get_undos(&self) -> usize {
+        self.snapshots.undos
+    }
+
+    pub fn increment_moves(&mut self) {
+        self.record.moves += 1;
+    }
+
+    pub fn decrement_moves(&mut self) {
+        self.record.moves = self.record.moves.saturating_sub(1);
+    }
+
+    pub fn decrement_undos(&mut self) {
+        self.snapshots.undos = self.snapshots.undos.saturating_sub(1);
+    }
+
     pub fn get_current_record(&self) -> &LevelRecord {
         &self.record
     }
 
     pub fn get_set_record(&self) -> LevelRecord {
-        LevelRecord::new(self.moves, self.stopwatch.elapsed().as_secs_f32())
+        LevelRecord::new(self.record.moves, self.stopwatch.elapsed().as_secs_f32())
     }
 
     pub fn is_stock(&self) -> bool {
@@ -169,7 +212,7 @@ impl Level {
     }
 
     pub fn undo(&mut self) -> bool {
-        if self.undos > 0 {
+        if self.snapshots.undos > 0 {
             if let Some(state) = self.snapshots[0] {
                 self.state = state;
                 self.snapshots.rotate_left(1);
@@ -208,76 +251,17 @@ impl Level {
     }
 
     pub fn moves_string(&self) -> String {
-        self.moves.to_string()
-    }
-
-    pub fn character_position(&self) -> MapPosition {
-        self.state.character_position
+        self.record.moves.to_string()
     }
 
     pub fn undos_string(&self) -> String {
-        self.undos.to_string()
+        self.snapshots.undos.to_string()
     }
 
     pub fn moves_in_time(&self, separator: &str) -> String {
-        let moves = self.moves.to_string();
+        let moves = self.record.moves.to_string();
         let time = self.stopwatch_string();
         format!("{moves} moves{separator}in {time}")
-    }
-
-    pub fn reload(
-        &mut self,
-        level_handles: &LevelHandles,
-        level_states_assets: &Assets<LevelState>,
-    ) -> bool {
-        if self.moves != 0 || self.undos < 4 {
-            match &self.kind {
-                LevelKind::Stock(index) => {
-                    self.set_state(
-                        *level_states_assets
-                            .get(level_handles.get_stock(index))
-                            .unwrap(),
-                    );
-                }
-                LevelKind::Custom(key) => {
-                    let parsed_key: Vec<&str> = key.split('$').collect();
-                    let uuid = Uuid::parse_str(parsed_key[1]).expect("Cannot parse uuid");
-                    self.set_state(
-                        *level_states_assets
-                            .get(level_handles.get_custom(&uuid).unwrap())
-                            .unwrap(),
-                    );
-                }
-                LevelKind::Playtest(state) => {
-                    self.set_state(*state);
-                }
-                LevelKind::Editable => {
-                    unreachable!("An editable level can't be reloaded")
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn spawn(&mut self, commands: &mut Commands, images: &Images) {
-        let position = self.get_character_position();
-        let level_animation_row = self.get_animation_row();
-
-        position.spawn_character(
-            commands,
-            TextureAtlas {
-                layout: images.character_layout.clone(),
-                index: level_animation_row,
-            },
-            images.character.clone(),
-        );
-
-        self.loop_over_entity_and_position(|entity, position| {
-            let texture = entity.to_image(images);
-            position.spawn_entity(commands, texture);
-        });
     }
 
     pub fn is_last(&self) -> bool {

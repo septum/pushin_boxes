@@ -2,7 +2,10 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 
-use crate::resources::prelude::*;
+use crate::{
+    level::{LevelInsertionEvent, LevelKind, LevelResource},
+    resources::prelude::*,
+};
 
 pub struct Plugin;
 
@@ -35,7 +38,7 @@ impl BevyPlugin for Plugin {
     }
 }
 
-fn save(mut save_file: ResMut<SaveFile>, level: Res<Level>) {
+fn save(mut save_file: ResMut<SaveFile>, level: Res<LevelResource>) {
     save_file.set_new_record(&level);
     save_file.unlock_new_level(&level);
     save_file.save();
@@ -45,11 +48,11 @@ fn handle_action_input(
     mut level_instertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
-    level: Res<Level>,
+    level: Res<LevelResource>,
 ) {
     for action_event in action_event_reader.read() {
         match action_event.value {
-            ActionInput::Select => match &level.kind {
+            ActionInput::Select => match level.kind() {
                 LevelKind::Stock(index) => {
                     if level.is_last() {
                         game_state_event_writer

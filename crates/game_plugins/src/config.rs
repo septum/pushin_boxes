@@ -5,7 +5,7 @@ use bevy::{
     window::WindowMode,
 };
 
-use crate::resources::prelude::*;
+use crate::{level::LevelInsertionEvent, resources::prelude::*};
 
 pub struct Plugin;
 

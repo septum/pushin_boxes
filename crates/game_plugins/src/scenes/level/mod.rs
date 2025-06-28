@@ -2,10 +2,15 @@ mod ui;
 
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use game_map::MapEntity;
 use game_ui::{DynamicTextData, OverlayMarker};
 
-use crate::resources::prelude::*;
+use crate::{
+    level::{
+        LevelHandles, LevelKind, LevelResource, LevelState, MapEntity, MapPositionComponent,
+        MapPositionExtension,
+    },
+    resources::prelude::*,
+};
 
 const STOPWATCH_COUNTER_ID: usize = 0;
 const MOVES_COUNTER_ID: usize = 1;
@@ -43,20 +48,21 @@ impl BevyPlugin for Plugin {
             (
                 cleanup::<OverlayMarker>,
                 cleanup::<CharacterMarker>,
-                cleanup::<MapPositionBundle>,
+                cleanup::<MapPositionComponent>,
             ),
         );
     }
 }
 
-fn spawn_level(mut commands: Commands, mut level: ResMut<Level>, images: Res<Images>) {
+fn spawn_level(mut commands: Commands, mut level: ResMut<LevelResource>, images: Res<Images>) {
     level.spawn(&mut commands, &images);
 }
 
+// TODO: Prevent LevelState leakage
 fn handle_action_input(
     mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
-    mut level: ResMut<Level>,
+    mut level: ResMut<LevelResource>,
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
     sounds: Res<Sounds>,
@@ -95,7 +101,7 @@ fn handle_action_input(
 
 fn handle_direction_input(
     mut direction_event_reader: EventReader<DirectionInputEvent>,
-    mut level: ResMut<Level>,
+    mut level: ResMut<LevelResource>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
@@ -105,7 +111,7 @@ fn handle_direction_input(
 
     for direction_event in direction_event_reader.read() {
         let direction = &direction_event.value;
-        level.set_animation_row_with(direction);
+        level.set_character_facing_direction_with(direction);
 
         let mut next_position = level.character_position();
         next_position.update_position(direction);
@@ -165,7 +171,7 @@ fn handle_direction_input(
 }
 
 fn update_character_position(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     mut query: Query<&mut Transform, With<CharacterMarker>>,
 ) {
     let mut transform = query.single_mut().unwrap();
@@ -179,16 +185,16 @@ fn update_character_position(
 
 fn update_character_sprite(
     time: Res<Time>,
-    level: Res<Level>,
+    level: Res<LevelResource>,
     mut character_animation: ResMut<CharacterAnimation>,
     mut query: Query<&mut Sprite, With<CharacterMarker>>,
 ) {
     let mut sprite = query.single_mut().unwrap();
-    let level_animation_row = level.get_animation_row();
+    let level_character_facing_direction = level.get_character_facing_direction();
 
     character_animation.tick(time.delta());
 
-    if level_animation_row == 0 {
+    if level_character_facing_direction == 0 {
         if character_animation.secondary_timer_just_finished() {
             character_animation.set_blink_row();
             character_animation.reset_primary_timer();
@@ -203,13 +209,13 @@ fn update_character_sprite(
         character_animation.reset_tertiary_timer();
     }
 
-    if !character_animation.row_is(level_animation_row)
+    if !character_animation.row_is(level_character_facing_direction)
         && !character_animation.secondary_timer_finished()
         && !character_animation.tertiary_timer_finished()
     {
         character_animation.reset_primary_timer();
         character_animation.reset_index();
-        character_animation.set_row(level_animation_row);
+        character_animation.set_row(level_character_facing_direction);
     }
 
     if character_animation.primary_timer_just_finished() {
@@ -220,7 +226,7 @@ fn update_character_sprite(
 }
 
 fn update_counters(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     mut writer: TextUiWriter,
     texts: Query<(Entity, &DynamicTextData)>,
 ) {
@@ -235,18 +241,24 @@ fn update_counters(
 }
 
 fn update_map(
-    level: Res<Level>,
+    level: Res<LevelResource>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionBundle)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionComponent)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
-        sprite.image = map_entity.to_image(&images);
+        sprite.image = match map_entity {
+            MapEntity::V => images.entity_void.clone(),
+            MapEntity::F => images.entity_floor.clone(),
+            MapEntity::Z => images.entity_zone.clone(),
+            MapEntity::B => images.entity_box.clone(),
+            MapEntity::P => images.entity_placed_box.clone(),
+        };
         position.update_translation(&mut transform.translation);
     }
 }
 
-fn update_level_state(time: Res<Time>, mut level: ResMut<Level>) {
+fn update_level_state(time: Res<Time>, mut level: ResMut<LevelResource>) {
     let delta = time.delta();
     if level.no_remaining_zones() {
         level.tick_timer(delta);
@@ -257,10 +269,10 @@ fn update_level_state(time: Res<Time>, mut level: ResMut<Level>) {
 
 fn check_lever_timer_just_finished(
     mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
-    level: Res<Level>,
+    level: Res<LevelResource>,
 ) {
     if level.timer_just_finished() {
-        match level.kind {
+        match level.kind() {
             LevelKind::Stock(_) | LevelKind::Custom(_) => {
                 scene_transition_event_writer.write(SceneTransitionEvent::win());
             }

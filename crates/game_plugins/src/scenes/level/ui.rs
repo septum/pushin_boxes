@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
 
-use crate::resources::prelude::*;
+use crate::{level::LevelResource, resources::prelude::*};
 
 use super::{MOVES_COUNTER_ID, STOPWATCH_COUNTER_ID, UNDOS_COUNTER_ID};
 
-pub fn spawn(mut commands: Commands, level: Res<Level>, fonts: Res<Fonts>) {
+pub fn spawn(mut commands: Commands, level: Res<LevelResource>, fonts: Res<Fonts>) {
     let font = fonts.primary();
     let level_record = level.get_current_record();
     let record_new_level = if level_record.is_set() {

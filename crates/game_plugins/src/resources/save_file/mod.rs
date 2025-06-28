@@ -7,6 +7,8 @@ use hashbrown::HashMap;
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
 
+use crate::level::{Level, LevelKind, LevelRecord, TOTAL_STOCK_LEVELS};
+
 pub use self::handle::SaveFileHandle;
 
 use super::prelude::*;
@@ -76,9 +78,9 @@ impl SaveFile {
 
     pub fn set_new_record(&mut self, level: &Level) {
         let new_record = level.get_set_record();
-        let current_record = self.get_record(&level.kind);
+        let current_record = self.get_record(level.kind());
         if new_record.is_better_than(&current_record) {
-            match &level.kind {
+            match level.kind() {
                 LevelKind::Stock(index) => {
                     self.stock_records[*index] = new_record;
                 }
@@ -102,7 +104,7 @@ impl SaveFile {
     }
 
     pub fn unlock_new_level(&mut self, level: &Level) {
-        if let LevelKind::Stock(index) = level.kind {
+        if let LevelKind::Stock(index) = level.kind() {
             let unlocked_levels = self.unlocked_levels();
             if unlocked_levels == index + 1 && unlocked_levels < TOTAL_STOCK_LEVELS {
                 self.stock_records.push(LevelRecord::default());
