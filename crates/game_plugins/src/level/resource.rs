@@ -41,7 +41,7 @@ impl LevelResource {
                 LevelKind::Stock(index) => {
                     self.set_state(
                         *level_states_assets
-                            .get(level_handles.get_stock(&index))
+                            .get(level_handles.get_stock(index))
                             .unwrap(),
                     );
                 }

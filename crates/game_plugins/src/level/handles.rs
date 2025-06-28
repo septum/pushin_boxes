@@ -33,8 +33,8 @@ pub struct LevelHandles {
 }
 
 impl LevelHandles {
-    pub fn get_stock(&self, index: &usize) -> &Handle<LevelState> {
-        &self.stock[*index]
+    pub fn get_stock(&self, index: usize) -> &Handle<LevelState> {
+        &self.stock[index]
     }
 
     pub fn get_custom(&self, uuid: &Uuid) -> Option<&Handle<LevelState>> {

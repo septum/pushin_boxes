@@ -29,7 +29,7 @@ fn insert_level(
         match level_insertion_event.kind() {
             LevelKind::Stock(index) => {
                 let state = *level_states_assets
-                    .get(level_handles.get_stock(&index))
+                    .get(level_handles.get_stock(*index))
                     .unwrap();
                 let record = save_file.get_record(level_insertion_event.kind());
                 let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);

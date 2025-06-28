@@ -99,7 +99,7 @@ impl Level {
     }
 
     pub fn set_state(&mut self, state: LevelState) {
-        self.snapshots = Default::default();
+        self.snapshots = LevelSnapshots::default();
         self.state = state;
         self.snapshots.undos = 4;
         self.record.moves = 0;

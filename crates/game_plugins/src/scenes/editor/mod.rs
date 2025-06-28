@@ -104,7 +104,7 @@ fn handle_action_input(
             ActionInput::Select => {
                 if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
                     level_insertion_event_writer.write(LevelInsertionEvent::new(
-                        LevelKind::Playtest(level.state().clone()),
+                        LevelKind::Playtest(*level.state()),
                     ));
                 }
             }
