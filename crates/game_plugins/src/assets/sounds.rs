@@ -57,17 +57,6 @@ impl Sounds {
     }
 }
 
-fn setup(
-    mut sounds: ResMut<Sounds>,
-    save_file: Res<SaveFile>,
-    sfx: ResMut<AudioChannel<Sfx>>,
-    music: ResMut<AudioChannel<Music>>,
-) {
-    sounds.volume = save_file.get_volume();
-    music.set_volume(sounds.get_volume());
-    sfx.set_volume(sounds.get_volume());
-}
-
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
@@ -86,6 +75,17 @@ impl BevyPlugin for Plugin {
                 (setup.run_if(resource_added::<SaveFile>),),
             );
     }
+}
+
+fn setup(
+    mut sounds: ResMut<Sounds>,
+    save_file: Res<SaveFile>,
+    sfx: ResMut<AudioChannel<Sfx>>,
+    music: ResMut<AudioChannel<Music>>,
+) {
+    sounds.volume = save_file.get_volume();
+    music.set_volume(sounds.get_volume());
+    sfx.set_volume(sounds.get_volume());
 }
 
 fn handle_volume_change(

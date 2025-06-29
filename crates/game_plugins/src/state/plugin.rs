@@ -1,12 +1,25 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
+use bevy_asset_loader::prelude::*;
 
-use super::event::GameStateTransitionEvent;
+use crate::{
+    assets::prelude::*,
+    level::LevelHandles,
+    state::{GameState, GameStateTransitionEvent},
+};
 
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_loading_state(
+            LoadingState::new(GameState::Loading)
+                .continue_to_state(GameState::Title)
+                .load_collection::<LevelHandles>()
+                .load_collection::<Fonts>()
+                .load_collection::<Images>()
+                .load_collection::<Sounds>(),
+        )
+        .add_systems(
             Update,
             insert_next_state.run_if(on_event::<GameStateTransitionEvent>),
         );
