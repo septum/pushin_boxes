@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
 
-use crate::{level::LevelResource, assets::prelude::*};
+use crate::{assets::prelude::*, level::LevelResource};
 
-use super::{MOVES_COUNTER_ID, STOPWATCH_COUNTER_ID, UNDOS_COUNTER_ID};
+pub const STOPWATCH_COUNTER_ID: usize = 0;
+pub const MOVES_COUNTER_ID: usize = 1;
+pub const UNDOS_COUNTER_ID: usize = 2;
 
 pub fn spawn(mut commands: Commands, level: Res<LevelResource>, fonts: Res<Fonts>) {
     let font = fonts.primary();

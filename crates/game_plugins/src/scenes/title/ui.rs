@@ -3,7 +3,11 @@ use game_ui::{Container, GameButton, GameText, Overlay, SimpleText};
 
 use crate::assets::prelude::*;
 
-use super::{EDITOR_ID, INSTRUCTIONS_ID, OPTIONS_ID, PLAY_ID, QUIT_ID};
+pub const PLAY_ID: usize = 0;
+pub const INSTRUCTIONS_ID: usize = 1;
+pub const EDITOR_ID: usize = 2;
+pub const OPTIONS_ID: usize = 3;
+pub const QUIT_ID: usize = 4;
 
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();

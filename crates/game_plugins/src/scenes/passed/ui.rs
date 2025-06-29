@@ -3,7 +3,7 @@ use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
 
 use crate::assets::prelude::*;
 
-use super::LEVEL_NAME_ID;
+pub const LEVEL_NAME_ID: usize = 1;
 
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();
