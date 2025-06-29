@@ -5,7 +5,7 @@ use bevy::{
     window::WindowMode,
 };
 
-use crate::{level::LevelInsertionEvent, resources::prelude::*};
+use crate::{level::LevelInsertionEvent, resources::prelude::*, save_file};
 
 pub struct Plugin;
 
@@ -37,6 +37,7 @@ impl BevyPlugin for Plugin {
         .add_event::<ActionInputEvent>()
         .add_event::<DirectionInputEvent>()
         .add_event::<SceneTransitionEvent>()
-        .add_event::<LevelInsertionEvent>();
+        .add_event::<LevelInsertionEvent>()
+        .add_plugins(save_file::Plugin);
     }
 }

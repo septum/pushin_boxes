@@ -126,10 +126,6 @@ impl Level {
         self.state.map[position] = entity;
     }
 
-    pub fn character_in(&mut self, position: &MapPosition) -> bool {
-        self.state.character_position == *position
-    }
-
     pub fn get_character_position(&self) -> &MapPosition {
         &self.state.character_position
     }

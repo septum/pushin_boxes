@@ -1,5 +1,3 @@
-mod handle;
-
 use std::{env, fs::File, io::Write, iter::Enumerate, path::PathBuf, slice::Iter, vec::IntoIter};
 
 use bevy::{asset::LoadState, prelude::*, reflect::TypePath};
@@ -7,11 +5,12 @@ use hashbrown::HashMap;
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
 
-use crate::level::{Level, LevelKind, LevelRecord, TOTAL_STOCK_LEVELS};
+use crate::{
+    level::{Level, LevelKind, LevelRecord, TOTAL_STOCK_LEVELS},
+    save_file::handle::SaveFileHandle,
+};
 
-pub use self::handle::SaveFileHandle;
-
-use super::prelude::*;
+pub const INITIAL_VOLUME: f64 = 0.5;
 
 #[derive(Asset, TypePath, Serialize, Deserialize, Clone, Resource)]
 pub struct SaveFile {

@@ -10,6 +10,7 @@ use crate::{
         LevelValidity, MapEntity, MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
     },
     resources::prelude::*,
+    save_file::SaveFile,
 };
 
 const VALID_ID: usize = 0;

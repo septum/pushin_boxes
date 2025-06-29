@@ -6,7 +6,8 @@ use crate::level::event::LevelInsertionEvent;
 use crate::level::handles::LevelHandles;
 use crate::level::internal::{LevelKind, LevelRecord, LevelState};
 use crate::level::resource::LevelResource;
-use crate::resources::prelude::{SaveFile, SceneTransitionEvent};
+use crate::resources::prelude::SceneTransitionEvent;
+use crate::save_file::SaveFile;
 
 pub struct Plugin;
 

@@ -1,6 +1,6 @@
 use bevy::{asset::LoadState, prelude::*};
 
-use super::SaveFile;
+use crate::save_file::SaveFile;
 
 #[derive(Asset, TypePath, Clone, Resource)]
 pub struct SaveFileHandle {

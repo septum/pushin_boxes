@@ -12,6 +12,7 @@
 #![cfg_attr(target_family = "wasm", allow(dead_code))]
 
 mod level;
+mod save_file;
 
 pub mod config;
 pub mod resources;

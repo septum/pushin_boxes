@@ -2,9 +2,9 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl, AudioSource};
 
-use super::prelude::*;
+use crate::save_file::SaveFile;
 
-pub const INITIAL_VOLUME: f64 = 0.5;
+use super::prelude::*;
 
 #[derive(Resource)]
 pub struct Sfx;

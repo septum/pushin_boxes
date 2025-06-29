@@ -20,6 +20,7 @@ use uuid::Uuid;
 use crate::{
     level::{LevelHandles, LevelKind, LevelResource},
     resources::prelude::*,
+    save_file::SaveFile,
 };
 
 #[derive(Resource)]

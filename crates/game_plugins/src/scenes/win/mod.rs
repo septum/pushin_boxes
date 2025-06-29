@@ -5,6 +5,7 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use crate::{
     level::{LevelInsertionEvent, LevelKind, LevelResource},
     resources::prelude::*,
+    save_file::SaveFile,
 };
 
 pub struct Plugin;
