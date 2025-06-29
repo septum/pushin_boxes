@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use game_ui::{Container, GameText, Overlay, SimpleText};
 
-use crate::{level::LevelResource, assets::prelude::*};
+use crate::{assets::prelude::*, level::LevelResource};
 
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, level: Res<LevelResource>) {
     let font = fonts.primary();
