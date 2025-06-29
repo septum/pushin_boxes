@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
+// TODO: Record is not saved after the first time
 #[derive(Default, Serialize, Deserialize, Clone, Copy)]
 pub struct LevelRecord {
     pub moves: usize,
