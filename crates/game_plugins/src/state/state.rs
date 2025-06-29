@@ -31,19 +31,18 @@ pub enum SelectionKind {
 }
 
 impl SelectionKind {
-    pub fn is_stock(&self) -> bool {
+    pub fn is_stock(self) -> bool {
         matches!(self, Self::Stock)
     }
 
-    pub fn to_str(&self) -> &str {
+    pub fn to_str(self) -> &'static str {
         match self {
             Self::Stock => "Stock",
             Self::Custom => "Custom",
         }
     }
 
-    #[must_use]
-    pub fn toggle(&self) -> Self {
+    pub fn toggle(self) -> Self {
         match self {
             Self::Stock => Self::Custom,
             Self::Custom => Self::Stock,
