@@ -11,6 +11,7 @@ use crate::{
         MapPositionExtension,
     },
     resources::prelude::*,
+    state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
 const STOPWATCH_COUNTER_ID: usize = 0;
@@ -61,7 +62,7 @@ fn spawn_level(mut commands: Commands, mut level: ResMut<LevelResource>, images:
 
 // TODO: Prevent LevelState leakage
 fn handle_action_input(
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut level: ResMut<LevelResource>,
     level_handles: Res<LevelHandles>,
@@ -87,7 +88,7 @@ fn handle_action_input(
             }
             ActionInput::Exit => {
                 sfx.play(sounds.sfx_push_box.clone());
-                game_state_event_writer.write(SceneTransitionEvent::selection(
+                game_state_event_writer.write(GameStateTransitionEvent::selection(
                     if level.is_stock() {
                         SelectionKind::Stock
                     } else {
@@ -269,16 +270,16 @@ fn update_level_state(time: Res<Time>, mut level: ResMut<LevelResource>) {
 }
 
 fn check_lever_timer_just_finished(
-    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+    mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
     level: Res<LevelResource>,
 ) {
     if level.timer_just_finished() {
         match level.kind() {
             LevelKind::Stock(_) | LevelKind::Custom(_) => {
-                scene_transition_event_writer.write(SceneTransitionEvent::win());
+                scene_transition_event_writer.write(GameStateTransitionEvent::win());
             }
             LevelKind::Playtest(_) => {
-                scene_transition_event_writer.write(SceneTransitionEvent::passed());
+                scene_transition_event_writer.write(GameStateTransitionEvent::passed());
             }
             LevelKind::Editable => unreachable!("An editable level cannot trigger the level timer"),
         }

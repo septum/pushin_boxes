@@ -10,6 +10,7 @@ use game_ui::{Colors, GameButtonData, OverlayMarker};
 use crate::{
     input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
     resources::prelude::*,
+    state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
 const PLAY_ID: usize = 0;
@@ -99,7 +100,7 @@ fn handle_direction_input(
 }
 
 fn handle_action_input(
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut query: Query<&mut GameButtonData>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut exit: EventWriter<AppExit>,
@@ -111,17 +112,19 @@ fn handle_action_input(
                     if button.selected {
                         match button.id {
                             PLAY_ID => {
-                                game_state_event_writer
-                                    .write(SceneTransitionEvent::selection(SelectionKind::Stock));
+                                game_state_event_writer.write(GameStateTransitionEvent::selection(
+                                    SelectionKind::Stock,
+                                ));
                             }
                             INSTRUCTIONS_ID => {
-                                game_state_event_writer.write(SceneTransitionEvent::instructions());
+                                game_state_event_writer
+                                    .write(GameStateTransitionEvent::instructions());
                             }
                             EDITOR_ID => {
-                                game_state_event_writer.write(SceneTransitionEvent::editor());
+                                game_state_event_writer.write(GameStateTransitionEvent::editor());
                             }
                             OPTIONS_ID => {
-                                game_state_event_writer.write(SceneTransitionEvent::options());
+                                game_state_event_writer.write(GameStateTransitionEvent::options());
                             }
                             QUIT_ID => {
                                 #[cfg(not(target_family = "wasm"))]

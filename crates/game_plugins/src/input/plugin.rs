@@ -2,7 +2,7 @@ use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*
 
 use crate::{
     input::{ActionInputEvent, DirectionInputEvent},
-    resources::prelude::SceneTransitionEvent,
+    state::GameStateTransitionEvent,
 };
 
 pub struct Plugin;
@@ -13,7 +13,7 @@ impl BevyPlugin for Plugin {
             Update,
             (
                 gather_input,
-                clear_input.run_if(on_event::<SceneTransitionEvent>),
+                clear_input.run_if(on_event::<GameStateTransitionEvent>),
             ),
         );
     }

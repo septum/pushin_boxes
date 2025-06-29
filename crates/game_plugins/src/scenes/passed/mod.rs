@@ -22,6 +22,7 @@ use crate::{
     level::{LevelHandles, LevelKind, LevelResource},
     resources::prelude::*,
     save_file::SaveFile,
+    state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
 #[derive(Resource)]
@@ -62,12 +63,12 @@ impl BevyPlugin for Plugin {
 }
 
 fn handle_action_input(
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
-            game_state_event_writer.write(SceneTransitionEvent::title());
+            game_state_event_writer.write(GameStateTransitionEvent::title());
         }
     }
 }
@@ -79,7 +80,7 @@ pub fn handle_text_input(
     level: Res<LevelResource>,
     level_name_regex: Res<LevelNameRegex>,
     asset_server: Res<AssetServer>,
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut save_file: ResMut<SaveFile>,
     mut level_handles: ResMut<LevelHandles>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
@@ -184,7 +185,7 @@ pub fn handle_text_input(
 
                     save_file.save();
                     game_state_event_writer
-                        .write(SceneTransitionEvent::selection(SelectionKind::Custom));
+                        .write(GameStateTransitionEvent::selection(SelectionKind::Custom));
                 }
             }
             _ => {}

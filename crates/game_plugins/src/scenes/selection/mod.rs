@@ -11,6 +11,7 @@ use crate::{
     level::{LevelInsertionEvent, LevelKind},
     resources::prelude::*,
     save_file::SaveFile,
+    state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
 pub struct Plugin;
@@ -88,7 +89,7 @@ fn handle_direction_input(
 
 fn handle_action_input(
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
-    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+    mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
     mut query: Query<&mut GameButtonData>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut save_file: ResMut<SaveFile>,
@@ -119,7 +120,7 @@ fn handle_action_input(
             ActionInput::Toggle => {
                 #[cfg(not(target_family = "wasm"))]
                 {
-                    scene_transition_event_writer.write(SceneTransitionEvent::selection(
+                    scene_transition_event_writer.write(GameStateTransitionEvent::selection(
                         if is_stock {
                             SelectionKind::Custom
                         } else {
@@ -151,12 +152,12 @@ fn handle_action_input(
                             remove_file(path).expect("File cannot be removed");
                         }
                         scene_transition_event_writer
-                            .write(SceneTransitionEvent::selection(SelectionKind::Custom));
+                            .write(GameStateTransitionEvent::selection(SelectionKind::Custom));
                     }
                 }
             }
             ActionInput::Exit => {
-                scene_transition_event_writer.write(SceneTransitionEvent::title());
+                scene_transition_event_writer.write(GameStateTransitionEvent::title());
             }
             _ => (),
         }

@@ -3,17 +3,11 @@ use bevy::prelude::*;
 use super::state::{GameState, SelectionKind};
 
 #[derive(Event)]
-pub struct SceneTransitionEvent {
+pub struct GameStateTransitionEvent {
     pub state: GameState,
 }
 
-impl SceneTransitionEvent {
-    pub fn loading() -> Self {
-        Self {
-            state: GameState::Loading,
-        }
-    }
-
+impl GameStateTransitionEvent {
     pub fn title() -> Self {
         Self {
             state: GameState::Title,

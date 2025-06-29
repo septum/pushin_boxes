@@ -1,18 +1,14 @@
-mod animations;
 mod fonts;
 mod images;
-mod scene;
 mod sounds;
-mod state;
 mod systems;
 
 pub mod prelude {
-    pub use super::animations::{BLINK_ROW_LAST_FRAME_INDEX, CharacterAnimation, CharacterMarker};
     pub use super::fonts::Fonts;
-    pub use super::images::Images;
-    pub use super::scene::SceneTransitionEvent;
+    pub use super::images::{
+        BLINK_ROW_LAST_FRAME_INDEX, CharacterAnimation, CharacterMarker, Images,
+    };
     pub use super::sounds::{Music, Sfx, Sounds};
-    pub use super::state::{GameState, SelectionKind};
     pub use super::systems::cleanup;
 }
 
@@ -22,13 +18,13 @@ use bevy_kira_audio::AudioApp;
 
 use prelude::*;
 
-use crate::{level::LevelHandles, save_file::SaveFile};
+use crate::{level::LevelHandles, save_file::SaveFile, state::GameState};
 
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((state::Plugin, sounds::Plugin))
+        app.add_plugins(sounds::Plugin)
             .add_audio_channel::<Sfx>()
             .add_audio_channel::<Music>()
             .add_loading_state(

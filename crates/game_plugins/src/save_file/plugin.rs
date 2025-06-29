@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use crate::{
     level::LevelHandles,
-    resources::prelude::GameState,
     save_file::{SaveFile, handle::SaveFileHandle},
+    state::GameState,
 };
 
 pub struct Plugin;

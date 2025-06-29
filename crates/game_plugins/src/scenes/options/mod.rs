@@ -8,6 +8,7 @@ use crate::{
     input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
     resources::prelude::*,
     save_file::SaveFile,
+    state::{GameState, GameStateTransitionEvent},
 };
 
 const VOLUME_ID: usize = 1;
@@ -33,14 +34,14 @@ impl BevyPlugin for Plugin {
 }
 
 fn handle_action_input(
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     save_file: Res<SaveFile>,
 ) {
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
             save_file.save();
-            game_state_event_writer.write(SceneTransitionEvent::title());
+            game_state_event_writer.write(GameStateTransitionEvent::title());
         }
     }
 }

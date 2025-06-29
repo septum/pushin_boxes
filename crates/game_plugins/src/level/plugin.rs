@@ -6,8 +6,8 @@ use crate::level::event::LevelInsertionEvent;
 use crate::level::handles::LevelHandles;
 use crate::level::internal::{LevelKind, LevelRecord, LevelState};
 use crate::level::resource::LevelResource;
-use crate::resources::prelude::SceneTransitionEvent;
 use crate::save_file::SaveFile;
+use crate::state::GameStateTransitionEvent;
 
 pub struct Plugin;
 
@@ -21,7 +21,7 @@ impl BevyPlugin for Plugin {
 fn insert_level(
     mut commands: Commands,
     mut level_insertion_event_reader: EventReader<LevelInsertionEvent>,
-    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+    mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
     save_file: Res<SaveFile>,
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
@@ -36,7 +36,7 @@ fn insert_level(
                 let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.write(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(GameStateTransitionEvent::level());
             }
             LevelKind::Custom(payload) => {
                 let parsed_payload: Vec<&str> = payload.split('$').collect();
@@ -48,7 +48,7 @@ fn insert_level(
                 let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.write(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(GameStateTransitionEvent::level());
             }
             LevelKind::Playtest(state) => {
                 let level = LevelResource::new(
@@ -58,7 +58,7 @@ fn insert_level(
                 );
 
                 commands.insert_resource(level);
-                scene_transition_event_writer.write(SceneTransitionEvent::level());
+                scene_transition_event_writer.write(GameStateTransitionEvent::level());
             }
             LevelKind::Editable => {
                 unreachable!("An editable should not be inserted with this event")

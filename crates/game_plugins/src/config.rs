@@ -8,8 +8,8 @@ use bevy::{
 use crate::{
     input::{self, ActionInputEvent, DirectionInputEvent},
     level::{self, LevelInsertionEvent},
-    resources::prelude::*,
     save_file,
+    state::{self, GameState, GameStateTransitionEvent},
 };
 
 pub struct Plugin;
@@ -41,9 +41,14 @@ impl BevyPlugin for Plugin {
         .init_state::<GameState>()
         .add_event::<ActionInputEvent>()
         .add_event::<DirectionInputEvent>()
-        .add_event::<SceneTransitionEvent>()
+        .add_event::<GameStateTransitionEvent>()
         .add_event::<LevelInsertionEvent>()
-        .add_plugins((save_file::Plugin, level::Plugin, input::Plugin))
+        .add_plugins((
+            save_file::Plugin,
+            level::Plugin,
+            input::Plugin,
+            state::Plugin,
+        ))
         .add_systems(OnExit(GameState::Loading), camera_setup);
     }
 }

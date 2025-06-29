@@ -7,6 +7,7 @@ use crate::{
     level::{LevelInsertionEvent, LevelKind, LevelResource},
     resources::prelude::*,
     save_file::SaveFile,
+    state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
 pub struct Plugin;
@@ -48,7 +49,7 @@ fn save(mut save_file: ResMut<SaveFile>, level: Res<LevelResource>) {
 
 fn handle_action_input(
     mut level_instertion_event_writer: EventWriter<LevelInsertionEvent>,
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
     level: Res<LevelResource>,
 ) {
@@ -58,7 +59,7 @@ fn handle_action_input(
                 LevelKind::Stock(index) => {
                     if level.is_last() {
                         game_state_event_writer
-                            .write(SceneTransitionEvent::selection(SelectionKind::Stock));
+                            .write(GameStateTransitionEvent::selection(SelectionKind::Stock));
                     } else {
                         level_instertion_event_writer
                             .write(LevelInsertionEvent::new(LevelKind::Stock(index + 1)));
@@ -66,7 +67,7 @@ fn handle_action_input(
                 }
                 LevelKind::Custom(_) => {
                     game_state_event_writer
-                        .write(SceneTransitionEvent::selection(SelectionKind::Custom));
+                        .write(GameStateTransitionEvent::selection(SelectionKind::Custom));
                 }
                 LevelKind::Playtest(_) => {
                     unreachable!("A playtest level cannot be won");
@@ -76,7 +77,7 @@ fn handle_action_input(
                 }
             },
             ActionInput::Exit => {
-                game_state_event_writer.write(SceneTransitionEvent::title());
+                game_state_event_writer.write(GameStateTransitionEvent::title());
             }
             _ => {}
         }

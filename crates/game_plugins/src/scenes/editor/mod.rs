@@ -12,6 +12,7 @@ use crate::{
     },
     resources::prelude::*,
     save_file::SaveFile,
+    state::{GameState, GameStateTransitionEvent},
 };
 
 const VALID_ID: usize = 0;
@@ -60,10 +61,10 @@ impl BevyPlugin for Plugin {
 
 fn check_total_custom_levels(
     save_file: Res<SaveFile>,
-    mut scene_transition_event_writer: EventWriter<SceneTransitionEvent>,
+    mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
 ) {
     if save_file.number_custom_levels() == TOTAL_CUSTOM_LEVELS {
-        scene_transition_event_writer.write(SceneTransitionEvent::limit());
+        scene_transition_event_writer.write(GameStateTransitionEvent::limit());
     }
 }
 
@@ -96,7 +97,7 @@ fn handle_action_input(
     level: Res<LevelResource>,
     level_validity: Res<LevelValidity>,
     mut brush: ResMut<Brush>,
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
@@ -111,7 +112,7 @@ fn handle_action_input(
                 }
             }
             ActionInput::Exit => {
-                game_state_event_writer.write(SceneTransitionEvent::title());
+                game_state_event_writer.write(GameStateTransitionEvent::title());
             }
             _ => (),
         }

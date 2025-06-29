@@ -6,6 +6,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use crate::{
     input::{ActionInput, ActionInputEvent},
     resources::prelude::*,
+    state::{GameState, GameStateTransitionEvent},
 };
 
 pub struct Plugin;
@@ -29,12 +30,12 @@ impl BevyPlugin for Plugin {
 }
 
 fn handle_input(
-    mut game_state_event_writer: EventWriter<SceneTransitionEvent>,
+    mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut action_event_reader: EventReader<ActionInputEvent>,
 ) {
     for action_event in action_event_reader.read() {
         if matches!(action_event.value, ActionInput::Exit) {
-            game_state_event_writer.write(SceneTransitionEvent::title());
+            game_state_event_writer.write(GameStateTransitionEvent::title());
         }
     }
 }
