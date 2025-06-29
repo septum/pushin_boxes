@@ -51,13 +51,8 @@ impl SceneTransitionEvent {
     }
 
     pub fn selection(kind: SelectionKind) -> Self {
-        match kind {
-            SelectionKind::Stock => Self {
-                state: GameState::SelectionStock,
-            },
-            SelectionKind::Custom => Self {
-                state: GameState::SelectionCustom,
-            },
+        Self {
+            state: GameState::Selection(kind),
         }
     }
 

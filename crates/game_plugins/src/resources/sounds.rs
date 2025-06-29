@@ -105,10 +105,9 @@ fn play_music(
         music
             .play(match game_state.get() {
                 GameState::Title | GameState::Instructions => sounds.music_title.clone(),
-                GameState::SelectionStock
-                | GameState::SelectionCustom
-                | GameState::Options
-                | GameState::Limit => sounds.music_selection.clone(),
+                GameState::Selection(_) | GameState::Options | GameState::Limit => {
+                    sounds.music_selection.clone()
+                }
                 GameState::Level | GameState::Editor => sounds.music_level.clone(),
                 GameState::Win | GameState::Passed => sounds.music_win.clone(),
                 GameState::Loading => return,

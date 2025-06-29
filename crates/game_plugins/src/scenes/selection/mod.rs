@@ -16,7 +16,10 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        for state in [GameState::SelectionStock, GameState::SelectionCustom] {
+        for state in [
+            GameState::Selection(SelectionKind::Stock),
+            GameState::Selection(SelectionKind::Custom),
+        ] {
             app.add_systems(OnEnter(state), self::ui::spawn)
                 .add_systems(
                     Update,

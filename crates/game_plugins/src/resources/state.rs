@@ -39,11 +39,7 @@ pub enum GameState {
     Limit,
     Passed,
     Options,
-    SelectionStock,
-    SelectionCustom,
-    // Selection {
-    //     kind: SelectionKind,
-    // },
+    Selection(SelectionKind),
     Level,
     Win,
 }
@@ -51,8 +47,7 @@ pub enum GameState {
 impl GameState {
     pub fn get_selection_kind(&self) -> &SelectionKind {
         match self {
-            Self::SelectionStock => &SelectionKind::Stock,
-            Self::SelectionCustom => &SelectionKind::Custom,
+            Self::Selection(kind) => kind,
             _ => unreachable!("The GameState is not Selection"),
         }
     }
