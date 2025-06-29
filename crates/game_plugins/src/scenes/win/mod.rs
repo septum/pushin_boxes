@@ -5,7 +5,7 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use crate::{
     input::{ActionInput, ActionInputEvent},
     level::{LevelInsertionEvent, LevelKind, LevelResource},
-    resources::prelude::*,
+    assets::prelude::*,
     save_file::SaveFile,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };

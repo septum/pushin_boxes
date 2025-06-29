@@ -2,12 +2,12 @@ use bevy::prelude::*;
 use uuid::Uuid;
 
 use crate::{
+    assets::prelude::Images,
     input::DirectionInput,
     level::{
         LevelHandles, MapPositionExtension,
         internal::{Level, LevelKind, LevelRecord, LevelState, MapEntity},
     },
-    resources::prelude::Images,
 };
 
 #[derive(Resource, Deref, DerefMut)]

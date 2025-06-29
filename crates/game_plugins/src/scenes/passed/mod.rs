@@ -20,7 +20,7 @@ use uuid::Uuid;
 use crate::{
     input::{ActionInput, ActionInputEvent},
     level::{LevelHandles, LevelKind, LevelResource},
-    resources::prelude::*,
+    assets::prelude::*,
     save_file::SaveFile,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };

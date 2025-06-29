@@ -16,6 +16,6 @@ mod level;
 mod save_file;
 mod state;
 
+pub mod assets;
 pub mod config;
-pub mod resources;
 pub mod scenes;

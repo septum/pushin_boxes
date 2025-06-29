@@ -1,6 +1,6 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::{AudioChannel, AudioControl, AudioSource};
+use bevy_kira_audio::{AudioApp, AudioChannel, AudioControl, AudioSource};
 
 use crate::{save_file::SaveFile, state::GameState};
 
@@ -57,7 +57,7 @@ impl Sounds {
     }
 }
 
-pub fn setup(
+fn setup(
     mut sounds: ResMut<Sounds>,
     save_file: Res<SaveFile>,
     sfx: ResMut<AudioChannel<Sfx>>,
@@ -72,13 +72,19 @@ pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                play_music.run_if(resource_exists::<Sounds>),
-                handle_volume_change.run_if(resource_exists::<Sounds>),
-            ),
-        );
+        app.add_audio_channel::<Sfx>()
+            .add_audio_channel::<Music>()
+            .add_systems(
+                Update,
+                (
+                    play_music.run_if(resource_exists::<Sounds>),
+                    handle_volume_change.run_if(resource_exists::<Sounds>),
+                ),
+            )
+            .add_systems(
+                OnExit(GameState::Loading),
+                (setup.run_if(resource_added::<SaveFile>),),
+            );
     }
 }
 

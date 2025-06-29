@@ -9,7 +9,7 @@ use game_ui::{Colors, GameButtonData, OverlayMarker};
 
 use crate::{
     input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
-    resources::prelude::*,
+    assets::prelude::*,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 

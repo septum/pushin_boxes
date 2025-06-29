@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
 
-use crate::resources::prelude::*;
+use crate::assets::prelude::*;
 
 use super::VALID_ID;
 

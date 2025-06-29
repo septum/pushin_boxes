@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use game_ui::{Container, GameButton, GameText, Overlay, SimpleText};
 
-use crate::resources::prelude::*;
+use crate::assets::prelude::*;
 
 use super::{EDITOR_ID, INSTRUCTIONS_ID, OPTIONS_ID, PLAY_ID, QUIT_ID};
 

@@ -6,7 +6,7 @@ use game_ui::{DynamicTextData, OverlayMarker};
 
 use crate::{
     input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
-    resources::prelude::*,
+    assets::prelude::*,
     save_file::SaveFile,
     state::{GameState, GameStateTransitionEvent},
 };

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
 
-use crate::{level::LevelResource, resources::prelude::*};
+use crate::{level::LevelResource, assets::prelude::*};
 
 use super::{MOVES_COUNTER_ID, STOPWATCH_COUNTER_ID, UNDOS_COUNTER_ID};
 

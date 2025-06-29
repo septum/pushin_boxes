@@ -5,7 +5,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use crate::{
     input::{ActionInput, ActionInputEvent},
-    resources::prelude::*,
+    assets::prelude::*,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 

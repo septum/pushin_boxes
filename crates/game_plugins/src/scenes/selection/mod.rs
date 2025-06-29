@@ -9,7 +9,7 @@ use game_ui::{Colors, GameButtonData, OverlayMarker};
 use crate::{
     input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
     level::{LevelInsertionEvent, LevelKind},
-    resources::prelude::*,
+    assets::prelude::*,
     save_file::SaveFile,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };

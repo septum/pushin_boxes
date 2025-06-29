@@ -3,10 +3,10 @@
 
 use bevy::prelude::*;
 
-use game_plugins::{config, resources, scenes};
+use game_plugins::{assets, config, scenes};
 
 fn main() {
     App::new()
-        .add_plugins((config::Plugin, resources::Plugin, scenes::Plugin))
+        .add_plugins((config::Plugin, assets::Plugin, scenes::Plugin))
         .run();
 }

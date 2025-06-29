@@ -10,7 +10,7 @@ use crate::{
         LevelHandles, LevelKind, LevelResource, LevelState, MapEntity, MapPositionComponent,
         MapPositionExtension,
     },
-    resources::prelude::*,
+    assets::prelude::*,
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 

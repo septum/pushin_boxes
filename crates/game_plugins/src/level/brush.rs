@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
+    assets::prelude::Images,
     level::{MapPosition, map_position::MapPositionExtension},
-    resources::prelude::Images,
 };
 
 #[derive(Default, Resource)]

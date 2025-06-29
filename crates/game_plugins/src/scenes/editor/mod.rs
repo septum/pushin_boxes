@@ -10,7 +10,7 @@ use crate::{
         Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelKind, LevelResource,
         LevelValidity, MapEntity, MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
     },
-    resources::prelude::*,
+    assets::prelude::*,
     save_file::SaveFile,
     state::{GameState, GameStateTransitionEvent},
 };
