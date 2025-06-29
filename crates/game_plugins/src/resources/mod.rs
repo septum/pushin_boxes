@@ -1,5 +1,4 @@
 mod animations;
-mod camera;
 mod fonts;
 mod images;
 mod scene;
@@ -42,10 +41,7 @@ impl BevyPlugin for Plugin {
             )
             .add_systems(
                 OnExit(GameState::Loading),
-                (
-                    camera::setup.run_if(resource_added::<SaveFile>),
-                    sounds::setup.run_if(resource_added::<SaveFile>),
-                ),
+                (sounds::setup.run_if(resource_added::<SaveFile>),),
             );
     }
 }

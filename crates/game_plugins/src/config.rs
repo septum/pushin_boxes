@@ -43,6 +43,11 @@ impl BevyPlugin for Plugin {
         .add_event::<DirectionInputEvent>()
         .add_event::<SceneTransitionEvent>()
         .add_event::<LevelInsertionEvent>()
-        .add_plugins((save_file::Plugin, level::Plugin, input::Plugin));
+        .add_plugins((save_file::Plugin, level::Plugin, input::Plugin))
+        .add_systems(OnExit(GameState::Loading), camera_setup);
     }
+}
+
+pub fn camera_setup(mut commands: Commands) {
+    commands.spawn((Camera2d, Msaa::Off));
 }
