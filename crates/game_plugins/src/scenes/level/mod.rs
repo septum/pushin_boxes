@@ -5,6 +5,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{DynamicTextData, OverlayMarker};
 
 use crate::{
+    input::{ActionInput, ActionInputEvent, DirectionInputEvent},
     level::{
         LevelHandles, LevelKind, LevelResource, LevelState, MapEntity, MapPositionComponent,
         MapPositionExtension,

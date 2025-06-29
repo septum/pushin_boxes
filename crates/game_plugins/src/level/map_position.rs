@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
+    input::DirectionInput,
     level::internal::{MAP_ROWS, MapPosition},
-    resources::prelude::{CharacterMarker, DirectionInput},
+    resources::prelude::CharacterMarker,
 };
 
 const SPRITE_SIZE: usize = 64;

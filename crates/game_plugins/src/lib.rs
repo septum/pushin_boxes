@@ -11,6 +11,7 @@
 #![cfg_attr(target_family = "wasm", allow(unused_variables))]
 #![cfg_attr(target_family = "wasm", allow(dead_code))]
 
+mod input;
 mod level;
 mod save_file;
 

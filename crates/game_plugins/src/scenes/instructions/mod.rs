@@ -3,7 +3,10 @@ mod ui;
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::resources::prelude::*;
+use crate::{
+    input::{ActionInput, ActionInputEvent},
+    resources::prelude::*,
+};
 
 pub struct Plugin;
 

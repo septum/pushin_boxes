@@ -4,7 +4,11 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{DynamicTextData, OverlayMarker};
 
-use crate::{resources::prelude::*, save_file::SaveFile};
+use crate::{
+    input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
+    resources::prelude::*,
+    save_file::SaveFile,
+};
 
 const VOLUME_ID: usize = 1;
 

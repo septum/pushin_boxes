@@ -1,12 +1,9 @@
-mod action;
-mod direction;
-
-pub use action::{ActionInput, ActionInputEvent};
-pub use direction::{DirectionInput, DirectionInputEvent};
-
 use bevy::{app::Plugin as BevyPlugin, input::keyboard::KeyboardInput, prelude::*};
 
-use super::prelude::*;
+use crate::{
+    input::{ActionInputEvent, DirectionInputEvent},
+    resources::prelude::SceneTransitionEvent,
+};
 
 pub struct Plugin;
 

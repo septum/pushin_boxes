@@ -7,7 +7,10 @@ use bevy::{
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{Colors, GameButtonData, OverlayMarker};
 
-use crate::resources::prelude::*;
+use crate::{
+    input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
+    resources::prelude::*,
+};
 
 const PLAY_ID: usize = 0;
 const INSTRUCTIONS_ID: usize = 1;

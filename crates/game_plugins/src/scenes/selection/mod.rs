@@ -7,6 +7,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{Colors, GameButtonData, OverlayMarker};
 
 use crate::{
+    input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
     level::{LevelInsertionEvent, LevelKind},
     resources::prelude::*,
     save_file::SaveFile,

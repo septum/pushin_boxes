@@ -2,7 +2,6 @@ mod animations;
 mod camera;
 mod fonts;
 mod images;
-mod input;
 mod scene;
 mod sounds;
 mod state;
@@ -12,7 +11,6 @@ pub mod prelude {
     pub use super::animations::{BLINK_ROW_LAST_FRAME_INDEX, CharacterAnimation, CharacterMarker};
     pub use super::fonts::Fonts;
     pub use super::images::Images;
-    pub use super::input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent};
     pub use super::scene::SceneTransitionEvent;
     pub use super::sounds::{Music, Sfx, Sounds};
     pub use super::state::{GameState, SelectionKind};
@@ -25,16 +23,13 @@ use bevy_kira_audio::AudioApp;
 
 use prelude::*;
 
-use crate::{
-    level::{self, LevelHandles},
-    save_file::SaveFile,
-};
+use crate::{level::LevelHandles, save_file::SaveFile};
 
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((state::Plugin, level::Plugin, input::Plugin, sounds::Plugin))
+        app.add_plugins((state::Plugin, sounds::Plugin))
             .add_audio_channel::<Sfx>()
             .add_audio_channel::<Music>()
             .add_loading_state(

@@ -5,6 +5,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use game_ui::{Colors, DynamicTextData, OverlayMarker};
 
 use crate::{
+    input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
     level::{
         Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelKind, LevelResource,
         LevelValidity, MapEntity, MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
