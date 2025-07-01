@@ -1,4 +1,5 @@
 mod brush;
+mod done_timer;
 mod event;
 mod handles;
 mod internal;
@@ -8,6 +9,7 @@ mod resource;
 
 // TODO: Move level validity into editor mod or similar
 pub use brush::{Brush, BrushEntity, BrushSprite, LevelValidity};
+pub use done_timer::LevelDoneTimer;
 pub use event::LevelInsertionEvent;
 pub use handles::LevelHandles;
 pub use internal::{

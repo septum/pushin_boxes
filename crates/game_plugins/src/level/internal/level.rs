@@ -1,4 +1,3 @@
-use bevy::time::{Timer, TimerMode};
 use std::{
     ops::{Deref, DerefMut},
     time::Duration,
@@ -44,25 +43,12 @@ impl DerefMut for LevelSnapshots {
     }
 }
 
-struct LevelDone {
-    timer: Timer,
-}
-
-impl Default for LevelDone {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(0.25, TimerMode::Once),
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct Level {
     kind: LevelKind,
     state: LevelState,
     record: LevelRecord,
     snapshots: LevelSnapshots,
-    done: LevelDone,
 }
 
 impl Level {
@@ -209,20 +195,12 @@ impl Level {
         false
     }
 
-    pub fn tick_timer(&mut self, delta: Duration) {
-        self.done.timer.tick(delta);
-    }
-
     pub fn tick_stopwatch(&mut self, delta: Duration) {
         self.record.stopwatch.tick(delta);
     }
 
     pub fn stopwatch_elapsed(&self) -> Duration {
         self.record.stopwatch.elapsed()
-    }
-
-    pub fn timer_just_finished(&self) -> bool {
-        self.done.timer.finished()
     }
 
     pub fn stopwatch_string(&self) -> String {

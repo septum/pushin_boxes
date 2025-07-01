@@ -6,15 +6,21 @@ use crate::{
     assets::prelude::*,
     input::{ActionInput, ActionInputEvent, DirectionInputEvent},
     level::{
-        LevelHandles, LevelKind, LevelResource, LevelState, MapEntity, MapPositionComponent,
-        MapPositionExtension,
+        LevelDoneTimer, LevelHandles, LevelKind, LevelResource, LevelState, MapEntity,
+        MapPositionComponent, MapPositionExtension,
     },
     state::{GameStateTransitionEvent, SelectionKind},
 };
 
 use super::ui::{MOVES_COUNTER_ID, STOPWATCH_COUNTER_ID, UNDOS_COUNTER_ID};
 
-pub fn spawn_level(mut commands: Commands, mut level: ResMut<LevelResource>, images: Res<Images>) {
+pub fn spawn_level(
+    mut commands: Commands,
+    mut level: ResMut<LevelResource>,
+    mut done_timer: ResMut<LevelDoneTimer>,
+    images: Res<Images>,
+) {
+    done_timer.reset();
     level.spawn(&mut commands, &images);
 }
 
@@ -218,10 +224,14 @@ pub fn update_map(
     }
 }
 
-pub fn update_level_state(time: Res<Time>, mut level: ResMut<LevelResource>) {
+pub fn update_level_state(
+    time: Res<Time>,
+    mut level: ResMut<LevelResource>,
+    mut done_timer: ResMut<LevelDoneTimer>,
+) {
     let delta = time.delta();
     if level.no_remaining_zones() {
-        level.tick_timer(delta);
+        done_timer.tick(delta);
     } else {
         level.tick_stopwatch(delta);
     }
@@ -229,9 +239,10 @@ pub fn update_level_state(time: Res<Time>, mut level: ResMut<LevelResource>) {
 
 pub fn check_lever_timer_just_finished(
     mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
+    done_timer: Res<LevelDoneTimer>,
     level: Res<LevelResource>,
 ) {
-    if level.timer_just_finished() {
+    if done_timer.just_finished() {
         match level.kind() {
             LevelKind::Stock(_) | LevelKind::Custom(_) => {
                 scene_transition_event_writer.write(GameStateTransitionEvent::win());
