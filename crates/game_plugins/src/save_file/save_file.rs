@@ -65,25 +65,27 @@ impl SaveFile {
 
     pub fn get_record(&self, kind: &LevelKind) -> LevelRecord {
         match kind {
-            LevelKind::Stock(index) => self.stock_records[*index],
-            LevelKind::Editable(_) => LevelRecord::default(),
-            LevelKind::Custom(payload) => *self
+            LevelKind::Stock(index) => self.stock_records[*index].clone(),
+            LevelKind::Custom(payload) => self
                 .custom_records
                 .get(payload)
-                .expect("Cannot get custom record"),
+                .expect("Cannot get custom record")
+                .clone(),
+            LevelKind::Editable(_) => LevelRecord::default(),
         }
     }
 
     pub fn set_new_record(&mut self, level: &Level) {
-        let new_record = level.get_set_record();
+        let new_record = level.record();
         let current_record = self.get_record(level.kind());
         if new_record.is_better_than(&current_record) {
             match level.kind() {
                 LevelKind::Stock(index) => {
-                    self.stock_records[*index] = new_record;
+                    self.stock_records[*index] = new_record.clone();
                 }
                 LevelKind::Custom(payload) => {
-                    self.custom_records.insert(payload.clone(), new_record);
+                    self.custom_records
+                        .insert(payload.clone(), new_record.clone());
                 }
                 LevelKind::Editable(_) => {
                     unreachable!("Cannot set a record for an editable level")

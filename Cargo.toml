@@ -26,6 +26,7 @@ features = [
     "bevy_winit",
     "multi_threaded",
     "png",
+    "serialize",
     "std",
     "webgl2",
     "wayland",

@@ -4,9 +4,8 @@ use uuid::Uuid;
 
 use crate::level::event::LevelInsertionEvent;
 use crate::level::handles::LevelHandles;
-use crate::level::internal::{LevelKind, LevelRecord, LevelState};
+use crate::level::internal::{LevelKind, LevelState};
 use crate::level::resource::LevelResource;
-use crate::save_file::SaveFile;
 use crate::state::GameStateTransitionEvent;
 
 pub struct Plugin;
@@ -22,7 +21,6 @@ fn insert_level(
     mut commands: Commands,
     mut level_insertion_event_reader: EventReader<LevelInsertionEvent>,
     mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
-    save_file: Res<SaveFile>,
     level_handles: Res<LevelHandles>,
     level_states_assets: Res<Assets<LevelState>>,
 ) {
@@ -32,8 +30,7 @@ fn insert_level(
                 let state = *level_states_assets
                     .get(level_handles.get_stock(*index))
                     .unwrap();
-                let record = save_file.get_record(level_insertion_event.kind());
-                let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
+                let level = LevelResource::new(level_insertion_event.kind().clone(), state);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(GameStateTransitionEvent::level());
@@ -44,18 +41,13 @@ fn insert_level(
                 let state = *level_states_assets
                     .get(level_handles.get_custom(&uuid).unwrap())
                     .unwrap();
-                let record = save_file.get_record(level_insertion_event.kind());
-                let level = LevelResource::new(level_insertion_event.kind().clone(), state, record);
+                let level = LevelResource::new(level_insertion_event.kind().clone(), state);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(GameStateTransitionEvent::level());
             }
             LevelKind::Editable(state) => {
-                let level = LevelResource::new(
-                    level_insertion_event.kind().clone(),
-                    *state,
-                    LevelRecord::default(),
-                );
+                let level = LevelResource::new(level_insertion_event.kind().clone(), *state);
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(GameStateTransitionEvent::level());

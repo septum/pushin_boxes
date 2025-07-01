@@ -1,12 +1,18 @@
 use bevy::prelude::*;
 use game_ui::{Container, GameText, Overlay, SimpleText};
 
-use crate::{assets::prelude::*, level::LevelResource};
+use crate::{assets::prelude::*, level::LevelResource, save_file::SaveFile};
 
-pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, level: Res<LevelResource>) {
+pub fn spawn(
+    mut commands: Commands,
+    fonts: Res<Fonts>,
+    level: Res<LevelResource>,
+    save_file: Res<SaveFile>,
+) {
     let font = fonts.primary();
 
-    let record = if level.new_record() {
+    let old_record = save_file.get_record(level.kind());
+    let record = if level.is_new_record(&old_record) {
         format!("NEW RECORD:\n{}", level.moves_in_time(" "))
     } else {
         " \n ".to_string()

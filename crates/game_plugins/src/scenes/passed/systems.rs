@@ -150,7 +150,7 @@ pub fn handle_text_input(
 
                     save_file.insert_custom_level_record(
                         format!("{lower_level_name}${uuid}"),
-                        level.get_set_record(),
+                        level.record().clone(),
                     );
 
                     *level_name = String::new();

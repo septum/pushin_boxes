@@ -6,7 +6,7 @@ use crate::{
     input::DirectionInput,
     level::{
         LevelHandles, MapPosition, MapPositionExtension,
-        internal::{Level, LevelKind, LevelRecord, LevelState, MapEntity},
+        internal::{Level, LevelKind, LevelState, MapEntity},
     },
 };
 
@@ -14,8 +14,8 @@ use crate::{
 pub struct LevelResource(Level);
 
 impl LevelResource {
-    pub fn new(kind: LevelKind, state: LevelState, record: LevelRecord) -> LevelResource {
-        LevelResource(Level::new(kind, state, record))
+    pub fn new(kind: LevelKind, state: LevelState) -> LevelResource {
+        LevelResource(Level::new(kind, state))
     }
 
     pub fn editable() -> LevelResource {
@@ -24,8 +24,7 @@ impl LevelResource {
             ..Default::default()
         };
         let kind = LevelKind::Editable(state);
-        let record = LevelRecord::default();
-        LevelResource::new(kind, state, record)
+        LevelResource::new(kind, state)
     }
 
     pub fn set_character_facing_direction_with(&mut self, direction: &DirectionInput) {

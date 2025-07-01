@@ -1,4 +1,4 @@
-use bevy::time::{Stopwatch, Timer, TimerMode};
+use bevy::time::{Timer, TimerMode};
 use std::{
     ops::{Deref, DerefMut},
     time::Duration,
@@ -62,17 +62,15 @@ pub struct Level {
     state: LevelState,
     record: LevelRecord,
     snapshots: LevelSnapshots,
-    stopwatch: Stopwatch,
     done: LevelDone,
 }
 
 impl Level {
-    pub fn new(kind: LevelKind, state: LevelState, record: LevelRecord) -> Level {
+    pub fn new(kind: LevelKind, state: LevelState) -> Level {
         Level {
             kind,
             state,
-            record,
-            ..Default::default()
+            ..Level::default()
         }
     }
 
@@ -84,8 +82,12 @@ impl Level {
         &self.state
     }
 
-    pub fn new_record(&self) -> bool {
-        self.get_set_record().is_better_than(&self.record)
+    pub fn record(&self) -> &LevelRecord {
+        &self.record
+    }
+
+    pub fn is_new_record(&self, other: &LevelRecord) -> bool {
+        self.record.is_better_than(other)
     }
 
     pub fn set_state(&mut self, state: LevelState) {
@@ -172,10 +174,6 @@ impl Level {
         &self.record
     }
 
-    pub fn get_set_record(&self) -> LevelRecord {
-        LevelRecord::new(self.record.moves, self.stopwatch.elapsed().as_secs_f32())
-    }
-
     pub fn is_stock(&self) -> bool {
         matches!(self.kind, LevelKind::Stock(_))
     }
@@ -216,11 +214,11 @@ impl Level {
     }
 
     pub fn tick_stopwatch(&mut self, delta: Duration) {
-        self.stopwatch.tick(delta);
+        self.record.stopwatch.tick(delta);
     }
 
     pub fn stopwatch_elapsed(&self) -> Duration {
-        self.stopwatch.elapsed()
+        self.record.stopwatch.elapsed()
     }
 
     pub fn timer_just_finished(&self) -> bool {
