@@ -1,47 +1,15 @@
-use std::{
-    ops::{Deref, DerefMut},
-    time::Duration,
-};
+use std::time::Duration;
 
-use crate::level::internal::{
+use super::{
     kind::LevelKind,
     map::{MAP_COLS, MAP_ROWS, MapEntity, MapPosition},
     record::LevelRecord,
+    snapshots::LevelSnapshots,
     state::LevelState,
 };
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
 pub const TOTAL_CUSTOM_LEVELS: usize = 16;
-
-const MAX_SNAPSHOTS: usize = 4;
-
-struct LevelSnapshots {
-    undos: usize,
-    inner: [Option<LevelState>; MAX_SNAPSHOTS],
-}
-
-impl Default for LevelSnapshots {
-    fn default() -> Self {
-        Self {
-            undos: MAX_SNAPSHOTS,
-            inner: [None; MAX_SNAPSHOTS],
-        }
-    }
-}
-
-impl Deref for LevelSnapshots {
-    type Target = [Option<LevelState>; MAX_SNAPSHOTS];
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl DerefMut for LevelSnapshots {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
 
 #[derive(Default)]
 pub struct Level {
@@ -72,14 +40,17 @@ impl Level {
         &self.record
     }
 
+    pub fn undos(&self) -> usize {
+        self.snapshots.undos()
+    }
+
     pub fn is_new_record(&self, other: &LevelRecord) -> bool {
         self.record.is_better_than(other)
     }
 
     pub fn set_state(&mut self, state: LevelState) {
-        self.snapshots = LevelSnapshots::default();
+        self.snapshots.reset();
         self.state = state;
-        self.snapshots.undos = 4;
         self.record.moves = 0;
     }
 
@@ -140,20 +111,12 @@ impl Level {
         self.record.moves
     }
 
-    pub fn get_undos(&self) -> usize {
-        self.snapshots.undos
-    }
-
     pub fn increment_moves(&mut self) {
         self.record.moves += 1;
     }
 
     pub fn decrement_moves(&mut self) {
         self.record.moves = self.record.moves.saturating_sub(1);
-    }
-
-    pub fn decrement_undos(&mut self) {
-        self.snapshots.undos = self.snapshots.undos.saturating_sub(1);
     }
 
     pub fn get_current_record(&self) -> &LevelRecord {
@@ -176,21 +139,14 @@ impl Level {
     }
 
     pub fn save_snapshot(&mut self) {
-        self.snapshots.rotate_right(1);
-        self.snapshots[0] = Some(self.state);
+        self.snapshots.capture(self.state);
     }
 
     pub fn undo(&mut self) -> bool {
-        if self.snapshots.undos > 0 {
-            if let Some(state) = self.snapshots[0] {
-                self.state = state;
-                self.snapshots.rotate_left(1);
-                self.snapshots[MAX_SNAPSHOTS - 1] = None;
-                self.decrement_undos();
-                self.decrement_moves();
-                return true;
-            }
-            return false;
+        if let Some(state) = self.snapshots.shift() {
+            self.state = state;
+            self.decrement_moves();
+            return true;
         }
         false
     }
@@ -216,7 +172,7 @@ impl Level {
     }
 
     pub fn undos_string(&self) -> String {
-        self.snapshots.undos.to_string()
+        self.snapshots.undos().to_string()
     }
 
     pub fn moves_in_time(&self, separator: &str) -> String {

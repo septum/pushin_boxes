@@ -2,10 +2,19 @@ use serde::{Deserialize, Serialize};
 
 use super::{MAP_COLS, MAP_ROWS};
 
-#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Copy)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub struct MapPosition {
     pub(super) x: usize,
     pub(super) y: usize,
+}
+
+impl Default for MapPosition {
+    fn default() -> Self {
+        Self {
+            x: (MAP_COLS - 1) / 2,
+            y: (MAP_COLS - 1) / 2,
+        }
+    }
 }
 
 impl MapPosition {

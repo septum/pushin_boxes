@@ -5,26 +5,17 @@ use crate::{
     assets::prelude::Images,
     input::DirectionInput,
     level::{
-        LevelHandles, MapPosition, MapPositionExtension,
+        LevelHandles, MapPositionExtension,
         internal::{Level, LevelKind, LevelState, MapEntity},
     },
 };
 
-#[derive(Resource, Deref, DerefMut)]
+#[derive(Resource, Deref, DerefMut, Default)]
 pub struct LevelResource(Level);
 
 impl LevelResource {
     pub fn new(kind: LevelKind, state: LevelState) -> LevelResource {
         LevelResource(Level::new(kind, state))
-    }
-
-    pub fn editable() -> LevelResource {
-        let state = LevelState {
-            character_position: MapPosition::new(4, 4),
-            ..Default::default()
-        };
-        let kind = LevelKind::Editable(state);
-        LevelResource::new(kind, state)
     }
 
     pub fn set_character_facing_direction_with(&mut self, direction: &DirectionInput) {
@@ -41,7 +32,7 @@ impl LevelResource {
         level_handles: &LevelHandles,
         level_states_assets: &Assets<LevelState>,
     ) -> bool {
-        if self.get_moves() != 0 || self.get_undos() < 4 {
+        if self.get_moves() != 0 || self.undos() < 4 {
             let level_kind = self.kind().clone();
             match level_kind {
                 LevelKind::Stock(index) => {

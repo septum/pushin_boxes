@@ -5,8 +5,8 @@ use crate::level::internal::map::{Map, MapPosition};
 
 #[derive(Asset, TypePath, Serialize, Deserialize, Default, Clone, Copy)]
 pub struct LevelState {
-    pub(crate) map: Map,
-    pub(crate) character_position: MapPosition,
-    pub(crate) character_facing_direction: usize,
-    pub(crate) remaining_zones: usize,
+    pub(super) map: Map,
+    pub(super) character_position: MapPosition,
+    pub(super) character_facing_direction: usize,
+    pub(super) remaining_zones: usize,
 }

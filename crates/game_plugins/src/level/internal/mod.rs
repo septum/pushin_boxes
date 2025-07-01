@@ -2,6 +2,7 @@ mod kind;
 mod level;
 mod map;
 mod record;
+mod snapshots;
 mod state;
 
 pub use kind::LevelKind;

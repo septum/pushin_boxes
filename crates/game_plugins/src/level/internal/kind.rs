@@ -1,4 +1,4 @@
-use crate::level::internal::state::LevelState;
+use super::state::LevelState;
 
 #[derive(Clone)]
 pub enum LevelKind {

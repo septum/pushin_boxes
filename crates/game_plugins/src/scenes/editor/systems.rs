@@ -29,7 +29,7 @@ pub fn setup_level(
     images: Res<Images>,
     mut level_validity: ResMut<LevelValidity>,
 ) {
-    let mut level = LevelResource::editable();
+    let mut level = LevelResource::default();
     level.spawn(&mut commands, &images);
     commands.insert_resource(level);
     level_validity.reset();
