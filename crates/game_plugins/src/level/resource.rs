@@ -5,7 +5,7 @@ use crate::{
     assets::prelude::Images,
     input::DirectionInput,
     level::{
-        LevelHandles, MapPositionExtension,
+        LevelHandles, MapPosition, MapPositionExtension,
         internal::{Level, LevelKind, LevelRecord, LevelState, MapEntity},
     },
 };
@@ -19,7 +19,13 @@ impl LevelResource {
     }
 
     pub fn editable() -> LevelResource {
-        LevelResource(Level::editable())
+        let state = LevelState {
+            character_position: MapPosition::new(4, 4),
+            ..Default::default()
+        };
+        let kind = LevelKind::Editable(state);
+        let record = LevelRecord::default();
+        LevelResource::new(kind, state, record)
     }
 
     pub fn set_character_facing_direction_with(&mut self, direction: &DirectionInput) {
@@ -55,11 +61,8 @@ impl LevelResource {
                             .unwrap(),
                     );
                 }
-                LevelKind::Playtest(state) => {
+                LevelKind::Editable(state) => {
                     self.set_state(state);
-                }
-                LevelKind::Editable => {
-                    unreachable!("An editable level can't be reloaded")
                 }
             }
             true

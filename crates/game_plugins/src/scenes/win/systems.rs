@@ -36,10 +36,7 @@ pub fn handle_action_input(
                     game_state_event_writer
                         .write(GameStateTransitionEvent::selection(SelectionKind::Custom));
                 }
-                LevelKind::Playtest(_) => {
-                    unreachable!("A playtest level cannot be won");
-                }
-                LevelKind::Editable => {
+                LevelKind::Editable(_) => {
                     unreachable!("An editable level cannot be won");
                 }
             },

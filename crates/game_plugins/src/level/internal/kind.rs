@@ -4,13 +4,11 @@ use crate::level::internal::state::LevelState;
 pub enum LevelKind {
     Stock(usize),
     Custom(String),
-    Playtest(LevelState),
-    // TODO: This should be the one used in playtest
-    Editable,
+    Editable(LevelState),
 }
 
 impl Default for LevelKind {
     fn default() -> Self {
-        LevelKind::Stock(0)
+        LevelKind::Editable(LevelState::default())
     }
 }

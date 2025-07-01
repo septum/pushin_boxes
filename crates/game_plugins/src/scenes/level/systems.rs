@@ -236,10 +236,9 @@ pub fn check_lever_timer_just_finished(
             LevelKind::Stock(_) | LevelKind::Custom(_) => {
                 scene_transition_event_writer.write(GameStateTransitionEvent::win());
             }
-            LevelKind::Playtest(_) => {
+            LevelKind::Editable(_) => {
                 scene_transition_event_writer.write(GameStateTransitionEvent::passed());
             }
-            LevelKind::Editable => unreachable!("An editable level cannot trigger the level timer"),
         }
     }
 }

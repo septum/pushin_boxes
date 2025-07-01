@@ -123,7 +123,7 @@ pub fn handle_text_input(
                     sfx.play(sounds.sfx_set_zone.clone());
                     let uuid = Uuid::new_v4();
                     let serialized_string = match level.kind() {
-                        LevelKind::Playtest(state) => ron::ser::to_string(state).unwrap(),
+                        LevelKind::Editable(state) => ron::ser::to_string(state).unwrap(),
                         _ => panic!("Cannot get the state if the level kind is not playtest"),
                     };
                     let levels_path = format!("levels/custom/{}.lvl", &uuid);

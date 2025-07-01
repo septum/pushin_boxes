@@ -84,16 +84,6 @@ impl Level {
         &self.state
     }
 
-    pub fn editable() -> Level {
-        let state = LevelState {
-            character_position: MapPosition::new(4, 4),
-            ..Default::default()
-        };
-        let kind = LevelKind::Editable;
-        let record = LevelRecord::default();
-        Level::new(kind, state, record)
-    }
-
     pub fn new_record(&self) -> bool {
         self.get_set_record().is_better_than(&self.record)
     }
@@ -197,8 +187,7 @@ impl Level {
                 let parsed_key: Vec<&str> = key.split('$').collect();
                 parsed_key[0].to_string()
             }
-            LevelKind::Playtest(_) => "Playtest".to_string(),
-            LevelKind::Editable => unreachable!("An editable level does not have a name"),
+            LevelKind::Editable(_) => "Playtest".to_string(),
         }
     }
 

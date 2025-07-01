@@ -66,12 +66,11 @@ impl SaveFile {
     pub fn get_record(&self, kind: &LevelKind) -> LevelRecord {
         match kind {
             LevelKind::Stock(index) => self.stock_records[*index],
-            LevelKind::Playtest(_) => LevelRecord::default(),
+            LevelKind::Editable(_) => LevelRecord::default(),
             LevelKind::Custom(payload) => *self
                 .custom_records
                 .get(payload)
                 .expect("Cannot get custom record"),
-            LevelKind::Editable => unreachable!("An editable level does not have a record"),
         }
     }
 
@@ -86,8 +85,7 @@ impl SaveFile {
                 LevelKind::Custom(payload) => {
                     self.custom_records.insert(payload.clone(), new_record);
                 }
-                LevelKind::Playtest(_) => unreachable!("Cannot set a record for an playtest level"),
-                LevelKind::Editable => {
+                LevelKind::Editable(_) => {
                     unreachable!("Cannot set a record for an editable level")
                 }
             }

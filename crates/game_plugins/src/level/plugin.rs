@@ -50,7 +50,7 @@ fn insert_level(
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(GameStateTransitionEvent::level());
             }
-            LevelKind::Playtest(state) => {
+            LevelKind::Editable(state) => {
                 let level = LevelResource::new(
                     level_insertion_event.kind().clone(),
                     *state,
@@ -59,9 +59,6 @@ fn insert_level(
 
                 commands.insert_resource(level);
                 scene_transition_event_writer.write(GameStateTransitionEvent::level());
-            }
-            LevelKind::Editable => {
-                unreachable!("An editable should not be inserted with this event")
             }
         }
     }
