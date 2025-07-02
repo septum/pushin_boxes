@@ -32,22 +32,26 @@ impl Level {
         &self.kind
     }
 
-    pub fn state(&self) -> &LevelState {
-        &self.state
+    pub fn is_stock(&self) -> bool {
+        matches!(self.kind, LevelKind::Stock(_))
     }
 
-    pub fn is_new_record(&self, other: &LevelRecord) -> bool {
-        self.record.is_better_than(other)
+    pub fn name(&self) -> String {
+        match &self.kind {
+            LevelKind::Stock(index) => (index + 1).to_string(),
+            LevelKind::Custom(key) => {
+                let parsed_key: Vec<&str> = key.split('$').collect();
+                parsed_key[0].to_string()
+            }
+            LevelKind::Editable(_) => "Playtest".to_string(),
+        }
     }
 
-    pub fn set_state(&mut self, state: LevelState) {
-        self.state = state;
-        self.snapshots.reset();
-        self.record.reset_moves();
-    }
-
-    pub fn max_undos_available(&self) -> bool {
-        self.snapshots.max_undos_available()
+    pub fn is_last(&self) -> bool {
+        match self.kind {
+            LevelKind::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
+            _ => unreachable!("There is no last level in other level kinds"),
+        }
     }
 
     pub fn loop_over_entity_and_position<F>(&self, mut f: F)
@@ -63,59 +67,54 @@ impl Level {
         }
     }
 
+    pub fn state(&self) -> &LevelState {
+        &self.state
+    }
+
+    pub fn set_state(&mut self, state: LevelState) {
+        self.state = state;
+        self.snapshots.reset();
+        self.record.reset_moves();
+    }
+
     pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
-        &self.state.map[position]
+        self.state.get_entity(position)
     }
 
     pub fn set_entity(&mut self, position: &MapPosition, entity: MapEntity) {
-        self.state.map[position] = entity;
-    }
-
-    pub fn get_character_position(&self) -> &MapPosition {
-        &self.state.character_position
-    }
-
-    pub fn get_character_facing_direction(&self) -> usize {
-        self.state.character_facing_direction
-    }
-
-    pub fn set_character_facing_direction(&mut self, direction: usize) {
-        self.state.character_facing_direction = direction;
-    }
-
-    pub fn move_character(&mut self, position: MapPosition) {
-        self.state.character_position = position;
-    }
-
-    pub fn increment_remaining_zones(&mut self) {
-        self.state.remaining_zones += 1;
-    }
-
-    pub fn decrement_remaining_zones(&mut self) {
-        self.state.remaining_zones -= 1;
-    }
-
-    pub fn no_remaining_zones(&self) -> bool {
-        self.state.remaining_zones == 0
+        self.state.set_entity(position, entity);
     }
 
     pub fn character_position(&self) -> MapPosition {
-        self.state.character_position
+        self.state.character_position()
     }
 
-    pub fn is_stock(&self) -> bool {
-        matches!(self.kind, LevelKind::Stock(_))
+    pub fn move_character(&mut self, position: MapPosition) {
+        self.state.move_character(position);
     }
 
-    pub fn name(&self) -> String {
-        match &self.kind {
-            LevelKind::Stock(index) => (index + 1).to_string(),
-            LevelKind::Custom(key) => {
-                let parsed_key: Vec<&str> = key.split('$').collect();
-                parsed_key[0].to_string()
-            }
-            LevelKind::Editable(_) => "Playtest".to_string(),
-        }
+    pub fn character_facing_direction(&self) -> usize {
+        self.state.character_facing_direction()
+    }
+
+    pub fn set_character_facing_direction(&mut self, direction: usize) {
+        self.state.set_character_facing_direction(direction);
+    }
+
+    pub fn increment_remaining_zones(&mut self) {
+        self.state.increment_remaining_zones();
+    }
+
+    pub fn decrement_remaining_zones(&mut self) {
+        self.state.decrement_remaining_zones();
+    }
+
+    pub fn no_remaining_zones(&self) -> bool {
+        self.state.no_remaining_zones()
+    }
+
+    pub fn max_undos_available(&self) -> bool {
+        self.snapshots.max_undos_available()
     }
 
     pub fn save_snapshot(&mut self) {
@@ -135,15 +134,12 @@ impl Level {
         self.snapshots.undos_string()
     }
 
-    pub fn is_last(&self) -> bool {
-        match self.kind {
-            LevelKind::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
-            _ => unreachable!("There is no last level in other level kinds"),
-        }
-    }
-
     pub fn record(&self) -> &LevelRecord {
         &self.record
+    }
+
+    pub fn is_new_record(&self, other: &LevelRecord) -> bool {
+        self.record.is_better_than(other)
     }
 
     pub fn record_is_set(&self) -> bool {

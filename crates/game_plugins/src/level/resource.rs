@@ -62,8 +62,8 @@ impl LevelResource {
     }
 
     pub fn spawn(&mut self, commands: &mut Commands, images: &Images) {
-        let position = self.get_character_position();
-        let level_character_facing_direction = self.get_character_facing_direction();
+        let position = self.character_position();
+        let level_character_facing_direction = self.character_facing_direction();
 
         position.spawn_character(
             commands,

@@ -156,7 +156,7 @@ pub fn update_character_sprite(
     mut query: Query<&mut Sprite, With<CharacterMarker>>,
 ) {
     let mut sprite = query.single_mut().unwrap();
-    let level_character_facing_direction = level.get_character_facing_direction();
+    let level_character_facing_direction = level.character_facing_direction();
 
     character_animation.tick(time.delta());
 
