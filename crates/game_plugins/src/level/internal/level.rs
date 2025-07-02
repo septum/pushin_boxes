@@ -36,10 +36,6 @@ impl Level {
         &self.state
     }
 
-    pub fn record(&self) -> &LevelRecord {
-        &self.record
-    }
-
     pub fn undos(&self) -> usize {
         self.snapshots.undos()
     }
@@ -49,9 +45,9 @@ impl Level {
     }
 
     pub fn set_state(&mut self, state: LevelState) {
-        self.snapshots.reset();
         self.state = state;
-        self.record.moves = 0;
+        self.snapshots.reset();
+        self.record.reset_moves();
     }
 
     pub fn loop_over_entity_and_position<F>(&self, mut f: F)
@@ -107,22 +103,6 @@ impl Level {
         self.state.character_position
     }
 
-    pub fn get_moves(&self) -> usize {
-        self.record.moves
-    }
-
-    pub fn increment_moves(&mut self) {
-        self.record.moves += 1;
-    }
-
-    pub fn decrement_moves(&mut self) {
-        self.record.moves = self.record.moves.saturating_sub(1);
-    }
-
-    pub fn get_current_record(&self) -> &LevelRecord {
-        &self.record
-    }
-
     pub fn is_stock(&self) -> bool {
         matches!(self.kind, LevelKind::Stock(_))
     }
@@ -151,34 +131,8 @@ impl Level {
         false
     }
 
-    pub fn tick_stopwatch(&mut self, delta: Duration) {
-        self.record.stopwatch.tick(delta);
-    }
-
-    pub fn stopwatch_elapsed(&self) -> Duration {
-        self.record.stopwatch.elapsed()
-    }
-
-    pub fn stopwatch_string(&self) -> String {
-        let duration = self.stopwatch_elapsed();
-        let milliseconds = duration.subsec_millis();
-        let seconds = duration.as_secs() % 60;
-        let minutes = (duration.as_secs() / 60) % 60;
-        format!("{minutes:02}:{seconds:02}:{milliseconds:03}")
-    }
-
-    pub fn moves_string(&self) -> String {
-        self.record.moves.to_string()
-    }
-
     pub fn undos_string(&self) -> String {
         self.snapshots.undos().to_string()
-    }
-
-    pub fn moves_in_time(&self, separator: &str) -> String {
-        let moves = self.record.moves.to_string();
-        let time = self.stopwatch_string();
-        format!("{moves} moves{separator}in {time}")
     }
 
     pub fn is_last(&self) -> bool {
@@ -186,5 +140,37 @@ impl Level {
             LevelKind::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
             _ => unreachable!("There is no last level in other level kinds"),
         }
+    }
+
+    pub fn record(&self) -> &LevelRecord {
+        &self.record
+    }
+
+    pub fn record_is_set(&self) -> bool {
+        self.record.is_set()
+    }
+
+    pub fn increment_moves(&mut self) {
+        self.record.increment_moves();
+    }
+
+    pub fn decrement_moves(&mut self) {
+        self.record.decrement_moves();
+    }
+
+    pub fn moves_string(&self) -> String {
+        self.record.moves_string()
+    }
+
+    pub fn tick_stopwatch(&mut self, delta: Duration) {
+        self.record.tick(delta);
+    }
+
+    pub fn stopwatch_string(&self) -> String {
+        self.record.stopwatch_string()
+    }
+
+    pub fn moves_in_time(&self, separator: &str) -> String {
+        self.record.moves_in_time(separator)
     }
 }

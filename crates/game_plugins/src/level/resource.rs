@@ -32,7 +32,7 @@ impl LevelResource {
         level_handles: &LevelHandles,
         level_states_assets: &Assets<LevelState>,
     ) -> bool {
-        if self.get_moves() != 0 || self.undos() < 4 {
+        if self.record_is_set() || self.undos() < 4 {
             let level_kind = self.kind().clone();
             match level_kind {
                 LevelKind::Stock(index) => {

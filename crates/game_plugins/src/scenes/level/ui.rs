@@ -9,7 +9,7 @@ pub const UNDOS_COUNTER_ID: usize = 2;
 
 pub fn spawn(mut commands: Commands, level: Res<LevelResource>, fonts: Res<Fonts>) {
     let font = fonts.primary();
-    let level_record = level.get_current_record();
+    let level_record = level.record();
     let record_new_level = if level_record.is_set() {
         level_record.moves_in_time(" ")
     } else {
