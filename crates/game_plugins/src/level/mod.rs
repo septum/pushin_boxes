@@ -9,7 +9,6 @@ mod resource;
 
 // TODO: Move level validity into editor mod or similar
 pub use brush::{Brush, BrushEntity, BrushSprite, LevelValidity};
-pub use done_timer::LevelDoneTimer;
 pub use event::LevelInsertionEvent;
 pub use handles::LevelHandles;
 pub use internal::{
@@ -18,4 +17,4 @@ pub use internal::{
 };
 pub use map_position::{MapPositionComponent, MapPositionExtension};
 pub use plugin::Plugin;
-pub use resource::LevelResource;
+pub use resource::{LevelResource, LevelUpdate};

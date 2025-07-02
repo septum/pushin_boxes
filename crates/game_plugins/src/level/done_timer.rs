@@ -1,10 +1,9 @@
 use bevy::{
-    ecs::resource::Resource,
     prelude::{Deref, DerefMut},
     time::{Timer, TimerMode},
 };
 
-#[derive(Resource, Deref, DerefMut)]
+#[derive(Deref, DerefMut)]
 pub struct LevelDoneTimer(Timer);
 
 impl Default for LevelDoneTimer {
