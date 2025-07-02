@@ -36,10 +36,6 @@ impl Level {
         &self.state
     }
 
-    pub fn undos(&self) -> usize {
-        self.snapshots.undos()
-    }
-
     pub fn is_new_record(&self, other: &LevelRecord) -> bool {
         self.record.is_better_than(other)
     }
@@ -48,6 +44,10 @@ impl Level {
         self.state = state;
         self.snapshots.reset();
         self.record.reset_moves();
+    }
+
+    pub fn max_undos_available(&self) -> bool {
+        self.snapshots.max_undos_available()
     }
 
     pub fn loop_over_entity_and_position<F>(&self, mut f: F)
@@ -132,7 +132,7 @@ impl Level {
     }
 
     pub fn undos_string(&self) -> String {
-        self.snapshots.undos().to_string()
+        self.snapshots.undos_string()
     }
 
     pub fn is_last(&self) -> bool {
