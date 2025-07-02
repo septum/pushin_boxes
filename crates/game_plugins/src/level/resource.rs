@@ -118,7 +118,7 @@ impl LevelResource {
             DirectionInput::Up => self.inner.set_character_facing_direction(1),
             DirectionInput::Left => self.inner.set_character_facing_direction(2),
             DirectionInput::Right => self.inner.set_character_facing_direction(3),
-        };
+        }
 
         let mut next_position = self.inner.character_position();
         next_position.update_position(direction);
@@ -183,7 +183,7 @@ impl LevelResource {
     }
 
     pub fn reset_done_timer(&mut self) {
-        self.done_timer.reset()
+        self.done_timer.reset();
     }
 
     pub fn finished(&self) -> bool {
