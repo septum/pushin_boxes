@@ -1,13 +1,18 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
+
+use game_core::{
+    input::ActionInput,
+    level::{LevelKind, LevelUpdate},
+    map::MapEntity,
+};
 use game_ui::DynamicTextData;
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInput, ActionInputEvent, DirectionInputEvent},
+    input::{ActionInputEvent, DirectionInputEvent},
     level::{
-        LevelHandles, LevelKind, LevelResource, LevelState, LevelUpdate, MapEntity,
-        MapPositionComponent, MapPositionExtension,
+        LevelHandles, LevelResource, LevelStateAsset, MapPositionComponent, MapPositionExtension,
     },
     state::{GameStateTransitionEvent, SelectionKind},
 };
@@ -24,7 +29,7 @@ pub fn handle_action_input(
     mut action_event_reader: EventReader<ActionInputEvent>,
     mut level: ResMut<LevelResource>,
     level_handles: Res<LevelHandles>,
-    level_states_assets: Res<Assets<LevelState>>,
+    level_states_assets: Res<Assets<LevelStateAsset>>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
@@ -71,9 +76,8 @@ pub fn handle_direction_input(
 
     for direction_event in direction_event_reader.read() {
         let direction = &direction_event.value;
-        if let Some(update) = level.update_level(direction) {
+        if let Some(update) = level.update(direction) {
             sfx.play(sounds.sfx_move_character.clone());
-
             match update {
                 LevelUpdate::PushBox => {
                     sfx.play(sounds.sfx_push_box.clone());
@@ -152,7 +156,7 @@ pub fn update_counters(
         *writer.text(entity, 1) = match data.id {
             MOVES_COUNTER_ID => level.moves_string(),
             UNDOS_COUNTER_ID => level.undos_string(),
-            STOPWATCH_COUNTER_ID => level.stopwatch_string(),
+            STOPWATCH_COUNTER_ID => level.time_string(),
             _ => unreachable!("The counter id does not exists"),
         };
     }

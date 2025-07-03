@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-
-use crate::level::internal::LevelKind;
+use game_core::level::LevelKind;
 
 #[derive(Event)]
 pub struct LevelInsertionEvent(LevelKind);

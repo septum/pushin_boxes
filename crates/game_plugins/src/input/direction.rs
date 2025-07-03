@@ -1,11 +1,6 @@
 use bevy::prelude::*;
 
-pub enum DirectionInput {
-    Up,
-    Down,
-    Left,
-    Right,
-}
+use game_core::input::DirectionInput;
 
 #[derive(Event)]
 pub struct DirectionInputEvent {

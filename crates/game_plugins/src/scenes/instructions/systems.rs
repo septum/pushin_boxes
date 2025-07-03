@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::{
-    assets::prelude::*,
-    input::{ActionInput, ActionInputEvent},
-    state::GameStateTransitionEvent,
-};
+use game_core::input::ActionInput;
+
+use crate::{assets::prelude::*, input::ActionInputEvent, state::GameStateTransitionEvent};
 
 pub fn handle_input(
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,

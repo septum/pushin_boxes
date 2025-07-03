@@ -1,13 +1,6 @@
 use bevy::prelude::*;
 
-pub enum ActionInput {
-    Undo,
-    Reload,
-    Select,
-    Toggle,
-    Delete,
-    Exit,
-}
+use game_core::input::ActionInput;
 
 #[derive(Event)]
 pub struct ActionInputEvent {

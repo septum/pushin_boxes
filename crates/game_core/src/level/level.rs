@@ -1,15 +1,17 @@
 use std::time::Duration;
 
-use super::{
-    kind::LevelKind,
+use crate::{
+    input::DirectionInput,
     map::{MAP_COLS, MAP_ROWS, MapEntity, MapPosition},
-    record::LevelRecord,
-    snapshots::LevelSnapshots,
-    state::LevelState,
 };
 
-pub const TOTAL_STOCK_LEVELS: usize = 16;
-pub const TOTAL_CUSTOM_LEVELS: usize = 16;
+use super::{kind::LevelKind, record::LevelRecord, snapshots::LevelSnapshots, state::LevelState};
+
+pub enum LevelUpdate {
+    PushBox,
+    PlaceBox,
+    MoveCharacter,
+}
 
 #[derive(Default)]
 pub struct Level {
@@ -25,6 +27,68 @@ impl Level {
             kind,
             state,
             ..Level::default()
+        }
+    }
+
+    pub fn update(&mut self, direction: &DirectionInput) -> Option<LevelUpdate> {
+        match direction {
+            DirectionInput::Down => self.set_character_facing_direction(0),
+            DirectionInput::Up => self.set_character_facing_direction(1),
+            DirectionInput::Left => self.set_character_facing_direction(2),
+            DirectionInput::Right => self.set_character_facing_direction(3),
+        }
+
+        let mut next_position = self.character_position();
+        next_position.update_position(direction);
+
+        let next_entity = self.get_entity(&next_position);
+        match next_entity {
+            MapEntity::V => None,
+            MapEntity::B | MapEntity::P => {
+                let in_zone = matches!(next_entity, MapEntity::P);
+                let updated_next_entity = if in_zone { MapEntity::Z } else { MapEntity::F };
+
+                let mut adjacent_position = next_position;
+                adjacent_position.update_position(direction);
+
+                let adjacent_entity = self.get_entity(&adjacent_position);
+                match adjacent_entity {
+                    MapEntity::F => {
+                        self.save_snapshot();
+                        self.set_entity(&next_position, updated_next_entity);
+                        self.set_entity(&adjacent_position, MapEntity::B);
+                        self.move_character(next_position);
+                        self.increment_moves();
+
+                        if in_zone {
+                            self.increment_remaining_zones();
+                        }
+
+                        Some(LevelUpdate::PushBox)
+                    }
+                    MapEntity::Z => {
+                        self.save_snapshot();
+                        self.set_entity(&next_position, updated_next_entity);
+                        self.set_entity(&adjacent_position, MapEntity::P);
+                        self.move_character(next_position);
+                        self.increment_moves();
+
+                        if !in_zone {
+                            self.decrement_remaining_zones();
+                        }
+
+                        Some(LevelUpdate::PlaceBox)
+                    }
+                    _ => None,
+                }
+            }
+            _ => {
+                self.save_snapshot();
+                self.move_character(next_position);
+                self.increment_moves();
+
+                Some(LevelUpdate::MoveCharacter)
+            }
         }
     }
 
@@ -47,13 +111,7 @@ impl Level {
         }
     }
 
-    pub fn is_last(&self) -> bool {
-        match self.kind {
-            LevelKind::Stock(index) => index + 1 == TOTAL_STOCK_LEVELS,
-            _ => unreachable!("There is no last level in other level kinds"),
-        }
-    }
-
+    // TODO: Move or change this
     pub fn loop_over_entity_and_position<F>(&self, mut f: F)
     where
         F: FnMut(&MapEntity, MapPosition),
@@ -158,15 +216,15 @@ impl Level {
         self.record.moves_string()
     }
 
-    pub fn tick_stopwatch(&mut self, delta: Duration) {
-        self.record.tick(delta);
-    }
-
-    pub fn stopwatch_string(&self) -> String {
-        self.record.stopwatch_string()
+    pub fn time_string(&self) -> String {
+        self.record.time_string()
     }
 
     pub fn moves_in_time(&self, separator: &str) -> String {
         self.record.moves_in_time(separator)
+    }
+
+    pub fn tick_record_time(&mut self, delta: Duration) {
+        self.record.tick_time(delta);
     }
 }

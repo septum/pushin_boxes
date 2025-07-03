@@ -4,23 +4,21 @@ use std::{
 };
 
 use bevy::prelude::*;
+use game_core::{
+    level::{Level, LevelKind, LevelState},
+    map::MapEntity,
+};
 use uuid::Uuid;
 
 use crate::{
     assets::prelude::Images,
-    input::DirectionInput,
     level::{
-        LevelHandles, MapPositionExtension,
-        done_timer::LevelDoneTimer,
-        internal::{Level, LevelKind, LevelState, MapEntity},
+        LevelHandles, MapPositionExtension, done_timer::LevelDoneTimer, handles::LevelStateAsset,
     },
 };
 
-pub enum LevelUpdate {
-    PushBox,
-    PlaceBox,
-    MoveCharacter,
-}
+pub const TOTAL_STOCK_LEVELS: usize = 16;
+pub const TOTAL_CUSTOM_LEVELS: usize = 16;
 
 #[derive(Resource, Default)]
 pub struct LevelResource {
@@ -53,14 +51,14 @@ impl LevelResource {
     pub fn reload(
         &mut self,
         level_handles: &LevelHandles,
-        level_states_assets: &Assets<LevelState>,
+        level_states_assets: &Assets<LevelStateAsset>,
     ) -> bool {
         if self.inner.record_is_set() || !self.inner.max_undos_available() {
             let level_kind = self.inner.kind().clone();
             match level_kind {
                 LevelKind::Stock(index) => {
                     self.inner.set_state(
-                        *level_states_assets
+                        **level_states_assets
                             .get(level_handles.get_stock(index))
                             .unwrap(),
                     );
@@ -69,7 +67,7 @@ impl LevelResource {
                     let parsed_key: Vec<&str> = key.split('$').collect();
                     let uuid = Uuid::parse_str(parsed_key[1]).expect("Cannot parse uuid");
                     self.inner.set_state(
-                        *level_states_assets
+                        **level_states_assets
                             .get(level_handles.get_custom(&uuid).unwrap())
                             .unwrap(),
                     );
@@ -112,73 +110,11 @@ impl LevelResource {
             });
     }
 
-    pub fn update_level(&mut self, direction: &DirectionInput) -> Option<LevelUpdate> {
-        match direction {
-            DirectionInput::Down => self.inner.set_character_facing_direction(0),
-            DirectionInput::Up => self.inner.set_character_facing_direction(1),
-            DirectionInput::Left => self.inner.set_character_facing_direction(2),
-            DirectionInput::Right => self.inner.set_character_facing_direction(3),
-        }
-
-        let mut next_position = self.inner.character_position();
-        next_position.update_position(direction);
-
-        let next_entity = self.inner.get_entity(&next_position);
-        match next_entity {
-            MapEntity::V => None,
-            MapEntity::B | MapEntity::P => {
-                let in_zone = matches!(next_entity, MapEntity::P);
-                let updated_next_entity = if in_zone { MapEntity::Z } else { MapEntity::F };
-
-                let mut adjacent_position = next_position;
-                adjacent_position.update_position(direction);
-
-                let adjacent_entity = self.inner.get_entity(&adjacent_position);
-                match adjacent_entity {
-                    MapEntity::F => {
-                        self.inner.save_snapshot();
-                        self.inner.set_entity(&next_position, updated_next_entity);
-                        self.inner.set_entity(&adjacent_position, MapEntity::B);
-                        self.inner.move_character(next_position);
-                        self.inner.increment_moves();
-
-                        if in_zone {
-                            self.inner.increment_remaining_zones();
-                        }
-
-                        Some(LevelUpdate::PushBox)
-                    }
-                    MapEntity::Z => {
-                        self.inner.save_snapshot();
-                        self.inner.set_entity(&next_position, updated_next_entity);
-                        self.inner.set_entity(&adjacent_position, MapEntity::P);
-                        self.inner.move_character(next_position);
-                        self.inner.increment_moves();
-
-                        if !in_zone {
-                            self.inner.decrement_remaining_zones();
-                        }
-
-                        Some(LevelUpdate::PlaceBox)
-                    }
-                    _ => None,
-                }
-            }
-            _ => {
-                self.inner.save_snapshot();
-                self.inner.move_character(next_position);
-                self.inner.increment_moves();
-
-                Some(LevelUpdate::MoveCharacter)
-            }
-        }
-    }
-
     pub fn tick(&mut self, delta: Duration) {
         if self.inner.no_remaining_zones() {
             self.done_timer.tick(delta);
         } else {
-            self.inner.tick_stopwatch(delta);
+            self.inner.tick_record_time(delta);
         }
     }
 
@@ -188,5 +124,12 @@ impl LevelResource {
 
     pub fn finished(&self) -> bool {
         self.done_timer.just_finished()
+    }
+
+    pub fn is_last(&self) -> bool {
+        match self.inner.kind() {
+            LevelKind::Stock(index) => *index == TOTAL_STOCK_LEVELS - 1,
+            _ => false,
+        }
     }
 }

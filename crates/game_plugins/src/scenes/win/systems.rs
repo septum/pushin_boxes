@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
+use game_core::{input::ActionInput, level::LevelKind};
+
 use crate::{
     assets::prelude::*,
-    input::{ActionInput, ActionInputEvent},
-    level::{LevelInsertionEvent, LevelKind, LevelResource},
+    input::ActionInputEvent,
+    level::{LevelInsertionEvent, LevelResource},
     save_file::SaveFile,
     state::{GameStateTransitionEvent, SelectionKind},
 };

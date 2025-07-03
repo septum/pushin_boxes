@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{
-    assets::prelude::CharacterMarker,
-    input::DirectionInput,
-    level::internal::{MAP_ROWS, MapPosition},
-};
+use game_core::map::{MAP_ROWS, MapPosition};
+
+use crate::assets::prelude::CharacterMarker;
 
 const SPRITE_SIZE: usize = 64;
 const SPRITE_OFFSET: usize = 32;
@@ -20,8 +18,6 @@ pub struct MapPositionComponent(MapPosition);
 
 pub trait MapPositionExtension {
     fn update_translation(&self, translation: &mut Vec3);
-
-    fn update_position(&mut self, direction: &DirectionInput);
 
     fn spawn_entity(&self, commands: &mut Commands, image: Handle<Image>);
 
@@ -41,15 +37,6 @@ impl MapPositionExtension for MapPosition {
 
         // adaptation of depthness in a 2D plane
         translation.z = self.y() as f32;
-    }
-
-    fn update_position(&mut self, direction: &DirectionInput) {
-        match direction {
-            DirectionInput::Up => self.decrement_y(),
-            DirectionInput::Left => self.decrement_x(),
-            DirectionInput::Down => self.increment_y(),
-            DirectionInput::Right => self.increment_x(),
-        }
     }
 
     fn spawn_entity(&self, commands: &mut Commands, image: Handle<Image>) {

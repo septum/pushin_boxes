@@ -2147,6 +2147,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "game_core"
+version = "0.15.1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "game_plugins"
 version = "0.15.1"
 dependencies = [
@@ -2154,6 +2161,7 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_common_assets",
  "bevy_kira_audio",
+ "game_core",
  "game_ui",
  "hashbrown",
  "log",

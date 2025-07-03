@@ -1,4 +1,4 @@
-(
+((
     map: ((
         (V,V,V,V,V,V,V,V,V,V,),
         (V,F,B,F,Z,Z,Z,Z,Z,V,),
@@ -14,4 +14,4 @@
     character_position: (x: 2, y: 7),
     character_facing_direction: 1,
     remaining_zones: 9,
-)
+))

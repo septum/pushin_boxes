@@ -1,10 +1,11 @@
 use bevy::{app::AppExit, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
+use game_core::input::{ActionInput, DirectionInput};
 use game_ui::{Colors, GameButtonData};
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInput, ActionInputEvent, DirectionInput, DirectionInputEvent},
+    input::{ActionInputEvent, DirectionInputEvent},
     state::{GameStateTransitionEvent, SelectionKind},
 };
 

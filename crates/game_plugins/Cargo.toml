@@ -8,6 +8,7 @@ license.workspace = true
 
 [dependencies]
 game_ui = { path = "../game_ui" }
+game_core = { path = "../game_core" }
 ron = "0.10"
 serde = { workspace = true }
 regex = "1.11"

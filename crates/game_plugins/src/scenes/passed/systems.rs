@@ -10,14 +10,16 @@ use bevy::{
     prelude::*,
 };
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use game_ui::{Colors, DynamicTextData};
 use regex::Regex;
 use uuid::Uuid;
 
+use game_core::{input::ActionInput, level::LevelKind};
+use game_ui::{Colors, DynamicTextData};
+
 use crate::{
     assets::prelude::*,
-    input::{ActionInput, ActionInputEvent},
-    level::{LevelHandles, LevelKind, LevelResource},
+    input::ActionInputEvent,
+    level::{LevelHandles, LevelResource, LevelStateAsset},
     save_file::SaveFile,
     state::{GameStateTransitionEvent, SelectionKind},
 };
@@ -123,7 +125,9 @@ pub fn handle_text_input(
                     sfx.play(sounds.sfx_set_zone.clone());
                     let uuid = Uuid::new_v4();
                     let serialized_string = match level.kind() {
-                        LevelKind::Editable(state) => ron::ser::to_string(state).unwrap(),
+                        LevelKind::Editable(state) => {
+                            ron::ser::to_string(&LevelStateAsset::new(*state)).unwrap()
+                        }
                         _ => panic!("Cannot get the state if the level kind is not playtest"),
                     };
                     let levels_path = format!("levels/custom/{}.lvl", &uuid);

@@ -5,10 +5,9 @@ use hashbrown::HashMap;
 use ron::ser as serialize_ron;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    level::{Level, LevelKind, LevelRecord, TOTAL_STOCK_LEVELS},
-    save_file::handle::SaveFileHandle,
-};
+use game_core::level::{Level, LevelKind, LevelRecord};
+
+use crate::{level::TOTAL_STOCK_LEVELS, save_file::handle::SaveFileHandle};
 
 pub const INITIAL_VOLUME: f64 = 0.5;
 

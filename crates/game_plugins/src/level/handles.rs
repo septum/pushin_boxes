@@ -1,9 +1,19 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use hashbrown::HashMap;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::level::internal::LevelState;
+use game_core::level::LevelState;
+
+#[derive(Asset, TypePath, Serialize, Deserialize, Deref, DerefMut)]
+pub struct LevelStateAsset(LevelState);
+
+impl LevelStateAsset {
+    pub fn new(state: LevelState) -> LevelStateAsset {
+        LevelStateAsset(state)
+    }
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct LevelHandles {
@@ -28,20 +38,20 @@ pub struct LevelHandles {
         ),
         collection(typed)
     )]
-    stock: Vec<Handle<LevelState>>,
-    custom: HashMap<Uuid, Handle<LevelState>>,
+    stock: Vec<Handle<LevelStateAsset>>,
+    custom: HashMap<Uuid, Handle<LevelStateAsset>>,
 }
 
 impl LevelHandles {
-    pub fn get_stock(&self, index: usize) -> &Handle<LevelState> {
+    pub fn get_stock(&self, index: usize) -> &Handle<LevelStateAsset> {
         &self.stock[index]
     }
 
-    pub fn get_custom(&self, uuid: &Uuid) -> Option<&Handle<LevelState>> {
+    pub fn get_custom(&self, uuid: &Uuid) -> Option<&Handle<LevelStateAsset>> {
         self.custom.get(uuid)
     }
 
-    pub fn insert_custom(&mut self, uuid: Uuid, handle: Handle<LevelState>) {
+    pub fn insert_custom(&mut self, uuid: Uuid, handle: Handle<LevelStateAsset>) {
         self.custom.insert(uuid, handle);
     }
 }

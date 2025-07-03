@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
+use game_core::input::ActionInput;
+
 use crate::{
     assets::prelude::*,
-    input::{ActionInput, ActionInputEvent},
+    input::ActionInputEvent,
     state::{GameStateTransitionEvent, SelectionKind},
 };
 

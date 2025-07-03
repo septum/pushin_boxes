@@ -1,9 +1,8 @@
-use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::level::internal::map::{Map, MapEntity, MapPosition};
+use crate::map::{Map, MapEntity, MapPosition};
 
-#[derive(Asset, TypePath, Serialize, Deserialize, Default, Clone, Copy)]
+#[derive(Serialize, Deserialize, Default, Clone, Copy)]
 pub struct LevelState {
     map: Map,
     character_position: MapPosition,
