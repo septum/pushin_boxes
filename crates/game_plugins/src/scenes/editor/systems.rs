@@ -1,11 +1,7 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use game_core::{
-    input::{ActionInput, DirectionInput},
-    level::LevelKind,
-    map::MapEntity,
-};
+use game_core::{input::ActionInput, level::LevelKind, map::MapEntity};
 use game_ui::{Colors, DynamicTextData};
 
 use crate::{
@@ -46,12 +42,7 @@ pub fn handle_direction_input(
     mut direction_event_reader: EventReader<DirectionInputEvent>,
 ) {
     for direction_event in direction_event_reader.read() {
-        match direction_event.value {
-            DirectionInput::Up => brush.position.decrement_y(),
-            DirectionInput::Down => brush.position.increment_y(),
-            DirectionInput::Left => brush.position.decrement_x(),
-            DirectionInput::Right => brush.position.increment_x(),
-        }
+        brush.position.update(&direction_event.value);
     }
 }
 

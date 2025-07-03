@@ -26,6 +26,15 @@ impl MapPosition {
         MapPosition { x, y }
     }
 
+    pub fn update(&mut self, direction: &DirectionInput) {
+        match direction {
+            DirectionInput::Up => self.decrement_y(),
+            DirectionInput::Left => self.decrement_x(),
+            DirectionInput::Down => self.increment_y(),
+            DirectionInput::Right => self.increment_x(),
+        }
+    }
+
     pub fn x(&self) -> usize {
         self.x
     }
@@ -34,36 +43,27 @@ impl MapPosition {
         self.y
     }
 
-    pub fn increment_x(&mut self) {
+    fn increment_x(&mut self) {
         if self.x < MAP_COLS - 1 {
             self.x += 1;
         }
     }
 
-    pub fn increment_y(&mut self) {
+    fn increment_y(&mut self) {
         if self.y < MAP_ROWS - 1 {
             self.y += 1;
         }
     }
 
-    pub fn decrement_x(&mut self) {
+    fn decrement_x(&mut self) {
         if self.x > 0 {
             self.x -= 1;
         }
     }
 
-    pub fn decrement_y(&mut self) {
+    fn decrement_y(&mut self) {
         if self.y > 0 {
             self.y -= 1;
-        }
-    }
-
-    pub fn update_position(&mut self, direction: &DirectionInput) {
-        match direction {
-            DirectionInput::Up => self.decrement_y(),
-            DirectionInput::Left => self.decrement_x(),
-            DirectionInput::Down => self.increment_y(),
-            DirectionInput::Right => self.increment_x(),
         }
     }
 }

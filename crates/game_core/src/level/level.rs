@@ -39,7 +39,7 @@ impl Level {
         }
 
         let mut next_position = self.character_position();
-        next_position.update_position(direction);
+        next_position.update(direction);
 
         let next_entity = self.get_entity(&next_position);
         match next_entity {
@@ -49,7 +49,7 @@ impl Level {
                 let updated_next_entity = if in_zone { MapEntity::Z } else { MapEntity::F };
 
                 let mut adjacent_position = next_position;
-                adjacent_position.update_position(direction);
+                adjacent_position.update(direction);
 
                 let adjacent_entity = self.get_entity(&adjacent_position);
                 match adjacent_entity {
