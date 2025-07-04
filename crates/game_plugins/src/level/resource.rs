@@ -77,7 +77,7 @@ impl LevelResource {
         if self.inner.no_remaining_zones() {
             self.done_timer.tick(delta);
         } else {
-            self.inner.tick_record_time(delta);
+            self.inner.tick_record(delta);
         }
     }
 

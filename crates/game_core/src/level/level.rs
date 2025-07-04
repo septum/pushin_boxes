@@ -56,27 +56,27 @@ impl Level {
                 let adjacent_entity = self.get_entity(&adjacent_position);
                 match adjacent_entity {
                     MapEntity::F => {
-                        self.save_snapshot();
+                        self.snapshots.save(&self.state);
                         self.set_entity(&next_position, updated_next_entity);
                         self.set_entity(&adjacent_position, MapEntity::B);
                         self.move_character(next_position);
-                        self.increment_moves();
+                        self.record.increment_moves();
 
                         if in_zone {
-                            self.increment_remaining_zones();
+                            self.state.increment_remaining_zones();
                         }
 
                         Some(LevelUpdate::PushBox)
                     }
                     MapEntity::Z => {
-                        self.save_snapshot();
+                        self.snapshots.save(&self.state);
                         self.set_entity(&next_position, updated_next_entity);
                         self.set_entity(&adjacent_position, MapEntity::P);
                         self.move_character(next_position);
-                        self.increment_moves();
+                        self.record.increment_moves();
 
                         if !in_zone {
-                            self.decrement_remaining_zones();
+                            self.state.decrement_remaining_zones();
                         }
 
                         Some(LevelUpdate::PlaceBox)
@@ -85,9 +85,9 @@ impl Level {
                 }
             }
             _ => {
-                self.save_snapshot();
+                self.snapshots.save(&self.state);
                 self.move_character(next_position);
-                self.increment_moves();
+                self.record.increment_moves();
 
                 Some(LevelUpdate::MoveCharacter)
             }
@@ -97,7 +97,9 @@ impl Level {
     fn handle_action_input(&mut self, action: &Action) -> Option<LevelUpdate> {
         match action {
             Action::Undo => {
-                if self.undo() {
+                if let Some(state) = self.snapshots.shift() {
+                    *self.state = state;
+                    self.record.decrement_moves();
                     Some(LevelUpdate::UndoMove)
                 } else {
                     None
@@ -186,23 +188,6 @@ impl Level {
         self.state.no_remaining_zones()
     }
 
-    pub fn max_undos_available(&self) -> bool {
-        self.snapshots.max_undos_available()
-    }
-
-    pub fn save_snapshot(&mut self) {
-        self.snapshots.capture(*self.state);
-    }
-
-    pub fn undo(&mut self) -> bool {
-        if let Some(state) = self.snapshots.shift() {
-            *self.state = state;
-            self.record.decrement_moves();
-            return true;
-        }
-        false
-    }
-
     pub fn undos_string(&self) -> String {
         self.snapshots.undos_string()
     }
@@ -215,14 +200,6 @@ impl Level {
         self.record.is_better_than(other)
     }
 
-    pub fn record_is_set(&self) -> bool {
-        self.record.is_set()
-    }
-
-    pub fn increment_moves(&mut self) {
-        self.record.increment_moves();
-    }
-
     pub fn moves_string(&self) -> String {
         self.record.moves_string()
     }
@@ -231,11 +208,11 @@ impl Level {
         self.record.time_string()
     }
 
-    pub fn moves_in_time(&self, separator: &str) -> String {
+    pub fn moves_in_time(&self, separator: char) -> String {
         self.record.moves_in_time(separator)
     }
 
-    pub fn tick_record_time(&mut self, delta: Duration) {
-        self.record.tick_time(delta);
+    pub fn tick_record(&mut self, delta: Duration) {
+        self.record.tick(delta);
     }
 }

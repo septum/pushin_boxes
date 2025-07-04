@@ -13,7 +13,7 @@ pub fn spawn(
 
     let old_record = save_file.get_record(level.kind());
     let record = if level.is_new_record(&old_record) {
-        format!("NEW RECORD:\n{}", level.moves_in_time(" "))
+        format!("NEW RECORD:\n{}", level.moves_in_time(' '))
     } else {
         " \n ".to_string()
     };

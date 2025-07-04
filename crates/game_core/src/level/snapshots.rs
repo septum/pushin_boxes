@@ -21,10 +21,6 @@ impl LevelSnapshots {
         *self = LevelSnapshots::default();
     }
 
-    pub fn max_undos_available(&self) -> bool {
-        self.undos == MAX_SNAPSHOTS
-    }
-
     pub fn undos_string(&self) -> String {
         self.undos.to_string()
     }
@@ -41,8 +37,8 @@ impl LevelSnapshots {
         state
     }
 
-    pub fn capture(&mut self, state: LevelState) {
+    pub fn save(&mut self, state: &LevelState) {
         self.inner.rotate_right(1);
-        self.inner[0] = Some(state);
+        self.inner[0] = Some(*state);
     }
 }

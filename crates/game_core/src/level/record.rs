@@ -37,11 +37,11 @@ impl LevelRecord {
         self.moves.to_string()
     }
 
-    pub fn tick_time(&mut self, delta: Duration) {
+    pub fn tick(&mut self, delta: Duration) {
         self.time += delta.as_secs_f32();
     }
 
-    pub fn moves_in_time(&self, separator: &str) -> String {
+    pub fn moves_in_time(&self, separator: char) -> String {
         let moves = self.moves_string();
         let time = self.time_string();
         format!("{moves} moves{separator}in {time}")
