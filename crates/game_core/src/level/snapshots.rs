@@ -40,6 +40,7 @@ impl LevelSnapshots {
         self.undos -= 1;
         state
     }
+
     pub fn capture(&mut self, state: LevelState) {
         self.inner.rotate_right(1);
         self.inner[0] = Some(state);

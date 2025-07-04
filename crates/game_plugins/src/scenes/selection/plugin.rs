@@ -3,13 +3,11 @@ use game_ui::OverlayMarker;
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
+    input::InputEvent,
     state::{GameState, SelectionKind},
 };
 
-use super::systems::{
-    handle_action_input, handle_direction_input, play_action_sfx, play_direction_sfx,
-};
+use super::systems::{handle_input, play_sfx};
 
 pub struct Plugin;
 
@@ -23,10 +21,8 @@ impl BevyPlugin for Plugin {
                 .add_systems(
                     Update,
                     (
-                        handle_action_input.run_if(on_event::<ActionInputEvent>),
-                        handle_direction_input.run_if(on_event::<DirectionInputEvent>),
-                        play_action_sfx.run_if(on_event::<ActionInputEvent>),
-                        play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
+                        handle_input.run_if(on_event::<InputEvent>),
+                        play_sfx.run_if(on_event::<InputEvent>),
                     )
                         .run_if(in_state(state)),
                 )

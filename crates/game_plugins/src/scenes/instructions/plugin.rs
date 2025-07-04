@@ -1,8 +1,8 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 
-use crate::{assets::prelude::*, input::ActionInputEvent, state::GameState};
+use crate::{assets::prelude::*, input::InputEvent, state::GameState};
 
-use super::systems::{handle_input, play_sfx};
+use super::systems::handle_input;
 
 pub struct Plugin;
 
@@ -11,10 +11,7 @@ impl BevyPlugin for Plugin {
         app.add_systems(OnEnter(GameState::Instructions), super::ui::spawn)
             .add_systems(
                 Update,
-                (
-                    handle_input.run_if(on_event::<ActionInputEvent>),
-                    play_sfx.run_if(on_event::<ActionInputEvent>),
-                )
+                (handle_input.run_if(on_event::<InputEvent>))
                     .run_if(in_state(GameState::Instructions)),
             )
             .add_systems(

@@ -1,29 +1,20 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use game_core::input::ActionInput;
+use game_core::input::{Action, Input};
 
-use crate::{assets::prelude::*, input::ActionInputEvent, state::GameStateTransitionEvent};
+use crate::{assets::prelude::*, input::InputEvent, state::GameStateTransitionEvent};
 
 pub fn handle_input(
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
-) {
-    for action_event in action_event_reader.read() {
-        if matches!(action_event.value, ActionInput::Exit) {
-            game_state_event_writer.write(GameStateTransitionEvent::title());
-        }
-    }
-}
-
-pub fn play_sfx(
-    mut action_event_reader: EventReader<ActionInputEvent>,
+    mut input_event_reader: EventReader<InputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.read() {
-        if matches!(action_event.value, ActionInput::Exit) {
+    for input_event in input_event_reader.read() {
+        if matches!(**input_event, Input::Action(Action::Exit)) {
             sfx.play(sounds.sfx_push_box.clone());
+            game_state_event_writer.write(GameStateTransitionEvent::title());
         }
     }
 }

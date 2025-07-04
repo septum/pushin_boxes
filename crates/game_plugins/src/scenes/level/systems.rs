@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use game_core::{
-    input::ActionInput,
     level::{LevelKind, LevelUpdate},
     map::MapEntity,
 };
@@ -10,10 +9,8 @@ use game_ui::DynamicTextData;
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
-    level::{
-        LevelHandles, LevelResource, LevelStateAsset, MapPositionComponent, MapPositionExtension,
-    },
+    input::InputEvent,
+    level::{LevelResource, MapPositionComponent, MapPositionExtension},
     state::{GameStateTransitionEvent, SelectionKind},
 };
 
@@ -23,49 +20,9 @@ pub fn spawn_level(mut commands: Commands, mut level: ResMut<LevelResource>, ima
     level.spawn(&mut commands, &images);
 }
 
-// TODO: Prevent LevelState leakage
-pub fn handle_action_input(
+pub fn handle_input(
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
-    mut level: ResMut<LevelResource>,
-    level_handles: Res<LevelHandles>,
-    level_states_assets: Res<Assets<LevelStateAsset>>,
-    sounds: Res<Sounds>,
-    sfx: Res<AudioChannel<Sfx>>,
-) {
-    if level.no_remaining_zones() {
-        return;
-    }
-
-    for action_event in action_event_reader.read() {
-        match &action_event.value {
-            ActionInput::Undo => {
-                if level.undo() {
-                    sfx.play(sounds.sfx_undo_move.clone());
-                }
-            }
-            ActionInput::Reload => {
-                if level.reload(&level_handles, &level_states_assets) {
-                    sfx.play(sounds.sfx_reload_level.clone());
-                }
-            }
-            ActionInput::Exit => {
-                sfx.play(sounds.sfx_push_box.clone());
-                game_state_event_writer.write(GameStateTransitionEvent::selection(
-                    if level.is_stock() {
-                        SelectionKind::Stock
-                    } else {
-                        SelectionKind::Custom
-                    },
-                ));
-            }
-            _ => (),
-        }
-    }
-}
-
-pub fn handle_direction_input(
-    mut direction_event_reader: EventReader<DirectionInputEvent>,
+    mut input_event_reader: EventReader<InputEvent>,
     mut level: ResMut<LevelResource>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
@@ -74,19 +31,38 @@ pub fn handle_direction_input(
         return;
     }
 
-    for direction_event in direction_event_reader.read() {
-        let direction = &direction_event.value;
-        if let Some(update) = level.update(direction) {
-            sfx.play(sounds.sfx_move_character.clone());
+    for input_event in input_event_reader.read() {
+        let input = input_event;
+        if let Some(update) = level.update(&input) {
             match update {
                 LevelUpdate::PushBox => {
+                    sfx.play(sounds.sfx_move_character.clone());
                     sfx.play(sounds.sfx_push_box.clone());
                 }
                 LevelUpdate::PlaceBox => {
+                    sfx.play(sounds.sfx_move_character.clone());
                     sfx.play(sounds.sfx_push_box.clone());
                     sfx.play(sounds.sfx_set_zone.clone());
                 }
-                LevelUpdate::MoveCharacter => {}
+                LevelUpdate::MoveCharacter => {
+                    sfx.play(sounds.sfx_move_character.clone());
+                }
+                LevelUpdate::UndoMove => {
+                    sfx.play(sounds.sfx_undo_move.clone());
+                }
+                LevelUpdate::Reload => {
+                    sfx.play(sounds.sfx_reload_level.clone());
+                }
+                LevelUpdate::Exit => {
+                    sfx.play(sounds.sfx_push_box.clone());
+                    game_state_event_writer.write(GameStateTransitionEvent::selection(
+                        if level.is_stock() {
+                            SelectionKind::Stock
+                        } else {
+                            SelectionKind::Custom
+                        },
+                    ));
+                }
             }
         }
     }

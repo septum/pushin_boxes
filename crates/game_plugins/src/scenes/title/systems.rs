@@ -1,77 +1,72 @@
 use bevy::{app::AppExit, prelude::*};
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use game_core::input::{ActionInput, DirectionInput};
+use game_core::input::{Action, Direction, Input};
 use game_ui::{Colors, GameButtonData};
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
+    input::InputEvent,
     state::{GameStateTransitionEvent, SelectionKind},
 };
 
 use super::ui::{EDITOR_ID, INSTRUCTIONS_ID, OPTIONS_ID, PLAY_ID, QUIT_ID};
 
-pub fn handle_direction_input(
+pub fn handle_input(
     mut query: Query<(&mut GameButtonData, &mut BackgroundColor)>,
-    mut direction_event_reader: EventReader<DirectionInputEvent>,
-) {
-    for direction_event in direction_event_reader.read() {
-        if matches!(
-            direction_event.value,
-            DirectionInput::Up | DirectionInput::Down
-        ) {
-            let up = matches!(direction_event.value, DirectionInput::Up);
-            let mut selected_id = None;
-            for (button, _) in query.iter() {
-                if button.selected {
-                    #[cfg(not(target_family = "wasm"))]
-                    {
-                        selected_id = match button.id {
-                            PLAY_ID => Some(if up { QUIT_ID } else { INSTRUCTIONS_ID }),
-                            INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { EDITOR_ID }),
-                            EDITOR_ID => Some(if up { INSTRUCTIONS_ID } else { OPTIONS_ID }),
-                            OPTIONS_ID => Some(if up { EDITOR_ID } else { QUIT_ID }),
-                            QUIT_ID => Some(if up { OPTIONS_ID } else { PLAY_ID }),
-                            _ => unreachable!("The button id was not declared"),
-                        };
-                    }
-
-                    #[cfg(target_family = "wasm")]
-                    {
-                        selected_id = match button.id {
-                            PLAY_ID => Some(if up { OPTIONS_ID } else { INSTRUCTIONS_ID }),
-                            INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { OPTIONS_ID }),
-                            OPTIONS_ID => Some(if up { INSTRUCTIONS_ID } else { PLAY_ID }),
-                            _ => unreachable!("The button id was not declared or is not available"),
-                        };
-                    }
-                }
-            }
-            if let Some(id) = selected_id {
-                for (mut button, mut color) in &mut query {
-                    if button.id == id {
-                        button.selected = true;
-                        *color = Colors::PRIMARY_DARK.into();
-                    } else {
-                        button.selected = false;
-                        *color = Colors::TRANSPARENT.into();
-                    }
-                }
-            }
-        }
-    }
-}
-
-pub fn handle_action_input(
+    mut input_event_reader: EventReader<InputEvent>,
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut query: Query<&mut GameButtonData>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
     mut exit: EventWriter<AppExit>,
 ) {
-    for action_event in action_event_reader.read() {
-        match action_event.value {
-            ActionInput::Select => {
-                for button in &mut query {
+    for input_event in input_event_reader.read() {
+        match **input_event {
+            Input::Direction(direction) => {
+                if matches!(direction, Direction::Up | Direction::Down) {
+                    let up = matches!(direction, Direction::Up);
+                    let mut selected_id = None;
+                    for (button, _) in query.iter() {
+                        if button.selected {
+                            #[cfg(not(target_family = "wasm"))]
+                            {
+                                selected_id = match button.id {
+                                    PLAY_ID => Some(if up { QUIT_ID } else { INSTRUCTIONS_ID }),
+                                    INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { EDITOR_ID }),
+                                    EDITOR_ID => {
+                                        Some(if up { INSTRUCTIONS_ID } else { OPTIONS_ID })
+                                    }
+                                    OPTIONS_ID => Some(if up { EDITOR_ID } else { QUIT_ID }),
+                                    QUIT_ID => Some(if up { OPTIONS_ID } else { PLAY_ID }),
+                                    _ => unreachable!("The button id was not declared"),
+                                };
+                            }
+
+                            #[cfg(target_family = "wasm")]
+                            {
+                                selected_id = match button.id {
+                                    PLAY_ID => Some(if up { OPTIONS_ID } else { INSTRUCTIONS_ID }),
+                                    INSTRUCTIONS_ID => Some(if up { PLAY_ID } else { OPTIONS_ID }),
+                                    OPTIONS_ID => Some(if up { INSTRUCTIONS_ID } else { PLAY_ID }),
+                                    _ => unreachable!(
+                                        "The button id was not declared or is not available"
+                                    ),
+                                };
+                            }
+                        }
+                    }
+                    if let Some(id) = selected_id {
+                        for (mut button, mut color) in &mut query {
+                            if button.id == id {
+                                button.selected = true;
+                                *color = Colors::PRIMARY_DARK.into();
+                            } else {
+                                button.selected = false;
+                                *color = Colors::TRANSPARENT.into();
+                            }
+                        }
+                    }
+                }
+            }
+            Input::Action(Action::Select) => {
+                for (button, _) in &mut query {
                     if button.selected {
                         match button.id {
                             PLAY_ID => {
@@ -100,42 +95,35 @@ pub fn handle_action_input(
                     }
                 }
             }
-            ActionInput::Exit => {
+            Input::Action(Action::Exit) => {
                 #[cfg(not(target_family = "wasm"))]
                 {
                     exit.write(AppExit::Success);
                 }
             }
-            _ => (),
+            Input::Action(_) => (),
         }
     }
 }
 
-pub fn play_action_sfx(
-    mut action_event_reader: EventReader<ActionInputEvent>,
+pub fn play_sfx(
+    mut input_event_reader: EventReader<InputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.read() {
-        match action_event.value {
-            ActionInput::Exit => {
+    for input_event in input_event_reader.read() {
+        match **input_event {
+            Input::Direction(_) => {
+                sfx.play(sounds.sfx_move_character.clone());
+            }
+            Input::Action(Action::Exit) => {
                 sfx.play(sounds.sfx_push_box.clone());
             }
-            ActionInput::Select => {
+            Input::Action(Action::Select) => {
                 sfx.play(sounds.sfx_set_zone.clone());
             }
-            _ => (),
+            Input::Action(_) => (),
         }
-    }
-}
-
-pub fn play_direction_sfx(
-    mut direction_event_reader: EventReader<DirectionInputEvent>,
-    sounds: Res<Sounds>,
-    sfx: Res<AudioChannel<Sfx>>,
-) {
-    for _ in direction_event_reader.read() {
-        sfx.play(sounds.sfx_move_character.clone());
     }
 }
 

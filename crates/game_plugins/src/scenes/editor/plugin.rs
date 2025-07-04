@@ -3,15 +3,14 @@ use game_ui::OverlayMarker;
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
+    input::InputEvent,
     level::{Brush, BrushSprite, LevelValidity, MapPositionComponent},
     state::GameState,
 };
 
 use super::systems::{
-    apply_brush_to_level, blink_tile, check_total_custom_levels, check_validity,
-    handle_action_input, handle_direction_input, play_action_sfx, play_direction_sfx, setup_level,
-    update_brush_sprite, update_character_position, update_map,
+    apply_brush_to_level, blink_tile, check_total_custom_levels, check_validity, handle_input,
+    play_sfx, setup_level, update_brush_sprite, update_character_position, update_map,
 };
 
 pub struct Plugin;
@@ -31,16 +30,14 @@ impl BevyPlugin for Plugin {
             .add_systems(
                 Update,
                 (
-                    handle_action_input,
-                    handle_direction_input,
+                    handle_input.run_if(on_event::<InputEvent>),
                     blink_tile,
                     apply_brush_to_level,
                     update_character_position,
                     update_map,
                     update_brush_sprite,
                     check_validity,
-                    play_action_sfx.run_if(on_event::<ActionInputEvent>),
-                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
+                    play_sfx.run_if(on_event::<InputEvent>),
                 )
                     .run_if(in_state(GameState::Editor)),
             )

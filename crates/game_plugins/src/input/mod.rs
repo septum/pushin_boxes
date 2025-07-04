@@ -1,7 +1,5 @@
-mod action;
-mod direction;
+mod event;
 mod plugin;
 
-pub use action::ActionInputEvent;
-pub use direction::DirectionInputEvent;
+pub use event::InputEvent;
 pub use plugin::Plugin;

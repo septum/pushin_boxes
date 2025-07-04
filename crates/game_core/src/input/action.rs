@@ -1,4 +1,5 @@
-pub enum ActionInput {
+#[derive(Clone, Copy)]
+pub enum Action {
     Undo,
     Reload,
     Select,

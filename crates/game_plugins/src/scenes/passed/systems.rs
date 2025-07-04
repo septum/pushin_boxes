@@ -13,12 +13,15 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use regex::Regex;
 use uuid::Uuid;
 
-use game_core::{input::ActionInput, level::LevelKind};
+use game_core::{
+    input::{Action, Input},
+    level::LevelKind,
+};
 use game_ui::{Colors, DynamicTextData};
 
 use crate::{
     assets::prelude::*,
-    input::ActionInputEvent,
+    input::InputEvent,
     level::{LevelHandles, LevelResource, LevelStateAsset},
     save_file::SaveFile,
     state::{GameStateTransitionEvent, SelectionKind},
@@ -37,12 +40,12 @@ pub struct TextCursor {
     pub blink_toggle: bool,
 }
 
-pub fn handle_action_input(
+pub fn handle_input(
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
+    mut input_event_reader: EventReader<InputEvent>,
 ) {
-    for action_event in action_event_reader.read() {
-        if matches!(action_event.value, ActionInput::Exit) {
+    for input_event in input_event_reader.read() {
+        if matches!(**input_event, Input::Action(Action::Exit)) {
             game_state_event_writer.write(GameStateTransitionEvent::title());
         }
     }

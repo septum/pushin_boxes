@@ -23,11 +23,3 @@ impl IndexMut<&MapPosition> for Map {
         &mut self.0[index.y][index.x]
     }
 }
-
-impl Map {
-    pub fn index_xy(&self, x: usize, y: usize) -> &MapEntity {
-        assert!(x < MAP_COLS);
-        assert!(y < MAP_ROWS);
-        &self.0[y][x]
-    }
-}

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::input::DirectionInput;
+use crate::input::Direction;
 
 use super::{MAP_COLS, MAP_ROWS};
 
@@ -26,12 +26,12 @@ impl MapPosition {
         MapPosition { x, y }
     }
 
-    pub fn update(&mut self, direction: &DirectionInput) {
+    pub fn update(&mut self, direction: &Direction) {
         match direction {
-            DirectionInput::Up => self.decrement_y(),
-            DirectionInput::Left => self.decrement_x(),
-            DirectionInput::Down => self.increment_y(),
-            DirectionInput::Right => self.increment_x(),
+            Direction::Up => self.decrement_y(),
+            Direction::Left => self.decrement_x(),
+            Direction::Down => self.increment_y(),
+            Direction::Right => self.increment_x(),
         }
     }
 

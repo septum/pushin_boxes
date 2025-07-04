@@ -1,22 +1,17 @@
 use std::time::Duration;
 
 use crate::{
-    input::DirectionInput,
+    input::{Action, Direction, Input},
+    level::{LevelUpdate, data::LevelData},
     map::{MAP_COLS, MAP_ROWS, MapEntity, MapPosition},
 };
 
 use super::{kind::LevelKind, record::LevelRecord, snapshots::LevelSnapshots, state::LevelState};
 
-pub enum LevelUpdate {
-    PushBox,
-    PlaceBox,
-    MoveCharacter,
-}
-
 #[derive(Default)]
 pub struct Level {
     kind: LevelKind,
-    state: LevelState,
+    state: LevelData,
     record: LevelRecord,
     snapshots: LevelSnapshots,
 }
@@ -25,17 +20,24 @@ impl Level {
     pub fn new(kind: LevelKind, state: LevelState) -> Level {
         Level {
             kind,
-            state,
+            state: state.into(),
             ..Level::default()
         }
     }
 
-    pub fn update(&mut self, direction: &DirectionInput) -> Option<LevelUpdate> {
+    pub fn update(&mut self, input: &Input) -> Option<LevelUpdate> {
+        match input {
+            Input::Direction(direction) => self.handle_direction_input(direction),
+            Input::Action(action) => self.handle_action_input(action),
+        }
+    }
+
+    fn handle_direction_input(&mut self, direction: &Direction) -> Option<LevelUpdate> {
         match direction {
-            DirectionInput::Down => self.set_character_facing_direction(0),
-            DirectionInput::Up => self.set_character_facing_direction(1),
-            DirectionInput::Left => self.set_character_facing_direction(2),
-            DirectionInput::Right => self.set_character_facing_direction(3),
+            Direction::Down => self.set_character_facing_direction(0),
+            Direction::Up => self.set_character_facing_direction(1),
+            Direction::Left => self.set_character_facing_direction(2),
+            Direction::Right => self.set_character_facing_direction(3),
         }
 
         let mut next_position = self.character_position();
@@ -92,6 +94,25 @@ impl Level {
         }
     }
 
+    fn handle_action_input(&mut self, action: &Action) -> Option<LevelUpdate> {
+        match action {
+            Action::Undo => {
+                if self.undo() {
+                    Some(LevelUpdate::UndoMove)
+                } else {
+                    None
+                }
+            }
+            Action::Reload => {
+                self.state.reload();
+                self.record.reset_moves();
+                Some(LevelUpdate::Reload)
+            }
+            Action::Exit => Some(LevelUpdate::Exit),
+            _ => None,
+        }
+    }
+
     pub fn kind(&self) -> &LevelKind {
         &self.kind
     }
@@ -119,7 +140,7 @@ impl Level {
         for column in 0..MAP_COLS {
             for row in 0..MAP_ROWS {
                 let position = MapPosition::new(column, row);
-                let entity = self.get_entity(&position);
+                let entity = self.state.get_entity(&position);
                 f(entity, position);
             }
         }
@@ -127,12 +148,6 @@ impl Level {
 
     pub fn state(&self) -> &LevelState {
         &self.state
-    }
-
-    pub fn set_state(&mut self, state: LevelState) {
-        self.state = state;
-        self.snapshots.reset();
-        self.record.reset_moves();
     }
 
     pub fn get_entity(&self, position: &MapPosition) -> &MapEntity {
@@ -176,13 +191,13 @@ impl Level {
     }
 
     pub fn save_snapshot(&mut self) {
-        self.snapshots.capture(self.state);
+        self.snapshots.capture(*self.state);
     }
 
     pub fn undo(&mut self) -> bool {
         if let Some(state) = self.snapshots.shift() {
-            self.state = state;
-            self.decrement_moves();
+            *self.state = state;
+            self.record.decrement_moves();
             return true;
         }
         false
@@ -206,10 +221,6 @@ impl Level {
 
     pub fn increment_moves(&mut self) {
         self.record.increment_moves();
-    }
-
-    pub fn decrement_moves(&mut self) {
-        self.record.decrement_moves();
     }
 
     pub fn moves_string(&self) -> String {

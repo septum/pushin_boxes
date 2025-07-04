@@ -2,9 +2,9 @@ use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use game_ui::OverlayMarker;
 use regex::Regex;
 
-use crate::{assets::prelude::*, input::ActionInputEvent, state::GameState};
+use crate::{assets::prelude::*, input::InputEvent, state::GameState};
 
-use super::systems::{LevelNameRegex, TextCursor, handle_action_input, handle_text_input};
+use super::systems::{LevelNameRegex, TextCursor, handle_input, handle_text_input};
 
 pub struct Plugin;
 
@@ -21,7 +21,7 @@ impl BevyPlugin for Plugin {
         .add_systems(
             Update,
             (
-                handle_action_input.run_if(on_event::<ActionInputEvent>),
+                handle_input.run_if(on_event::<InputEvent>),
                 handle_text_input,
             )
                 .run_if(in_state(GameState::Passed)),

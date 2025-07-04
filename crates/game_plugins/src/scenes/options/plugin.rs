@@ -1,16 +1,9 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use game_ui::OverlayMarker;
 
-use crate::{
-    assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
-    state::GameState,
-};
+use crate::{assets::prelude::*, input::InputEvent, state::GameState};
 
-use super::systems::{
-    handle_action_input, handle_direction_input, play_action_sfx, play_direction_sfx,
-    update_dynamic_text,
-};
+use super::systems::{handle_input, update_dynamic_text};
 
 pub struct Plugin;
 
@@ -20,10 +13,7 @@ impl BevyPlugin for Plugin {
             .add_systems(
                 Update,
                 (
-                    handle_action_input.run_if(on_event::<ActionInputEvent>),
-                    handle_direction_input.run_if(on_event::<DirectionInputEvent>),
-                    play_action_sfx.run_if(on_event::<ActionInputEvent>),
-                    play_direction_sfx.run_if(on_event::<DirectionInputEvent>),
+                    handle_input.run_if(on_event::<InputEvent>),
                     update_dynamic_text,
                 )
                     .run_if(in_state(GameState::Options)),

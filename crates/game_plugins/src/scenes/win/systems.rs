@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 
-use game_core::{input::ActionInput, level::LevelKind};
+use game_core::{
+    input::{Action, Input},
+    level::LevelKind,
+};
 
 use crate::{
     assets::prelude::*,
-    input::ActionInputEvent,
+    input::InputEvent,
     level::{LevelInsertionEvent, LevelResource},
     save_file::SaveFile,
     state::{GameStateTransitionEvent, SelectionKind},
@@ -16,15 +19,15 @@ pub fn save(mut save_file: ResMut<SaveFile>, level: Res<LevelResource>) {
     save_file.save();
 }
 
-pub fn handle_action_input(
+pub fn handle_input(
     mut level_instertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
+    mut input_event_reader: EventReader<InputEvent>,
     level: Res<LevelResource>,
 ) {
-    for action_event in action_event_reader.read() {
-        match action_event.value {
-            ActionInput::Select => match level.kind() {
+    for input_event in input_event_reader.read() {
+        match **input_event {
+            Input::Action(Action::Select) => match level.kind() {
                 LevelKind::Stock(index) => {
                     if level.is_last() {
                         game_state_event_writer
@@ -42,7 +45,7 @@ pub fn handle_action_input(
                     unreachable!("An editable level cannot be won");
                 }
             },
-            ActionInput::Exit => {
+            Input::Action(Action::Exit) => {
                 game_state_event_writer.write(GameStateTransitionEvent::title());
             }
             _ => {}

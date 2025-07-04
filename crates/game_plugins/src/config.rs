@@ -6,7 +6,7 @@ use bevy::{
 };
 
 use crate::{
-    input::{self, ActionInputEvent, DirectionInputEvent},
+    input::{self, InputEvent},
     level::{self, LevelInsertionEvent},
     save_file,
     state::{self, GameState, GameStateTransitionEvent},
@@ -39,8 +39,7 @@ impl BevyPlugin for Plugin {
         ))
         .insert_resource(ClearColor(game_ui::Colors::DARK))
         .init_state::<GameState>()
-        .add_event::<ActionInputEvent>()
-        .add_event::<DirectionInputEvent>()
+        .add_event::<InputEvent>()
         .add_event::<GameStateTransitionEvent>()
         .add_event::<LevelInsertionEvent>()
         .add_plugins((

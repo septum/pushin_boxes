@@ -8,13 +8,10 @@ use game_core::{
     level::{Level, LevelKind, LevelState},
     map::MapEntity,
 };
-use uuid::Uuid;
 
 use crate::{
     assets::prelude::Images,
-    level::{
-        LevelHandles, MapPositionExtension, done_timer::LevelDoneTimer, handles::LevelStateAsset,
-    },
+    level::{MapPositionExtension, done_timer::LevelDoneTimer},
 };
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
@@ -45,40 +42,6 @@ impl LevelResource {
         LevelResource {
             inner: Level::new(kind, state),
             ..LevelResource::default()
-        }
-    }
-
-    pub fn reload(
-        &mut self,
-        level_handles: &LevelHandles,
-        level_states_assets: &Assets<LevelStateAsset>,
-    ) -> bool {
-        if self.inner.record_is_set() || !self.inner.max_undos_available() {
-            let level_kind = self.inner.kind().clone();
-            match level_kind {
-                LevelKind::Stock(index) => {
-                    self.inner.set_state(
-                        **level_states_assets
-                            .get(level_handles.get_stock(index))
-                            .unwrap(),
-                    );
-                }
-                LevelKind::Custom(key) => {
-                    let parsed_key: Vec<&str> = key.split('$').collect();
-                    let uuid = Uuid::parse_str(parsed_key[1]).expect("Cannot parse uuid");
-                    self.inner.set_state(
-                        **level_states_assets
-                            .get(level_handles.get_custom(&uuid).unwrap())
-                            .unwrap(),
-                    );
-                }
-                LevelKind::Editable(state) => {
-                    self.inner.set_state(state);
-                }
-            }
-            true
-        } else {
-            false
         }
     }
 

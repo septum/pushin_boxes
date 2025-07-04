@@ -1,12 +1,16 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use game_core::{input::ActionInput, level::LevelKind, map::MapEntity};
+use game_core::{
+    input::{Action, Input},
+    level::LevelKind,
+    map::MapEntity,
+};
 use game_ui::{Colors, DynamicTextData};
 
 use crate::{
     assets::prelude::*,
-    input::{ActionInputEvent, DirectionInputEvent},
+    input::InputEvent,
     level::{
         Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelResource, LevelValidity,
         MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
@@ -37,37 +41,31 @@ pub fn setup_level(
     level_validity.reset();
 }
 
-pub fn handle_direction_input(
-    mut brush: ResMut<Brush>,
-    mut direction_event_reader: EventReader<DirectionInputEvent>,
-) {
-    for direction_event in direction_event_reader.read() {
-        brush.position.update(&direction_event.value);
-    }
-}
-
-pub fn handle_action_input(
+pub fn handle_input(
     level: Res<LevelResource>,
     level_validity: Res<LevelValidity>,
     mut brush: ResMut<Brush>,
     mut game_state_event_writer: EventWriter<GameStateTransitionEvent>,
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
-    mut action_event_reader: EventReader<ActionInputEvent>,
+    mut input_event_reader: EventReader<InputEvent>,
 ) {
-    for action_event in action_event_reader.read() {
-        match action_event.value {
-            ActionInput::Toggle => brush.cycle(),
-            ActionInput::Select => {
+    for input_event in input_event_reader.read() {
+        match **input_event {
+            Input::Direction(direction) => {
+                brush.position.update(&direction);
+            }
+            Input::Action(Action::Toggle) => brush.cycle(),
+            Input::Action(Action::Select) => {
                 if level_validity.zones > 0 && level_validity.zones == level_validity.boxes {
                     level_insertion_event_writer.write(LevelInsertionEvent::new(
                         LevelKind::Editable(*level.state()),
                     ));
                 }
             }
-            ActionInput::Exit => {
+            Input::Action(Action::Exit) => {
                 game_state_event_writer.write(GameStateTransitionEvent::title());
             }
-            _ => (),
+            Input::Action(_) => (),
         }
     }
 }
@@ -240,33 +238,26 @@ pub fn update_map(
     }
 }
 
-pub fn play_action_sfx(
-    mut action_event_reader: EventReader<ActionInputEvent>,
+pub fn play_sfx(
+    mut input_event_reader: EventReader<InputEvent>,
     sounds: Res<Sounds>,
     sfx: Res<AudioChannel<Sfx>>,
 ) {
-    for action_event in action_event_reader.read() {
-        match action_event.value {
-            ActionInput::Exit => {
+    for input_event in input_event_reader.read() {
+        match **input_event {
+            Input::Direction(_) => {
+                sfx.play(sounds.sfx_move_character.clone());
+            }
+            Input::Action(Action::Exit) => {
                 sfx.play(sounds.sfx_push_box.clone());
             }
-            ActionInput::Toggle => {
+            Input::Action(Action::Toggle) => {
                 sfx.play(sounds.sfx_toggle_volume.clone());
             }
-            ActionInput::Select => {
+            Input::Action(Action::Select) => {
                 sfx.play(sounds.sfx_set_zone.clone());
             }
-            _ => (),
+            Input::Action(_) => (),
         }
-    }
-}
-
-pub fn play_direction_sfx(
-    mut direction_event_reader: EventReader<DirectionInputEvent>,
-    sounds: Res<Sounds>,
-    sfx: Res<AudioChannel<Sfx>>,
-) {
-    for _ in direction_event_reader.read() {
-        sfx.play(sounds.sfx_move_character.clone());
     }
 }
