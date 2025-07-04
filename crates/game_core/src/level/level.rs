@@ -168,6 +168,7 @@ impl Level {
         self.state.move_character(position);
     }
 
+    // TODO: This can be an actual direction
     pub fn character_facing_direction(&self) -> usize {
         self.state.character_facing_direction()
     }
