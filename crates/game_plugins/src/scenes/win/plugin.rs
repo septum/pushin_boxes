@@ -1,8 +1,13 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 
-use crate::{assets::prelude::*, input::InputEvent, state::GameState};
+use crate::{
+    assets::prelude::*,
+    character::{Character, CharacterAnimation},
+    input::InputEvent,
+    state::GameState,
+};
 
-use super::systems::{handle_input, save, update_character_animation};
+use super::systems::{handle_input, save};
 
 pub struct Plugin;
 
@@ -20,17 +25,13 @@ impl BevyPlugin for Plugin {
             Update,
             (
                 handle_input.run_if(on_event::<InputEvent>),
-                update_character_animation,
+                CharacterAnimation::update_character_happy_animation,
             )
                 .run_if(in_state(GameState::Win)),
         )
         .add_systems(
             OnExit(GameState::Win),
-            (
-                cleanup::<game_ui::OverlayMarker>,
-                cleanup::<CharacterMarker>,
-            )
-                .chain(),
+            (cleanup::<game_ui::OverlayMarker>, cleanup::<Character>).chain(),
         );
     }
 }

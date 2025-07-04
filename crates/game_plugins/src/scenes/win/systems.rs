@@ -6,7 +6,6 @@ use game_core::{
 };
 
 use crate::{
-    assets::prelude::*,
     input::InputEvent,
     level::{LevelInsertionEvent, LevelResource},
     save_file::SaveFile,
@@ -50,18 +49,5 @@ pub fn handle_input(
             }
             _ => {}
         }
-    }
-}
-
-pub fn update_character_animation(
-    time: Res<Time>,
-    mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut Sprite, With<CharacterMarker>>,
-) {
-    character_animation.tick(time.delta());
-    if character_animation.primary_timer_just_finished() {
-        let mut sprite = query.single_mut().unwrap();
-        character_animation.next_index();
-        sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
     }
 }

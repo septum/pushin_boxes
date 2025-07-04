@@ -3,6 +3,7 @@ use game_ui::OverlayMarker;
 
 use crate::{
     assets::prelude::*,
+    character::Character,
     input::InputEvent,
     level::{Brush, BrushSprite, LevelValidity, MapPositionComponent},
     state::GameState,
@@ -45,7 +46,7 @@ impl BevyPlugin for Plugin {
                 OnExit(GameState::Editor),
                 (
                     cleanup::<OverlayMarker>,
-                    cleanup::<CharacterMarker>,
+                    cleanup::<Character>,
                     cleanup::<MapPositionComponent>,
                     cleanup::<BrushSprite>,
                 ),

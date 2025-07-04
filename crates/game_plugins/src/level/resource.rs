@@ -11,6 +11,7 @@ use game_core::{
 
 use crate::{
     assets::prelude::Images,
+    character::Character,
     level::{MapPositionExtension, done_timer::LevelDoneTimer},
 };
 
@@ -51,7 +52,8 @@ impl LevelResource {
         let position = self.inner.character_position();
         let level_character_facing_direction = self.inner.character_facing_direction();
 
-        position.spawn_character(
+        Character::spawn(
+            position,
             commands,
             TextureAtlas {
                 layout: images.character_layout.clone(),

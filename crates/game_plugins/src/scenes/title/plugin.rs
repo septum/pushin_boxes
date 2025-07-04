@@ -1,10 +1,15 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
 use game_ui::OverlayMarker;
 
-use crate::{assets::prelude::*, input::InputEvent, state::GameState};
+use crate::{
+    assets::prelude::*,
+    character::{Character, CharacterAnimation},
+    input::InputEvent,
+    state::GameState,
+};
 
 use super::{
-    systems::{handle_input, play_sfx, update_character_animation},
+    systems::{handle_input, play_sfx},
     ui,
 };
 
@@ -22,7 +27,7 @@ impl BevyPlugin for Plugin {
         .add_systems(
             Update,
             (
-                update_character_animation,
+                CharacterAnimation::update_blinking_character_animation,
                 handle_input.run_if(on_event::<InputEvent>),
                 play_sfx.run_if(on_event::<InputEvent>),
             )
@@ -30,7 +35,7 @@ impl BevyPlugin for Plugin {
         )
         .add_systems(
             OnExit(GameState::Title),
-            (cleanup::<OverlayMarker>, cleanup::<CharacterMarker>),
+            (cleanup::<OverlayMarker>, cleanup::<Character>),
         );
     }
 }

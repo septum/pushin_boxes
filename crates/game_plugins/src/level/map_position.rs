@@ -2,8 +2,6 @@ use bevy::prelude::*;
 
 use game_core::map::{MAP_ROWS, MapPosition};
 
-use crate::assets::prelude::CharacterMarker;
-
 const SPRITE_SIZE: usize = 64;
 const SPRITE_OFFSET: usize = 32;
 
@@ -20,8 +18,6 @@ pub trait MapPositionExtension {
     fn update_translation(&self, translation: &mut Vec3);
 
     fn spawn_entity(&self, commands: &mut Commands, image: Handle<Image>);
-
-    fn spawn_character(&self, commands: &mut Commands, atlas: TextureAtlas, image: Handle<Image>);
 }
 
 impl MapPositionExtension for MapPosition {
@@ -48,21 +44,5 @@ impl MapPositionExtension for MapPosition {
         commands
             .spawn((sprite, transform))
             .insert(MapPositionComponent(*self));
-    }
-
-    fn spawn_character(&self, commands: &mut Commands, atlas: TextureAtlas, image: Handle<Image>) {
-        let mut translation = Vec3::default();
-        self.update_translation(&mut translation);
-
-        // TODO: There should be another way to do this proper
-        translation.z += 1.;
-
-        let transform = Transform::from_translation(translation);
-        let sprite = Sprite {
-            image,
-            texture_atlas: Some(atlas),
-            ..default()
-        };
-        commands.spawn((sprite, transform)).insert(CharacterMarker);
     }
 }

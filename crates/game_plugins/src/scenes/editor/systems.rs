@@ -10,6 +10,7 @@ use game_ui::{Colors, DynamicTextData};
 
 use crate::{
     assets::prelude::*,
+    character::Character,
     input::InputEvent,
     level::{
         Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelResource, LevelValidity,
@@ -169,7 +170,7 @@ pub fn apply_brush_to_level(
 
 pub fn update_character_position(
     level: Res<LevelResource>,
-    mut query: Query<&mut Transform, With<CharacterMarker>>,
+    mut query: Query<&mut Transform, With<Character>>,
 ) {
     let mut transform = query.single_mut().unwrap();
     level

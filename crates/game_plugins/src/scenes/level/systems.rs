@@ -9,6 +9,7 @@ use game_ui::DynamicTextData;
 
 use crate::{
     assets::prelude::*,
+    character::Character,
     input::InputEvent,
     level::{LevelResource, MapPositionComponent, MapPositionExtension},
     state::{GameStateTransitionEvent, SelectionKind},
@@ -69,7 +70,7 @@ pub fn handle_input(
 
 pub fn update_character_position(
     level: Res<LevelResource>,
-    mut query: Query<&mut Transform, With<CharacterMarker>>,
+    mut query: Query<&mut Transform, With<Character>>,
 ) {
     let mut transform = query.single_mut().unwrap();
     level
@@ -78,48 +79,6 @@ pub fn update_character_position(
 
     // TODO: There should be another way to do this proper
     transform.translation.z += 1.;
-}
-
-pub fn update_character_sprite(
-    time: Res<Time>,
-    level: Res<LevelResource>,
-    mut character_animation: ResMut<CharacterAnimation>,
-    mut query: Query<&mut Sprite, With<CharacterMarker>>,
-) {
-    let mut sprite = query.single_mut().unwrap();
-    let level_character_facing_direction = level.character_facing_direction();
-
-    character_animation.tick(time.delta());
-
-    if level_character_facing_direction == 0 {
-        if character_animation.secondary_timer_just_finished() {
-            character_animation.set_blink_row();
-            character_animation.reset_primary_timer();
-        }
-
-        if character_animation.tertiary_timer_just_finished() {
-            character_animation.set_sleep_row();
-            character_animation.reset_primary_timer();
-        }
-    } else {
-        character_animation.reset_secondary_timer();
-        character_animation.reset_tertiary_timer();
-    }
-
-    if !character_animation.row_is(level_character_facing_direction)
-        && !character_animation.secondary_timer_finished()
-        && !character_animation.tertiary_timer_finished()
-    {
-        character_animation.reset_primary_timer();
-        character_animation.reset_index();
-        character_animation.set_row(level_character_facing_direction);
-    }
-
-    if character_animation.primary_timer_just_finished() {
-        character_animation.next_index();
-    }
-
-    sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
 }
 
 pub fn update_counters(

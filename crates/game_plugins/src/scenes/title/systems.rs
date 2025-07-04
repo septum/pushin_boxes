@@ -126,31 +126,3 @@ pub fn play_sfx(
         }
     }
 }
-
-pub fn update_character_animation(
-    time: Res<Time>,
-    mut query: Query<&mut Sprite, With<CharacterMarker>>,
-    mut character_animation: ResMut<CharacterAnimation>,
-) {
-    let mut sprite = query.single_mut().unwrap();
-
-    character_animation.tick(time.delta());
-
-    if character_animation.secondary_timer_just_finished() {
-        character_animation.set_blink_row();
-        character_animation.reset_primary_timer();
-        character_animation.reset_secondary_timer();
-    }
-
-    if character_animation.primary_timer_just_finished() {
-        if sprite.texture_atlas.as_mut().unwrap().index == BLINK_ROW_LAST_FRAME_INDEX {
-            character_animation.set_front_row();
-            character_animation.reset_primary_timer();
-            character_animation.reset_secondary_timer();
-        } else {
-            character_animation.next_index();
-        }
-    }
-
-    sprite.texture_atlas.as_mut().unwrap().index = character_animation.sprite_index();
-}
