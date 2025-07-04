@@ -108,6 +108,7 @@ impl Level {
             Action::Reload => {
                 self.state.reload();
                 self.record.reset_moves();
+                self.snapshots.reset();
                 Some(LevelUpdate::Reload)
             }
             Action::Exit => Some(LevelUpdate::Exit),

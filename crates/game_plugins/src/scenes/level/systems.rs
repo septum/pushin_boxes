@@ -32,8 +32,7 @@ pub fn handle_input(
     }
 
     for input_event in input_event_reader.read() {
-        let input = input_event;
-        if let Some(update) = level.update(&input) {
+        if let Some(update) = level.update(input_event) {
             match update {
                 LevelUpdate::PushBox => {
                     sfx.play(sounds.sfx_move_character.clone());
