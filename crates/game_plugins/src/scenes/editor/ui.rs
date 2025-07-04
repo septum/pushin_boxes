@@ -24,7 +24,7 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
         "A valid level has at least one box and a zone per box",
         font,
     );
-    let mut toggle = SimpleText::small("(ENTER) - Toggle Entity", font);
+    let mut toggle = SimpleText::small("(ENTER) - Toggle EntityComponent", font);
     let mut playtest = SimpleText::small("(SPACE) - Playtest Level", font);
 
     top.row().justify_between();

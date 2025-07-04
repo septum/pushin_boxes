@@ -13,8 +13,8 @@ use crate::{
     character::Character,
     input::InputEvent,
     level::{
-        Brush, BrushEntity, BrushSprite, LevelInsertionEvent, LevelResource, LevelValidity,
-        MapPositionComponent, MapPositionExtension, TOTAL_CUSTOM_LEVELS,
+        Brush, BrushEntity, BrushSprite, EntityComponent, LevelInsertionEvent, LevelResource,
+        LevelValidity, TOTAL_CUSTOM_LEVELS, apply_position_to_translation,
     },
     save_file::SaveFile,
     state::GameStateTransitionEvent,
@@ -74,7 +74,7 @@ pub fn handle_input(
 pub fn blink_tile(
     time: Res<Time>,
     mut brush: ResMut<Brush>,
-    mut entity_query: Query<(&mut Sprite, &MapPositionComponent), With<MapPositionComponent>>,
+    mut entity_query: Query<(&mut Sprite, &EntityComponent), With<EntityComponent>>,
 ) {
     brush.blink_timer.tick(time.delta());
 
@@ -173,9 +173,7 @@ pub fn update_character_position(
     mut query: Query<&mut Transform, With<Character>>,
 ) {
     let mut transform = query.single_mut().unwrap();
-    level
-        .character_position()
-        .update_translation(&mut transform.translation);
+    apply_position_to_translation(&level.character_position(), &mut transform.translation);
 
     // TODO: There should be another way to do this proper
     transform.translation.z += 1.;
@@ -187,9 +185,7 @@ pub fn update_brush_sprite(
     mut query: Query<(&mut Sprite, &mut Transform), With<BrushSprite>>,
 ) {
     let (mut sprite, mut transform) = query.single_mut().unwrap();
-    brush
-        .position
-        .update_translation(&mut transform.translation);
+    apply_position_to_translation(&brush.position, &mut transform.translation);
     transform.translation.y += 20.0;
     transform.translation.z = 20.0;
 
@@ -224,7 +220,7 @@ pub fn check_validity(
 pub fn update_map(
     level: Res<LevelResource>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionComponent)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &EntityComponent)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
@@ -235,7 +231,7 @@ pub fn update_map(
             MapEntity::B => images.entity_box.clone(),
             MapEntity::P => images.entity_placed_box.clone(),
         };
-        position.update_translation(&mut transform.translation);
+        apply_position_to_translation(position, &mut transform.translation);
     }
 }
 

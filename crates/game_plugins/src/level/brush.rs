@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use game_core::map::MapPosition;
 
-use crate::{assets::prelude::Images, level::map_position::MapPositionExtension};
+use crate::{assets::prelude::Images, level::apply_position_to_translation};
 
 #[derive(Default, Resource)]
 pub struct LevelValidity {
@@ -53,7 +53,7 @@ impl Brush {
         let brush = Brush::default();
 
         let mut translation = Vec3::default();
-        brush.position.update_translation(&mut translation);
+        apply_position_to_translation(&brush.position, &mut translation);
 
         translation.y += 20.0;
         translation.z = 20.0;

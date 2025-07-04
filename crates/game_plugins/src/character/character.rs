@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use game_core::map::MapPosition;
 
-use crate::level::MapPositionExtension;
+use crate::level::apply_position_to_translation;
 
 #[derive(Component)]
 pub struct Character;
@@ -15,7 +15,7 @@ impl Character {
         image: Handle<Image>,
     ) {
         let mut translation = Vec3::default();
-        position.update_translation(&mut translation);
+        apply_position_to_translation(&position, &mut translation);
 
         // TODO: There should be another way to do this proper
         translation.z += 1.;

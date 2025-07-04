@@ -11,7 +11,7 @@ use crate::{
     assets::prelude::*,
     character::Character,
     input::InputEvent,
-    level::{LevelResource, MapPositionComponent, MapPositionExtension},
+    level::{EntityComponent, LevelResource, apply_position_to_translation},
     state::{GameStateTransitionEvent, SelectionKind},
 };
 
@@ -73,9 +73,7 @@ pub fn update_character_position(
     mut query: Query<&mut Transform, With<Character>>,
 ) {
     let mut transform = query.single_mut().unwrap();
-    level
-        .character_position()
-        .update_translation(&mut transform.translation);
+    apply_position_to_translation(&level.character_position(), &mut transform.translation);
 
     // TODO: There should be another way to do this proper
     transform.translation.z += 1.;
@@ -99,7 +97,7 @@ pub fn update_counters(
 pub fn update_map(
     level: Res<LevelResource>,
     images: Res<Images>,
-    mut query: Query<(&mut Sprite, &mut Transform, &MapPositionComponent)>,
+    mut query: Query<(&mut Sprite, &mut Transform, &EntityComponent)>,
 ) {
     for (mut sprite, mut transform, position) in &mut query {
         let map_entity = level.get_entity(position);
@@ -110,7 +108,7 @@ pub fn update_map(
             MapEntity::B => images.entity_box.clone(),
             MapEntity::P => images.entity_placed_box.clone(),
         };
-        position.update_translation(&mut transform.translation);
+        apply_position_to_translation(position, &mut transform.translation);
     }
 }
 

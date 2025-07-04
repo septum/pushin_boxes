@@ -12,7 +12,7 @@ use game_core::{
 use crate::{
     assets::prelude::Images,
     character::Character,
-    level::{MapPositionExtension, done_timer::LevelDoneTimer},
+    level::{EntityComponent, done_timer::LevelDoneTimer},
 };
 
 pub const TOTAL_STOCK_LEVELS: usize = 16;
@@ -71,7 +71,7 @@ impl LevelResource {
                     MapEntity::B => images.entity_box.clone(),
                     MapEntity::P => images.entity_placed_box.clone(),
                 };
-                position.spawn_entity(commands, texture);
+                EntityComponent::spawn(position, commands, texture);
             });
     }
 

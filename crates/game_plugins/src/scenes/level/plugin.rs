@@ -5,7 +5,7 @@ use crate::{
     assets::prelude::*,
     character::{Character, CharacterAnimation},
     input::InputEvent,
-    level::MapPositionComponent,
+    level::EntityComponent,
     state::GameState,
 };
 
@@ -45,7 +45,7 @@ impl BevyPlugin for Plugin {
             (
                 cleanup::<OverlayMarker>,
                 cleanup::<Character>,
-                cleanup::<MapPositionComponent>,
+                cleanup::<EntityComponent>,
             ),
         );
     }
