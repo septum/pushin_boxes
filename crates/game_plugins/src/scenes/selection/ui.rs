@@ -1,67 +1,51 @@
-use bevy::prelude::*;
-use game_ui::{Container, GameButton, GameText, Overlay, SimpleText};
+use bevy::{ecs::spawn::SpawnIter, prelude::*};
+use bevy_ui_bits::{Container, EmbossedText, Root, SimpleText, UiButton, UiText};
 
 use crate::{assets::prelude::*, save_file::SaveFile, state::GameState};
 
 fn spawn_stock_buttons(
-    parent: &mut ChildSpawnerCommands,
     save_file: &SaveFile,
     font: &Handle<Font>,
-) {
-    let last_unlocked_index = save_file.unlocked_levels() - 1;
+) -> Vec<(Container, UiButton, EmbossedText, SimpleText)> {
+    let mut buttons = vec![];
+
     for (index, record) in save_file.enumerated_stock_records() {
-        let housing = Container::size_percentage(25.0, 25.0);
-        let mut button = GameButton::square(format!("{}", index + 1), font);
+        let housing = Container::size(Val::Percent(25.0), Val::Percent(25.0));
+        let button = UiButton::square().id(index);
+        let button_text = EmbossedText::medium(&format!("{}", index + 1), font);
         let record_new_level = if record.is_set() {
-            SimpleText::small(format!("Record: {}", record.moves_in_time('\n')), font)
+            SimpleText::small(&format!("Record: {}", record.moves_in_time('\n')), font)
         } else {
-            let mut simple_text = SimpleText::small("New Level!\n ".to_string(), font);
-            simple_text.secondary();
-            simple_text
+            SimpleText::small("New Level!\n ", font).color(crate::theme::SECONDARY.into())
         };
 
-        button.id(index);
-
-        if last_unlocked_index == index {
-            button.selected();
-        }
-
-        housing.spawn(parent, |parent| {
-            button.spawn(parent);
-            record_new_level.spawn(parent);
-        });
+        buttons.push((housing, button, button_text, record_new_level));
     }
+
+    buttons
 }
 
 fn spawn_custom_buttons(
-    parent: &mut ChildSpawnerCommands,
     save_file: &SaveFile,
     font: &Handle<Font>,
-) {
+) -> Vec<(Container, UiButton, EmbossedText, SimpleText)> {
+    let mut buttons = vec![];
+
     for (index, (key, record)) in save_file.ordered_custom_records() {
-        let housing = Container::size_percentage(25.0, 25.0);
+        let housing = Container::size(Val::Percent(25.0), Val::Percent(25.0));
         let split_key: Vec<&str> = key.split('$').collect();
-        let mut button = GameButton::new(split_key[0], font);
+        let button = UiButton::rectangle().id(index).payload(key);
+        let button_text = EmbossedText::medium(split_key[0], font);
         let record_new_level = if record.is_set() {
-            SimpleText::small(format!("Record: {}", record.moves_in_time('\n')), font)
+            SimpleText::small(&format!("Record: {}", record.moves_in_time('\n')), font)
         } else {
-            let mut simple_text = SimpleText::small("New Level!\n ".to_string(), font);
-            simple_text.secondary();
-            simple_text
+            SimpleText::small("New Level!\n ", font).color(crate::theme::SECONDARY.into())
         };
 
-        button.id(index);
-        button.payload(key.clone().clone());
-
-        if index == 0 {
-            button.selected();
-        }
-
-        housing.spawn(parent, |parent| {
-            button.spawn(parent);
-            record_new_level.spawn(parent);
-        });
+        buttons.push((housing, button, button_text, record_new_level));
     }
+
+    buttons
 }
 
 pub fn spawn(
@@ -72,57 +56,78 @@ pub fn spawn(
 ) {
     let font = fonts.primary();
 
-    let overlay = Overlay::extended();
-    let top = Container::auto_height();
-    let mut middle = Container::default();
-    let mut bottom = Container::auto_height();
-
-    let kind = game_state.get_selection_kind();
-    let mut title = SimpleText::medium(format!("Select a {} Level", kind.to_str()), font);
-
-    title.primary();
-    middle
+    let root = Root::new();
+    let top = Container::height(Val::Auto);
+    let middle = Container::new()
         .row()
         .wrap()
         .justify_start()
         .items_start()
         .content_start();
 
-    bottom.row().justify_between();
+    let kind = game_state.get_selection_kind();
+    let title = SimpleText::medium(&format!("Select a {} Level", kind.to_str()), font)
+        .color(crate::theme::PRIMARY.into());
 
-    overlay.spawn(&mut commands, |parent| {
-        top.spawn(parent, |parent| {
-            title.spawn(parent);
-        });
-        middle.spawn(parent, |parent| {
-            #[cfg(target_family = "wasm")]
-            {
-                spawn_stock_buttons(parent, &save_file, font);
-            }
-            #[cfg(not(target_family = "wasm"))]
-            {
-                if kind.is_stock() {
-                    spawn_stock_buttons(parent, &save_file, font);
-                } else {
-                    spawn_custom_buttons(parent, &save_file, font);
-                }
-            }
-        });
-        #[cfg(not(target_family = "wasm"))]
-        {
-            bottom.spawn(parent, |parent| {
-                let mut enter = SimpleText::small(
-                    format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
-                    font,
-                );
-                let mut delete = SimpleText::small("(DELETE) - Remove a custom level", font);
+    #[cfg(target_family = "wasm")]
+    {
+        commands.spawn((
+            root,
+            children![
+                (top, children![title]),
+                (
+                    middle,
+                    Children::spawn(SpawnIter(
+                        spawn_stock_buttons(&save_file, font).into_iter().map(
+                            |(housing, button, button_text, record_new_level)| {
+                                (
+                                    housing,
+                                    children![(button, children![button_text]), record_new_level],
+                                )
+                            }
+                        ),
+                    ))
+                )
+            ],
+        ));
+    }
 
-                enter.primary();
-                delete.primary();
+    #[cfg(not(target_family = "wasm"))]
+    {
+        let bottom = Container::height(Val::Auto).row().justify_between();
+        let enter = SimpleText::small(
+            &format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
+            font,
+        )
+        .color(crate::theme::PRIMARY.into());
+        let delete = SimpleText::small("(DELETE) - Remove a custom level", font)
+            .color(crate::theme::PRIMARY.into());
 
-                enter.spawn(parent);
-                delete.spawn(parent);
-            });
-        }
-    });
+        commands.spawn((
+            root,
+            children![
+                (top, children![title]),
+                (
+                    middle,
+                    Children::spawn(SpawnIter(
+                        (if kind.is_stock() {
+                            spawn_stock_buttons(&save_file, font)
+                        } else {
+                            spawn_custom_buttons(&save_file, font)
+                        })
+                        .into_iter()
+                        .map(
+                            |(housing, button, button_text, record_new_level)| {
+                                (
+                                    housing,
+                                    children![(button, children![button_text]), record_new_level],
+                                )
+                            }
+                        ),
+                    ))
+                ),
+                (bottom, children![enter, delete])
+            ],
+        ));
+    }
 }

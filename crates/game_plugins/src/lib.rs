@@ -16,6 +16,7 @@ mod input;
 mod level;
 mod save_file;
 mod state;
+mod theme;
 
 pub mod assets;
 pub mod config;

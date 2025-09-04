@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
+use bevy_ui_bits::{Container, DynamicTextBuilder, Root, SimpleText, UiText};
 
 use crate::{assets::prelude::*, level::LevelResource};
 
@@ -16,67 +16,59 @@ pub fn spawn(mut commands: Commands, level: Res<LevelResource>, fonts: Res<Fonts
         "New Level!".to_string()
     };
 
-    let overlay = Overlay::extended();
-    let mut top = Container::auto_height();
-    let mut bottom = Container::auto_height();
+    let root = Root::new();
+    let top = Container::height(Val::Auto).row().justify_between();
+    let bottom = Container::height(Val::Auto).row().justify_between();
 
-    let mut top_left = Container::half();
-    let mut top_right = Container::half();
-    let mut bottom_left = Container::half();
-    let mut bottom_right = Container::half();
+    let top_left = Container::width(Val::Percent(50.0))
+        .justify_start()
+        .items_start();
+    let top_right = Container::width(Val::Percent(50.0))
+        .justify_start()
+        .items_end();
+    let bottom_left = Container::width(Val::Percent(50.0))
+        .justify_end()
+        .items_start();
+    let bottom_right = Container::width(Val::Percent(50.0))
+        .justify_end()
+        .items_end();
 
-    let mut stopwatch_housing = Container::auto_height_with_width(152.0);
+    let stopwatch_housing = Container::size(Val::Px(152.0), Val::Auto).items_start();
 
-    let level_name = SimpleText::medium(format!("Level {}", level.name()), font);
-    let mut record_new_level = SimpleText::small(record_new_level, font);
-    let mut stopwatch = DynamicText::small("Time: ", font);
-    let mut moves = DynamicText::medium("Moves: ", font);
-    let mut undos_left = DynamicText::medium("Undos: ", font);
-    let mut undo = SimpleText::small("(Z) - Undo Movement", font);
-    let mut reload = SimpleText::small("(F5) - Reload Level", font);
-    let mut selection = SimpleText::small("(ESC) - Level Selection", font);
+    let level_name = SimpleText::medium(&format!("Level {}", level.name()), font);
+    let record_new_level =
+        SimpleText::small(&record_new_level, font).color(crate::theme::SECONDARY.into());
+    let stopwatch = DynamicTextBuilder::small("Time: ", font).id(STOPWATCH_COUNTER_ID);
+    let moves = DynamicTextBuilder::medium("Moves: ", font).id(MOVES_COUNTER_ID);
+    let undos_left = DynamicTextBuilder::medium("Undos: ", font).id(UNDOS_COUNTER_ID);
+    let undo = SimpleText::small("(Z) - Undo Movement", font).color(crate::theme::PRIMARY.into());
+    let reload = SimpleText::small("(F5) - Reload Level", font).color(crate::theme::PRIMARY.into());
+    let selection =
+        SimpleText::small("(ESC) - Level Selection", font).color(crate::theme::PRIMARY.into());
 
-    top.row().justify_between();
-    bottom.row().justify_between();
-
-    top_left.justify_start().align_start();
-    top_right.justify_start().align_end();
-    bottom_left.justify_end().align_start();
-    bottom_right.justify_end().align_end();
-
-    stopwatch_housing.align_start();
-
-    stopwatch.id(STOPWATCH_COUNTER_ID);
-    moves.id(MOVES_COUNTER_ID);
-    undos_left.id(UNDOS_COUNTER_ID);
-
-    undo.primary();
-    reload.primary();
-    selection.primary();
-    record_new_level.secondary();
-
-    overlay.spawn(&mut commands, |parent| {
-        top.spawn(parent, |parent| {
-            top_left.spawn(parent, |parent| {
-                level_name.spawn(parent);
-                record_new_level.spawn(parent);
-            });
-            top_right.spawn(parent, |parent| {
-                moves.spawn(parent);
-                stopwatch_housing.spawn(parent, |parent| {
-                    stopwatch.spawn(parent);
-                });
-            });
-        });
-        bottom.spawn(parent, |parent| {
-            bottom_left.spawn(parent, |parent| {
-                reload.spawn(parent);
-                selection.spawn(parent);
-            });
-            bottom_right.spawn(parent, |parent| {
-                undos_left.spawn(parent);
-                undo.spawn(parent);
-            });
-        });
-    });
+    commands.spawn((
+        root,
+        children![
+            (
+                top,
+                children![
+                    (top_left, children![level_name, record_new_level]),
+                    (
+                        top_right,
+                        children![
+                            moves.build(),
+                            (stopwatch_housing, children![stopwatch.build()])
+                        ]
+                    )
+                ]
+            ),
+            (
+                bottom,
+                children![
+                    (bottom_left, children![reload, selection]),
+                    (bottom_right, children![undos_left.build(), undo])
+                ]
+            )
+        ],
+    ));
 }

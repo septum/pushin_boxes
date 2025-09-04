@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
+use bevy_ui_bits::DynamicTextData;
 use game_core::{
     level::{LevelKind, LevelUpdate},
     map::MapEntity,
 };
-use game_ui::DynamicTextData;
 
 use crate::{
     assets::prelude::*,

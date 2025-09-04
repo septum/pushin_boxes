@@ -1,5 +1,5 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
-use game_ui::OverlayMarker;
+use bevy_ui_bits::RootMarker;
 
 use crate::{
     assets::prelude::*,
@@ -43,7 +43,7 @@ impl BevyPlugin for Plugin {
         .add_systems(
             OnExit(GameState::Level),
             (
-                cleanup::<OverlayMarker>,
+                cleanup::<RootMarker>,
                 cleanup::<Character>,
                 cleanup::<EntityComponent>,
             ),

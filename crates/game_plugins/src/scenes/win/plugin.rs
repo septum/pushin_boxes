@@ -31,7 +31,7 @@ impl BevyPlugin for Plugin {
         )
         .add_systems(
             OnExit(GameState::Win),
-            (cleanup::<game_ui::OverlayMarker>, cleanup::<Character>).chain(),
+            (cleanup::<bevy_ui_bits::RootMarker>, cleanup::<Character>).chain(),
         );
     }
 }

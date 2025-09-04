@@ -13,6 +13,9 @@ impl BevyPlugin for Plugin {
                 Update,
                 (handle_input.run_if(on_event::<InputEvent>)).run_if(in_state(GameState::Limit)),
             )
-            .add_systems(OnExit(GameState::Limit), cleanup::<game_ui::OverlayMarker>);
+            .add_systems(
+                OnExit(GameState::Limit),
+                cleanup::<bevy_ui_bits::RootMarker>,
+            );
     }
 }

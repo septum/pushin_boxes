@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use game_ui::{Container, DynamicText, GameText, Overlay, SimpleText};
+use bevy_ui_bits::{Container, DynamicTextBuilder, Root, SimpleText, UiText};
 
 use crate::assets::prelude::*;
 
@@ -8,28 +8,24 @@ pub const VOLUME_ID: usize = 1;
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();
 
-    let overlay = Overlay::extended();
-    let top = Container::auto();
-    let center = Container::auto();
-    let bottom = Container::auto();
+    let root = Root::new();
+    let top = Container::size(Val::Auto, Val::Auto);
+    let center = Container::size(Val::Auto, Val::Auto);
+    let bottom = Container::size(Val::Auto, Val::Auto);
 
-    let mut how_to_play = SimpleText::medium("Options", font);
-    let mut volume = DynamicText::medium("Volume: ", font);
-    let mut press_button = SimpleText::small("Press ESC to return to the title screen", font);
+    let how_to_play = SimpleText::medium("Options", font).color(crate::theme::PRIMARY.into());
+    let volume = DynamicTextBuilder::medium("Volume: ", font)
+        .id(VOLUME_ID)
+        .color(crate::theme::SECONDARY.into());
+    let press_button = SimpleText::small("Press ESC to return to the title screen", font)
+        .color(crate::theme::PRIMARY.into());
 
-    how_to_play.primary();
-    volume.id(VOLUME_ID).secondary();
-    press_button.primary();
-
-    overlay.spawn(&mut commands, |parent| {
-        top.spawn(parent, |parent| {
-            how_to_play.spawn(parent);
-        });
-        center.spawn(parent, |parent| {
-            volume.spawn(parent);
-        });
-        bottom.spawn(parent, |parent| {
-            press_button.spawn(parent);
-        });
-    });
+    commands.spawn((
+        root,
+        children![
+            (top, children![how_to_play]),
+            (center, children![volume.build()]),
+            (bottom, children![press_button])
+        ],
+    ));
 }

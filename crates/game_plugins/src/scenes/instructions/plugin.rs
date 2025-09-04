@@ -16,7 +16,7 @@ impl BevyPlugin for Plugin {
             )
             .add_systems(
                 OnExit(GameState::Instructions),
-                cleanup::<game_ui::OverlayMarker>,
+                cleanup::<bevy_ui_bits::RootMarker>,
             );
     }
 }

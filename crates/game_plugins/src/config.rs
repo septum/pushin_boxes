@@ -37,7 +37,7 @@ impl BevyPlugin for Plugin {
                 }),
             AudioPlugin,
         ))
-        .insert_resource(ClearColor(game_ui::Colors::DARK))
+        .insert_resource(ClearColor(crate::theme::DARK))
         .init_state::<GameState>()
         .add_event::<InputEvent>()
         .add_event::<GameStateTransitionEvent>()

@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
+use bevy_ui_bits::DynamicTextData;
 use game_core::input::{Action, Direction, Input};
-use game_ui::DynamicTextData;
 
 use crate::{
     assets::prelude::*, input::InputEvent, save_file::SaveFile, state::GameStateTransitionEvent,

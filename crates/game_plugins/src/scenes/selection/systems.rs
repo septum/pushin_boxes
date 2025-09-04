@@ -3,11 +3,11 @@ use std::{env, fs::remove_file, path::PathBuf};
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
+use bevy_ui_bits::UiButtonData;
 use game_core::{
     input::{Action, Direction, Input},
     level::LevelKind,
 };
-use game_ui::{Colors, GameButtonData};
 
 use crate::{
     assets::prelude::*,
@@ -17,60 +17,67 @@ use crate::{
     state::{GameState, GameStateTransitionEvent, SelectionKind},
 };
 
+#[allow(clippy::too_many_lines)]
 pub fn handle_input(
     mut level_insertion_event_writer: EventWriter<LevelInsertionEvent>,
     mut scene_transition_event_writer: EventWriter<GameStateTransitionEvent>,
-    mut query: Query<(&mut GameButtonData, &mut BackgroundColor)>,
+    mut query: Query<(&mut UiButtonData, &mut BackgroundColor)>,
     mut input_event_reader: EventReader<InputEvent>,
     mut save_file: ResMut<SaveFile>,
     game_state: Res<State<GameState>>,
+    mut selected_button: Local<Option<usize>>,
 ) {
     let is_stock = game_state.get_selection_kind().is_stock();
+
+    if selected_button.is_none() {
+        if is_stock {
+            *selected_button = Some(save_file.unlocked_levels() - 1);
+        } else {
+            *selected_button = Some(0);
+        }
+    }
 
     for input_event in input_event_reader.read() {
         match **input_event {
             Input::Direction(direction) => {
-                let mut selected_index: Option<usize> = None;
-                for (button, _) in query.iter() {
-                    if button.selected {
-                        let index = match direction {
-                            Direction::Up => button.id.saturating_sub(4),
-                            Direction::Down => button.id + 4,
-                            Direction::Left => button.id.saturating_sub(1),
-                            Direction::Right => button.id + 1,
-                        };
+                if let Some(id) = *selected_button {
+                    let index = match direction {
+                        Direction::Up => id.saturating_sub(4),
+                        Direction::Down => id + 4,
+                        Direction::Left => id.saturating_sub(1),
+                        Direction::Right => id + 1,
+                    };
 
-                        let max_value = if is_stock {
-                            save_file.unlocked_levels()
-                        } else {
-                            save_file.number_custom_levels()
-                        };
+                    let max_value = if is_stock {
+                        save_file.unlocked_levels()
+                    } else {
+                        save_file.number_custom_levels()
+                    };
 
-                        selected_index = Some(if index < max_value {
-                            index
-                        } else {
-                            max_value - 1
-                        });
+                    *selected_button = Some(if index < max_value {
+                        index
+                    } else {
+                        max_value - 1
+                    });
 
-                        break;
-                    }
+                    break;
                 }
 
-                if let Some(selected_index) = selected_index {
-                    for (mut button, mut color) in &mut query {
-                        if selected_index == button.id {
-                            button.selected = true;
-                            *color = Colors::PRIMARY_DARK.into();
+                if let Some(id) = *selected_button {
+                    for (button, mut color) in &mut query {
+                        if button.id == id {
+                            *color = crate::theme::PRIMARY_DARK.into();
                         } else {
-                            button.selected = false;
-                            *color = Colors::TRANSPARENT.into();
+                            *color = crate::theme::TRANSPARENT.into();
                         }
                     }
                 }
             }
             Input::Action(Action::Select) => {
                 for (button, _) in &mut query {
-                    if button.selected {
+                    if let Some(id) = *selected_button
+                        && button.id == id
+                    {
                         let kind = if is_stock {
                             LevelKind::Stock(button.id)
                         } else {
@@ -101,7 +108,9 @@ pub fn handle_input(
 
             Input::Action(Action::Delete) => {
                 for (button, _) in &mut query {
-                    if button.selected && !is_stock {
+                    if let Some(id) = *selected_button
+                        && button.id == id
+                    {
                         let payload = button
                             .payload
                             .clone()

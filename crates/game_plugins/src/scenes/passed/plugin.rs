@@ -1,5 +1,5 @@
 use bevy::{app::Plugin as BevyPlugin, prelude::*};
-use game_ui::OverlayMarker;
+use bevy_ui_bits::RootMarker;
 use regex::Regex;
 
 use crate::{assets::prelude::*, input::InputEvent, state::GameState};
@@ -26,6 +26,6 @@ impl BevyPlugin for Plugin {
             )
                 .run_if(in_state(GameState::Passed)),
         )
-        .add_systems(OnExit(GameState::Passed), cleanup::<OverlayMarker>);
+        .add_systems(OnExit(GameState::Passed), cleanup::<RootMarker>);
     }
 }

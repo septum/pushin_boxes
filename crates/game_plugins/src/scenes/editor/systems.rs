@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
+use bevy_ui_bits::DynamicTextData;
 use game_core::{
     input::{Action, Input},
     level::LevelKind,
     map::MapEntity,
 };
-use game_ui::{Colors, DynamicTextData};
 
 use crate::{
     assets::prelude::*,
@@ -81,13 +81,13 @@ pub fn blink_tile(
     if brush.blink_timer.just_finished() {
         for (mut sprite, position) in &mut entity_query {
             if position.x() == brush.position.x() && position.y() == brush.position.y() {
-                if sprite.color == Colors::PRIMARY {
-                    sprite.color = Colors::LIGHT;
+                if sprite.color == crate::theme::PRIMARY {
+                    sprite.color = crate::theme::LIGHT;
                 } else {
-                    sprite.color = Colors::PRIMARY;
+                    sprite.color = crate::theme::PRIMARY;
                 }
             } else {
-                sprite.color = Colors::LIGHT;
+                sprite.color = crate::theme::LIGHT;
             }
         }
     }

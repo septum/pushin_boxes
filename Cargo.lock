@@ -1241,6 +1241,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_ui_bits"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9146c58567538c142527f8e236e23097afe0f93e2ec8f8f779314bc618b4899"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_utils"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2161,8 +2170,8 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_common_assets",
  "bevy_kira_audio",
+ "bevy_ui_bits",
  "game_core",
- "game_ui",
  "hashbrown",
  "log",
  "regex",
@@ -2170,13 +2179,6 @@ dependencies = [
  "serde",
  "tracing",
  "uuid",
-]
-
-[[package]]
-name = "game_ui"
-version = "0.16.0"
-dependencies = [
- "bevy",
 ]
 
 [[package]]

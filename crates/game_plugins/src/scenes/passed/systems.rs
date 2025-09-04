@@ -13,11 +13,11 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use regex::Regex;
 use uuid::Uuid;
 
+use bevy_ui_bits::DynamicTextData;
 use game_core::{
     input::{Action, Input},
     level::LevelKind,
 };
-use game_ui::{Colors, DynamicTextData};
 
 use crate::{
     assets::prelude::*,
@@ -75,9 +75,9 @@ pub fn handle_text_input(
     }
 
     if text_cursor.blink_toggle {
-        *writer.color(entity, 1) = TextColor(Colors::TRANSPARENT);
+        *writer.color(entity, 1) = TextColor(crate::theme::TRANSPARENT);
     } else {
-        *writer.color(entity, 1) = TextColor(Colors::SECONDARY);
+        *writer.color(entity, 1) = TextColor(crate::theme::SECONDARY);
     }
 
     for event in keyboard_input_events.read() {
