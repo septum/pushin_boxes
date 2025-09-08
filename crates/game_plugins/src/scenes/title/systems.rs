@@ -12,6 +12,7 @@ use crate::{
 
 use super::ui::{EDITOR_ID, INSTRUCTIONS_ID, OPTIONS_ID, PLAY_ID, QUIT_ID};
 
+#[allow(clippy::too_many_lines)]
 pub fn handle_input(
     mut query: Query<(&UiButtonData, &mut BackgroundColor)>,
     mut input_event_reader: EventReader<InputEvent>,
