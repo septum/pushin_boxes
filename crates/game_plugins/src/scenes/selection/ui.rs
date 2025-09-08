@@ -11,13 +11,17 @@ fn spawn_stock_buttons(
 
     for (index, record) in save_file.enumerated_stock_records() {
         let housing = Container::size(Val::Percent(25.0), Val::Percent(25.0));
-        let button = UiButton::square().id(index);
+        let mut button = UiButton::square().id(index);
         let button_text = EmbossedText::medium(&format!("{}", index + 1), font);
         let record_new_level = if record.is_set() {
             SimpleText::small(&format!("Record: {}", record.moves_in_time('\n')), font)
         } else {
             SimpleText::small("New Level!\n ", font).color(crate::theme::SECONDARY.into())
         };
+
+        if index == save_file.unlocked_levels() - 1 {
+            button = button.background_color(crate::theme::PRIMARY_DARK);
+        }
 
         buttons.push((housing, button, button_text, record_new_level));
     }
@@ -34,13 +38,17 @@ fn spawn_custom_buttons(
     for (index, (key, record)) in save_file.ordered_custom_records() {
         let housing = Container::size(Val::Percent(25.0), Val::Percent(25.0));
         let split_key: Vec<&str> = key.split('$').collect();
-        let button = UiButton::rectangle().id(index).payload(key);
+        let mut button = UiButton::rectangle().id(index).payload(key);
         let button_text = EmbossedText::medium(split_key[0], font);
         let record_new_level = if record.is_set() {
             SimpleText::small(&format!("Record: {}", record.moves_in_time('\n')), font)
         } else {
             SimpleText::small("New Level!\n ", font).color(crate::theme::SECONDARY.into())
         };
+
+        if index == save_file.number_custom_levels() - 1 {
+            button = button.background_color(crate::theme::PRIMARY_DARK);
+        }
 
         buttons.push((housing, button, button_text, record_new_level));
     }
@@ -56,9 +64,11 @@ pub fn spawn(
 ) {
     let font = fonts.primary();
 
-    let root = Root::new();
-    let top = Container::height(Val::Auto);
-    let middle = Container::new()
+    let root = Root::new()
+        .padding(UiRect::all(Val::Px(20.0)))
+        .justify_between();
+    let top = Container::new();
+    let middle = Container::size(Val::Percent(100.0), Val::Percent(100.0))
         .row()
         .wrap()
         .justify_start()
@@ -94,7 +104,9 @@ pub fn spawn(
 
     #[cfg(not(target_family = "wasm"))]
     {
-        let bottom = Container::height(Val::Auto).row().justify_between();
+        let bottom = Container::width(Val::Percent(100.0))
+            .row()
+            .justify_between();
         let enter = SimpleText::small(
             &format!("(ENTER) - Switch to {} levels", kind.toggle().to_str()),
             font,

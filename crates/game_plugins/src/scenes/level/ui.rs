@@ -16,20 +16,26 @@ pub fn spawn(mut commands: Commands, level: Res<LevelResource>, fonts: Res<Fonts
         "New Level!".to_string()
     };
 
-    let root = Root::new();
-    let top = Container::height(Val::Auto).row().justify_between();
-    let bottom = Container::height(Val::Auto).row().justify_between();
+    let root = Root::new()
+        .padding(UiRect::all(Val::Px(20.0)))
+        .justify_between();
+    let top = Container::width(Val::Percent(100.0))
+        .row()
+        .justify_between();
+    let bottom = Container::width(Val::Percent(100.0))
+        .row()
+        .justify_between();
 
-    let top_left = Container::width(Val::Percent(50.0))
+    let top_left = Container::size(Val::Percent(50.0), Val::Percent(100.0))
         .justify_start()
         .items_start();
-    let top_right = Container::width(Val::Percent(50.0))
+    let top_right = Container::size(Val::Percent(50.0), Val::Percent(100.0))
         .justify_start()
         .items_end();
-    let bottom_left = Container::width(Val::Percent(50.0))
+    let bottom_left = Container::size(Val::Percent(50.0), Val::Percent(100.0))
         .justify_end()
         .items_start();
-    let bottom_right = Container::width(Val::Percent(50.0))
+    let bottom_right = Container::size(Val::Percent(50.0), Val::Percent(100.0))
         .justify_end()
         .items_end();
 

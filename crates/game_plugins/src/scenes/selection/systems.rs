@@ -25,59 +25,43 @@ pub fn handle_input(
     mut input_event_reader: EventReader<InputEvent>,
     mut save_file: ResMut<SaveFile>,
     game_state: Res<State<GameState>>,
-    mut selected_button: Local<Option<usize>>,
+    mut selected_button: ResMut<super::plugin::SelectedButton>,
 ) {
     let is_stock = game_state.get_selection_kind().is_stock();
-
-    if selected_button.is_none() {
-        if is_stock {
-            *selected_button = Some(save_file.unlocked_levels() - 1);
-        } else {
-            *selected_button = Some(0);
-        }
-    }
 
     for input_event in input_event_reader.read() {
         match **input_event {
             Input::Direction(direction) => {
-                if let Some(id) = *selected_button {
-                    let index = match direction {
-                        Direction::Up => id.saturating_sub(4),
-                        Direction::Down => id + 4,
-                        Direction::Left => id.saturating_sub(1),
-                        Direction::Right => id + 1,
-                    };
+                let index = match direction {
+                    Direction::Up => selected_button.0.saturating_sub(4),
+                    Direction::Down => selected_button.0 + 4,
+                    Direction::Left => selected_button.0.saturating_sub(1),
+                    Direction::Right => selected_button.0 + 1,
+                };
 
-                    let max_value = if is_stock {
-                        save_file.unlocked_levels()
+                let max_value = if is_stock {
+                    save_file.unlocked_levels()
+                } else {
+                    save_file.number_custom_levels()
+                };
+
+                selected_button.0 = if index < max_value {
+                    index
+                } else {
+                    max_value - 1
+                };
+
+                for (button, mut color) in &mut query {
+                    if button.id == selected_button.0 {
+                        *color = crate::theme::PRIMARY_DARK.into();
                     } else {
-                        save_file.number_custom_levels()
-                    };
-
-                    *selected_button = Some(if index < max_value {
-                        index
-                    } else {
-                        max_value - 1
-                    });
-
-                    break;
-                }
-
-                if let Some(id) = *selected_button {
-                    for (button, mut color) in &mut query {
-                        if button.id == id {
-                            *color = crate::theme::PRIMARY_DARK.into();
-                        } else {
-                            *color = crate::theme::TRANSPARENT.into();
-                        }
+                        *color = crate::theme::TRANSPARENT.into();
                     }
                 }
             }
             Input::Action(Action::Select) => {
                 for (button, _) in &mut query {
-                    if let Some(id) = *selected_button
-                        && button.id == id
-                    {
+                    if button.id == selected_button.0 {
                         let kind = if is_stock {
                             LevelKind::Stock(button.id)
                         } else {
@@ -108,9 +92,7 @@ pub fn handle_input(
 
             Input::Action(Action::Delete) => {
                 for (button, _) in &mut query {
-                    if let Some(id) = *selected_button
-                        && button.id == id
-                    {
+                    if button.id == selected_button.0 {
                         let payload = button
                             .payload
                             .clone()

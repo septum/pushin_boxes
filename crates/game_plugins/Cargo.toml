@@ -6,7 +6,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-bevy_ui_bits = "0.10"
+bevy_ui_bits = "0.11"
 game_core = { path = "../game_core" }
 ron = "0.10"
 serde = { workspace = true }

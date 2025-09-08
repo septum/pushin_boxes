@@ -8,9 +8,9 @@ pub const LEVEL_NAME_ID: usize = 1;
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();
 
-    let root = Root::default();
+    let root = Root::new();
     let center = Container::size(Val::Px(600.0), Val::Px(300.0)).justify_between();
-    let level_name = Container::size(Val::Auto, Val::Auto);
+    let level_name = Container::new();
 
     let title = SimpleText::large("Level Passed!", font).color(crate::theme::PRIMARY.into());
     let level_name_title = SimpleText::medium("Give this level a name:", font);

@@ -14,13 +14,13 @@ use super::{
 };
 
 #[derive(Resource)]
-pub struct SelectedButton(pub Option<usize>);
+pub(super) struct SelectedButton(pub usize);
 
 pub struct Plugin;
 
 impl BevyPlugin for Plugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(SelectedButton(Some(ui::PLAY_ID)))
+        app.insert_resource(SelectedButton(ui::PLAY_ID))
             .add_systems(
                 OnEnter(GameState::Title),
                 (

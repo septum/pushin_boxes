@@ -10,7 +10,8 @@ const BLINK_ROW: usize = 4;
 const SLEEP_ROW: usize = 5;
 const FRONT_ROW: usize = 0;
 const BLINK_ROW_LAST_FRAME_INDEX: usize = 19;
-const WIN_CHARACTER_TRANSFORM: Transform = Transform::from_translation(Vec3::new(222.0, 12.0, 1.0));
+const WIN_CHARACTER_TRANSFORM: Transform =
+    Transform::from_translation(Vec3::new(222.0, -16.0, 1.0));
 
 #[derive(Default, Resource)]
 pub struct CharacterAnimation {
@@ -41,12 +42,12 @@ impl CharacterAnimation {
 
         #[cfg(not(target_family = "wasm"))]
         {
-            transform = Transform::from_translation(Vec3::new(0.0, 74.0, 1.0));
+            transform = Transform::from_translation(Vec3::new(0.0, 54.0, 1.0));
         }
 
         #[cfg(target_family = "wasm")]
         {
-            transform = Transform::from_translation(Vec3::new(0.0, 22.0, 1.0));
+            transform = Transform::from_translation(Vec3::new(0.0, 2.0, 1.0));
         }
 
         commands.insert_resource(character_animation);

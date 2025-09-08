@@ -6,9 +6,11 @@ use crate::assets::prelude::*;
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>, images: Res<Images>) {
     let font = fonts.primary();
 
-    let root = Root::new();
-    let top = Container::size(Val::Auto, Val::Auto);
-    let bottom = Container::size(Val::Auto, Val::Auto);
+    let root = Root::new()
+        .padding(UiRect::all(Val::Px(20.0)))
+        .justify_between();
+    let top = Container::new();
+    let bottom = Container::new();
 
     let how_to_play = SimpleText::medium("How to Play", font).color(crate::theme::PRIMARY.into());
     let press_button = SimpleText::small("Press ESC to return to the title screen", font)

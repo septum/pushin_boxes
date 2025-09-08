@@ -6,7 +6,7 @@ use crate::assets::prelude::*;
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();
 
-    let root = Root::default();
+    let root = Root::new();
     let center = Container::height(Val::Px(140.0)).justify_between();
 
     let reached_limit = SimpleText::medium("You reached the limit\nfor the custom levels", font)

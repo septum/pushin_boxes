@@ -8,10 +8,12 @@ pub const VOLUME_ID: usize = 1;
 pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
     let font = fonts.primary();
 
-    let root = Root::new();
-    let top = Container::size(Val::Auto, Val::Auto);
-    let center = Container::size(Val::Auto, Val::Auto);
-    let bottom = Container::size(Val::Auto, Val::Auto);
+    let root = Root::new()
+        .padding(UiRect::all(Val::Px(20.0)))
+        .justify_between();
+    let top = Container::new();
+    let center = Container::new();
+    let bottom = Container::new();
 
     let how_to_play = SimpleText::medium("Options", font).color(crate::theme::PRIMARY.into());
     let volume = DynamicTextBuilder::medium("Volume: ", font)

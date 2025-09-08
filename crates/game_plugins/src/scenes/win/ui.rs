@@ -18,7 +18,7 @@ pub fn spawn(
         " \n ".to_string()
     };
 
-    let root = Root::default();
+    let root = Root::new();
     let center = Container::size(Val::Px(540.0), Val::Px(200.0))
         .margin(UiRect::bottom(Val::Px(100.0)))
         .justify_between();
