@@ -2157,14 +2157,14 @@ dependencies = [
 
 [[package]]
 name = "game_core"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "game_plugins"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
@@ -3409,7 +3409,7 @@ checksum = "afbdc74edc00b6f6a218ca6a5364d6226a259d4b8ea1af4a0ea063f27e179f4d"
 
 [[package]]
 name = "pushin_boxes"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "bevy",
  "game_plugins",
