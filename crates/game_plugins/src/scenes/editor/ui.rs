@@ -39,8 +39,8 @@ pub fn spawn(mut commands: Commands, fonts: Res<Fonts>) {
         "A valid level has at least one box and a zone per box",
         font,
     );
-    let toggle = SimpleText::small("(ENTER) - Toggle EntityComponent", font)
-        .color(crate::theme::PRIMARY.into());
+    let toggle =
+        SimpleText::small("(ENTER) - Toggle Entity", font).color(crate::theme::PRIMARY.into());
     let playtest =
         SimpleText::small("(SPACE) - Playtest Level", font).color(crate::theme::PRIMARY.into());
 

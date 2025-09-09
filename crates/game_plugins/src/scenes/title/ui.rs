@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, text::LineHeight};
 use bevy_ui_bits::{Container, EmbossedText, Root, SimpleText, UiButton, UiText};
 
 use crate::assets::prelude::*;
@@ -21,11 +21,11 @@ pub fn spawn(
     let center: Container;
     #[cfg(not(target_family = "wasm"))]
     {
-        center = Container::height(Val::Px(720.0)).justify_between();
+        center = Container::height(Val::Px(700.0)).justify_between();
     }
     #[cfg(target_family = "wasm")]
     {
-        center = Container::height(Val::Px(620.0)).justify_between();
+        center = Container::height(Val::Px(600.0)).justify_between();
     }
     let top = Container::new();
     let bottom: Container;
@@ -40,7 +40,9 @@ pub fn spawn(
     let actions = Container::new();
     let footer = Container::new();
 
-    let title = SimpleText::extra_large("Pushin'\nBoxes", font).color(crate::theme::PRIMARY.into());
+    let title = SimpleText::extra_large("Pushin'\nBoxes", font)
+        .color(crate::theme::PRIMARY.into())
+        .line_height(LineHeight::RelativeToFont(1.0));
     let notice = SimpleText::small("By @septum\nand @weymanator", font);
 
     let mut play = UiButton::rectangle().id(PLAY_ID);
